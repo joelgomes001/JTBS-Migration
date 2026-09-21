@@ -1,0 +1,13 @@
+- [x] Implement RecoveryManager reset methods (Fix 2/7)
+- [x] Implement PlayerHealthMonitor resets and callbacks cancellation (Fix 2/7)
+- [x] Implement DecoderPlaybackService session IDs, generation tracking, instance IDs, resets, and broadcasts (Fix 1/2/3/8/10)
+- [x] Implement MainActivity generation/session checks, direct first frame listener, layout clears, video validation, and source debounce (Fix 1/3/4/5/6/9/10)
+- [x] Debug and Fix `CustomLoadControl` StackOverflowError by overriding 3-argument `onTracksSelected`
+- [x] Adjust stream switching layout: show offline image instead of connecting splash on subsequent stream switches (connecting splash on first load only)
+- [x] Implement token-based HLS, DASH, and direct MP4 detection across website and decoder
+- [x] Implement IPTV playback synchronization: automatically calculate elapsed play offsets and seek player (website & decoder app) so it acts like a live TV stream
+- [x] Fix static file sync: implement automatic media duration detection inside admin dashboard for direct MP4 and HLS files so duration is saved and parsed correctly in Firestore
+- [x] Enable playMode loop/repeat configuration values to be saved in Firestore for non-YouTube streams
+- [x] Create an independent Puppeteer test suite in `puppeteer/` directory to verify login, go live duration detection, and viewer playback seeking sync on live production URL
+- [x] Run local web server on localhost:5000 for verification
+- [x] Deploy hosting rules and website updates to live Firebase hosting

@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "public": false,
+  "routes": [
+    { "src": "/admin", "dest": "/jtbs-live/public/admin.html" },
+    { "src": "/admin/(.*)", "dest": "/jtbs-live/public/admin.html" },
+    { "src": "/(.*)", "dest": "/jtbs-live/public/$1" }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "jtbs-migration",
+  "version": "1.0.0",
+  "description": "JTBS Classic Live Television Broadcasting Platform & Android Decoder Fleet Management",
+  "main": "server.js",
+  "scripts": {
+    "setup": "node setup.js",
+    "start": "node server.js",
+    "serve": "node server.js",
+    "dev": "node server.js",
+    "deploy": "cd jtbs-live && firebase deploy",
+    "deploy:hosting": "cd jtbs-live && firebase deploy --only hosting",
+    "deploy:firestore": "cd jtbs-live && firebase deploy --only firestore",
+    "deploy:functions": "cd jtbs-live && firebase deploy --only functions",
+    "deploy:worker": "cd jtbs-live/cloudflare-worker && npx wrangler deploy",
+    "docker:build": "docker build -t jtbs-live .",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "seed-admin": "cd jtbs-live && node run-once-superadmin.js"
+  },
+  "keywords": [
+    "iptv",
+    "broadcasting",
+    "live-streaming",
+    "hls",
+    "firebase",
+    "android-tv",
+    "exoplayer"
+  ],
+  "author": "Joel Sohan Gomes <helpdesk.jtbs@gmail.com>",
+  "license": "UNLICENSED"
+}

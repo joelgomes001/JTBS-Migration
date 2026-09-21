@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "jtbs-classic"
+  },
+  "targets": {
+    "jtbs-classic": {
+      "hosting": {
+        "jtbs-classic": ["jtbs-classic"]
+      }
+    }
+  }
+}

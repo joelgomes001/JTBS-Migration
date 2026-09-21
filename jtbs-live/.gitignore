@@ -1,0 +1,49 @@
+# Dependency directories
+node_modules/
+**/node_modules/
+package-lock.json
+
+# Firebase service account keys and secrets
+serviceAccountKey.json
+.serviceAccountKey.json
+*.pem
+*.key
+.env
+.env.*
+.firebase/
+**/.firebase/
+
+# Android build outputs and local properties
+.gradle/
+**/.gradle/
+build/
+**/build/
+local.properties
+*.keystore
+!debug.keystore
+**/.cxx/
+**/intermediates/
+logcat_*.txt
+**/logcat_*.txt
+
+# Cloudflare Wrangler build cache
+.wrangler/
+**/.wrangler/
+
+# Temporary and extraction files
+temp_extract/
+**/temp_extract/
+temp_extract_pkg.xml
+packages*.xml
+old version running.apk
+_
+
+# Antigravity & IDE metadata
+.idea/
+**/.idea/
+.vscode/
+**/.vscode/
+*.swp
+*.tmp
+Thumbs.db
+.DS_Store

@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>JTBS Classic</title>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#000000"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--gold:#FFD700;}
+html,body{width:100vw;height:100vh;overflow:hidden;background:#000;}
+
+/* ── PLAYER ── */
+#player-wrap{position:fixed;inset:0;background:#000;}
+#video-el{width:100%;height:100%;object-fit:contain;display:block;background:#000;pointer-events:none;}
+#video-el.hidden{display:none;}
+#iframe-el{position:absolute;inset:0;width:100%;height:100%;border:none;display:none;}
+#iframe-el.active{display:block;}
+
+/* ── OFF AIR ── */
+#offair-screen{
+  position:absolute;inset:0;
+  background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;z-index:6;opacity:0;pointer-events:none;transition:opacity .6s;
+}
+#offair-screen.visible{opacity:1;pointer-events:auto;}
+#offair-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.3;}
+.offair-content{position:relative;z-index:2;text-align:center;}
+.offair-icon{font-size:48px;margin-bottom:12px;opacity:.7;}
+.offair-title{font-size:clamp(22px,3.5vw,38px);font-weight:800;color:var(--gold);letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 20px rgba(255,215,0,.4);}
+.offair-sub{font-size:clamp(12px,1.4vw,15px);color:rgba(255,255,255,.5);letter-spacing:1px;margin-top:8px;}
+
+/* ── TOP-LEFT: logo + channel name ── */
+#wm-yours{
+  position:fixed;top:18px;left:22px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  z-index:20;pointer-events:none;
+  animation:fadein 2s ease forwards;
+}
+#channel-logo{
+  width:clamp(50px,7vw,80px);height:clamp(50px,7vw,80px);
+  object-fit:contain;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,0.8));
+}
+.channel-name{
+  font-size:clamp(13px,2vw,22px);font-weight:800;
+  color:var(--gold);letter-spacing:3px;text-transform:uppercase;
+  text-shadow:0 0 14px rgba(255,180,0,.7),2px 2px 4px rgba(0,0,0,.9);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+
+@media (orientation: portrait) {
+  body.live-state #wm-yours {
+    top: calc(50vh - 28.125vw + 12px) !important;
+    top: calc(50svh - 28.125vw + 12px) !important;
+    left: 12px !important;
+  }
+  body.live-state #live-badge {
+    top: calc(50vh - 28.125vw + 12px) !important;
+    top: calc(50svh - 28.125vw + 12px) !important;
+    right: 12px !important;
+  }
+}
+
+/* ── TOP-RIGHT: live badge ── */
+#live-badge{
+  position:fixed;top:22px;right:22px;
+  display:none;align-items:center;gap:7px;
+  background:rgba(255,30,30,.15);border:1px solid rgba(255,50,50,.45);
+  border-radius:20px;padding:6px 14px;z-index:20;pointer-events:none;
+}
+#live-badge.show{display:flex;}
+#live-dot{width:9px;height:9px;background:#ff3333;border-radius:50%;box-shadow:0 0 8px #ff0000;animation:pulse 1.3s infinite;}
+#live-label{font-size:12px;font-weight:700;color:#fff;letter-spacing:2px;font-family:'Courier New',monospace;}
+
+/* ── BOTTOM-RIGHT: date + clock ── */
+#clock-wrap{
+  position:fixed;bottom:18px;right:76px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:1px;
+  z-index:20;pointer-events:none;
+}
+#clock-date{font-size:clamp(9px,1.1vw,12px);color:rgba(255,255,255,.5);letter-spacing:1px;font-family:'Courier New',monospace;}
+#clock-time{font-size:clamp(11px,1.4vw,16px);color:rgba(255,255,255,.65);letter-spacing:1.5px;font-family:'Courier New',monospace;}
+
+/* ── UNMUTE HINT REMOVED ── */
+
+/* ── CORNER FRAMES (live only) ── */
+#live-overlay{position:absolute;inset:0;pointer-events:none;z-index:7;}
+.cg{position:absolute;width:32px;height:32px;opacity:.3;}
+.cg.tl{top:10px;left:10px;border-top:2px solid var(--gold);border-left:2px solid var(--gold);}
+.cg.tr{top:10px;right:10px;border-top:2px solid var(--gold);border-right:2px solid var(--gold);}
+.cg.bl{bottom:10px;left:10px;border-bottom:2px solid var(--gold);border-left:2px solid var(--gold);}
+.cg.br{bottom:10px;right:10px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);}
+
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.6);opacity:.5;}}
+@keyframes fadein{from{opacity:0;}to{opacity:1;}}
+
+/* Announcement Banner Styles */
+#offair-announcement {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  box-sizing: border-box;
+  animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+#offair-announcement.show {
+  display: flex;
+}
+#offair-announcement.gold {
+  background: rgba(255, 215, 0, 0.12);
+  border-color: rgba(255, 215, 0, 0.35);
+  color: #ffd700;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+}
+#offair-announcement.red {
+  background: rgba(255, 50, 50, 0.12);
+  border-color: rgba(255, 50, 50, 0.35);
+  color: #ff6666;
+  box-shadow: 0 4px 20px rgba(255, 50, 50, 0.15);
+}
+#offair-announcement.blue {
+  background: rgba(30, 144, 255, 0.12);
+  border-color: rgba(30, 144, 255, 0.35);
+  color: #33a3ff;
+  box-shadow: 0 4px 20px rgba(30, 144, 255, 0.15);
+}
+#offair-announcement.green {
+  background: rgba(50, 205, 50, 0.12);
+  border-color: rgba(50, 205, 50, 0.35);
+  color: #4ee44e;
+  box-shadow: 0 4px 20px rgba(50, 205, 50, 0.15);
+}
+#offair-announcement.purple {
+  background: rgba(186, 85, 211, 0.12);
+  border-color: rgba(186, 85, 211, 0.35);
+  color: #c97deb;
+  box-shadow: 0 4px 20px rgba(186, 85, 211, 0.15);
+}
+.announcement-icon {
+  font-size: 20px;
+  animation: announcePulse 1.5s infinite alternate;
+}
+.announcement-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+@keyframes slideDown {
+  from { transform: translate(-50%, -20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+@keyframes announcePulse {
+  from { transform: scale(1); filter: drop-shadow(0 0 2px currentColor); }
+  to { transform: scale(1.15); filter: drop-shadow(0 0 8px currentColor); }
+}
+
+/* ── FULLSCREEN BUTTON ── */
+#fullscreen-btn {
+  position: fixed;
+  bottom: 18px;
+  right: 22px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: background 0.3s, border-color 0.3s, transform 0.2s;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  pointer-events: auto;
+}
+#fullscreen-btn:hover {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: var(--gold);
+  transform: scale(1.05);
+}
+#fullscreen-btn:active {
+  transform: scale(0.95);
+}
+
+/* App Download Popup styles */
+#app-download-popup {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 320px;
+  background: rgba(19, 19, 26, 0.95);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #fff;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateY(150px);
+  opacity: 0;
+  pointer-events: none;
+}
+#app-download-popup.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.app-download-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+.app-download-close:hover {
+  color: #fff;
+}
+.app-download-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.app-download-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.app-download-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #b8860b, #ffd700, #b8860b);
+  color: #000;
+  text-align: center;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 13px;
+  transition: opacity 0.2s;
+}
+.app-download-btn:hover {
+  opacity: 0.9;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP-LEFT WATERMARK -->
+<div id="wm-yours">
+  <img id="channel-logo" src="data:image/png;base64,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" alt="JTBS Classic" id="channel-logo"/>
+  <div class="channel-name">JTBS Classic</div>
+</div>
+
+<!-- TOP-RIGHT LIVE BADGE -->
+<div id="live-badge"><div id="live-dot"></div><div id="live-label">LIVE</div></div>
+
+<!-- BOTTOM-RIGHT CLOCK -->
+<div id="clock-wrap">
+  <div id="clock-date"></div>
+  <div id="clock-time"></div>
+</div>
+
+<button id="fullscreen-btn" title="Toggle Fullscreen">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+  </svg>
+</button>
+
+<!-- APP DOWNLOAD POPUP -->
+<div id="app-download-popup">
+  <button class="app-download-close" onclick="closeAppDownloadPopup()">×</button>
+  <div class="app-download-title">Get the Android App!</div>
+  <div class="app-download-desc">Enjoy high-quality, uninterrupted stream direct on your Android device.</div>
+  <a id="app-download-link" href="#" class="app-download-btn" target="_blank">Download App</a>
+</div>
+
+<!-- PLAYER -->
+<div id="player-wrap">
+  <video id="video-el" autoplay playsinline></video>
+  <div id="iframe-container" style="position:absolute; inset:0; display:none; width:100%; height:100%;">
+    <div id="yt-placeholder"></div>
+    <iframe id="iframe-el" style="width:100%; height:100%; border:none; display:none;" allowfullscreen allow="autoplay; fullscreen; encrypted-media" referrerpolicy="no-referrer"></iframe>
+  </div>
+  <div id="iframe-overlay" style="position:absolute; inset:0; z-index:15; display:none; background:transparent;"></div>
+
+  <!-- OFF AIR -->
+  <div id="offair-screen">
+    <div id="offair-bg"></div>
+    <div id="offair-announcement">
+      <span class="announcement-icon">📢</span>
+      <span class="announcement-text" id="announcement-text-el"></span>
+    </div>
+    <div class="offair-content">
+      <div class="offair-icon">📡</div>
+      <div class="offair-title">Off Air</div>
+      <div class="offair-sub" id="offair-sub">We'll be back soon — stay tuned</div>
+    </div>
+  </div>
+
+  <!-- Corner gold frames (live only) -->
+  <div id="live-overlay">
+    <div class="cg tl"></div><div class="cg tr"></div>
+    <div class="cg bl"></div><div class="cg br"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyAA4izkWkMyHdrJ56HNoQcVBX_hJO8EH3s",
+  authDomain:"jtbs-classic.firebaseapp.com",
+  projectId:"jtbs-classic",
+  storageBucket:"jtbs-classic.firebasestorage.app",
+  messagingSenderId:"216123186659",
+  appId:"1:216123186659:web:f1dc500b563b3bb3bf94d6"
+};
+firebase.initializeApp(FIREBASE_CONFIG);
+const db=firebase.firestore();
+const $=id=>document.getElementById(id);
+
+const urlParams = new URLSearchParams(window.location.search);
+const isPreview = urlParams.get('preview') === 'true';
+
+// ── YOUTUBE API LOAD ─────────────────────────────────────────
+let ytAPIReady = false;
+let ytPlayer = null;
+let ytInitQueue = null;
+
+function extractYTPlaylistId(url) {
+  if (!url) return null;
+  const m = url.match(/[?&]list=([A-Za-z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+function extractYTId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+if (!window.YT) {
+  var tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+window.onYouTubeIframeAPIReady = function() {
+  ytAPIReady = true;
+  if (ytInitQueue) {
+    playYouTube(ytInitQueue.videoId, ytInitQueue.playlistId, ytInitQueue.startSeconds);
+    ytInitQueue = null;
+  }
+};
+
+function initYouTubePlayer(videoId, playlistId, startSeconds) {
+  if (window.YT && window.YT.Player) {
+    playYouTube(videoId, playlistId, startSeconds);
+  } else {
+    ytInitQueue = { videoId, playlistId, startSeconds };
+  }
+}
+
+// ── CLOCK ────────────────────────────────────────────────────
+function updateClock(){
+  const now=new Date();
+  $('clock-date').textContent=now.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  $('clock-time').textContent=now.toLocaleTimeString('en-IN',{hour12:false});
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// ── PLAYER ───────────────────────────────────────────────────
+let state=null,hls=null,streamData={},configData={},cfgLoaded=false,stLoaded=false;
+window.isUnmuted = true;
+let currentPlayingUrl = null;
+let currentPlayingType = null;
+let currentPlaylistVideos = '';
+
+function detectType(url){
+  if(!url)return'';
+  const u=url.toLowerCase();
+  if(u.includes('youtube.com')||u.includes('youtu.be'))return'youtube';
+  if(u.includes('facebook.com')||u.includes('fb.watch'))return'facebook';
+  if(u.includes('.m3u8'))return'hls';
+  return'iframe';
+}
+
+function stopPlayer(){
+  currentPlayingUrl = null;
+  currentPlayingType = null;
+  currentPlaylistVideos = '';
+  if(hls){hls.destroy();hls=null;}
+  if(ytPlayer){
+    try{ytPlayer.destroy();}catch(e){}
+    ytPlayer=null;
+  }
+  
+  // Recreate the placeholder div
+  const container = $('iframe-container');
+  const oldPlaceholder = $('yt-placeholder');
+  if (oldPlaceholder) {
+    container.removeChild(oldPlaceholder);
+  }
+  const newPlaceholder = document.createElement('div');
+  newPlaceholder.id = 'yt-placeholder';
+  container.insertBefore(newPlaceholder, $('iframe-el'));
+
+  $('iframe-overlay').style.display = 'none';
+  $('iframe-el').style.display = 'none';
+  $('iframe-el').src = 'about:blank';
+  container.style.display = 'none';
+  $('video-el').pause();$('video-el').src='';
+  $('video-el').classList.remove('hidden');
+}
+
+function playYouTube(videoId, playlistId, startSeconds) {
+  $('iframe-container').style.display = 'block';
+  $('iframe-overlay').style.display = 'block';
+  
+  const playerVars = {
+    autoplay: 1,
+    mute: 0,
+    controls: 0,
+    disablekb: 1,
+    fs: 0,
+    modestbranding: 1,
+    rel: 0,
+    iv_load_policy: 3,
+    origin: window.location.origin
+  };
+
+  const hasCustomPlaylist = streamData.selectedVideos && streamData.selectedVideos.length > 0 && streamData.videoDurations && streamData.videoDurations.length > 0;
+  let customVideoId = videoId;
+  let customOffsetSeconds = 0;
+  let customPlaylistArray = [];
+
+  if (hasCustomPlaylist) {
+    const updatedAtMs = streamData.updatedAt ? (streamData.updatedAt.toMillis ? streamData.updatedAt.toMillis() : new Date(streamData.updatedAt).getTime()) : Date.now();
+    const elapsed = Math.max(0, (Date.now() - updatedAtMs) / 1000);
+    const mode = streamData.playMode || 'offair';
+    const totalD = streamData.videoDurations.reduce((a, b) => a + b, 0);
+
+    if (mode === 'offair' && elapsed >= totalD) {
+      setTimeout(() => { showOffAir(); }, 100);
+      return;
+    }
+
+    if (mode === 'repeat' && elapsed >= totalD) {
+      triggerRepeatTransition();
+      return;
+    }
+
+    const loopElapsed = mode === 'loop' ? (elapsed % totalD) : elapsed;
+    let accumulatedTime = 0;
+    let currentIndex = 0;
+    const durations = streamData.videoDurations;
+    const videos = streamData.selectedVideos;
+
+    for (let i = 0; i < durations.length; i++) {
+      const d = durations[i];
+      if (loopElapsed < accumulatedTime + d) {
+        currentIndex = i;
+        customOffsetSeconds = Math.floor(loopElapsed - accumulatedTime);
+        break;
+      }
+      accumulatedTime += d;
+    }
+
+    customPlaylistArray = videos.slice(currentIndex).concat(videos.slice(0, currentIndex));
+    customVideoId = customPlaylistArray[0];
+  }
+
+  const options = {
+    height: '100%',
+    width: '100%',
+    playerVars: playerVars,
+    events: {
+      onReady: (event) => {
+        event.target.playVideo();
+        if (window.isUnmuted) {
+          event.target.unMute();
+          event.target.setVolume(100);
+          
+          setTimeout(() => {
+            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+              const state = ytPlayer.getPlayerState();
+              if (state !== 1 && state !== 3) {
+                console.log("YouTube unmuted autoplay blocked, falling back to muted play");
+                window.isUnmuted = false;
+                ytPlayer.mute();
+                ytPlayer.playVideo();
+              }
+            }
+          }, 2000);
+        }
+      },
+      onStateChange: (event) => {
+        if (event.data === YT.PlayerState.PLAYING) {
+          if (window.isUnmuted) {
+            if (typeof event.target.isMuted === 'function' && event.target.isMuted()) {
+              event.target.unMute();
+              event.target.setVolume(100);
+            }
+          } else {
+            if (typeof event.target.isMuted === 'function' && !event.target.isMuted()) {
+              console.log("YouTube player unmuted by user action!");
+              window.isUnmuted = true;
+            }
+          }
+        } else if (event.data === YT.PlayerState.CUED) {
+          console.log("YouTube player cued. Forcing play...");
+          event.target.playVideo();
+        }
+
+        if (event.data === YT.PlayerState.ENDED) {
+          const mode = streamData.playMode || 'offair';
+          if (mode === 'live') {
+            console.log("YouTube live stream ended. Setting stream state to offline.");
+            db.doc('streamState/main').update({
+              isLive: false,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(err => console.error("Failed to set live stream offline:", err));
+            return;
+          }
+          if (hasCustomPlaylist) {
+            const currentPlaylist = typeof event.target.getPlaylist === 'function' ? event.target.getPlaylist() : null;
+            const currentIndex = typeof event.target.getPlaylistIndex === 'function' ? event.target.getPlaylistIndex() : -1;
+            
+            if (currentPlaylist && currentIndex !== -1 && currentIndex === currentPlaylist.length - 1) {
+              if (mode === 'repeat') {
+                triggerRepeatTransition();
+              } else if (mode === 'loop') {
+                console.log("Custom playlist ended, looping selected videos...");
+                event.target.loadPlaylist(streamData.selectedVideos, 0, 0);
+              } else {
+                showOffAir();
+              }
+            }
+          } else if (playlistId) {
+            if (mode === 'repeat') {
+              triggerRepeatTransition();
+            } else if (mode === 'loop') {
+              event.target.playVideoAt(0);
+            } else {
+              showOffAir();
+            }
+          } else {
+            if (mode === 'loop' || mode === 'repeat') {
+              if (mode === 'repeat') {
+                triggerRepeatTransition();
+              } else {
+                event.target.seekTo(0);
+                event.target.playVideo();
+              }
+            } else {
+              showOffAir();
+            }
+          }
+        }
+      }
+    }
+  };
+
+  if (hasCustomPlaylist) {
+    options.videoId = customVideoId;
+    playerVars.playlist = customPlaylistArray.join(',');
+    playerVars.start = customOffsetSeconds;
+    const mode = streamData.playMode || 'offair';
+    if (mode === 'loop') {
+      playerVars.loop = 1;
+    }
+  } else {
+    if (playlistId) {
+      options.videoId = 'videoseries';
+      playerVars.listType = 'playlist';
+      playerVars.list = playlistId;
+      const mode = streamData.playMode || 'offair';
+      if (mode === 'repeat' || mode === 'loop') {
+        playerVars.loop = 1;
+        playerVars.playlist = playlistId;
+      }
+    } else if (videoId) {
+      options.videoId = videoId;
+      playerVars.start = startSeconds || 0;
+      const mode = streamData.playMode || 'offair';
+      if (mode === 'loop' || mode === 'repeat') {
+        playerVars.loop = 1;
+        playerVars.playlist = videoId;
+      }
+    }
+  }
+
+  ytPlayer = new YT.Player('yt-placeholder', options);
+}
+
+
+
+function startPlayer(url,typeHint,startSeconds){
+  if(!url)return;
+  const type=typeHint||detectType(url);
+  const playlistVideosStr = streamData.selectedVideos ? JSON.stringify(streamData.selectedVideos) : '';
+  
+  if (url === currentPlayingUrl && type === currentPlayingType && playlistVideosStr === currentPlaylistVideos) {
+    if (type === 'hls') {
+      const video = $('video-el');
+      if (video && video.paused) {
+        video.play().catch(()=>{});
+      }
+    } else if (type === 'youtube' && ytPlayer && typeof ytPlayer.playVideo === 'function') {
+      try {
+        if (ytPlayer.getPlayerState() !== 1) {
+          ytPlayer.playVideo();
+        }
+      } catch(e){}
+    }
+    return;
+  }
+  
+  // YouTube to YouTube transition reuse
+  if (type === 'youtube' && currentPlayingType === 'youtube' && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+    try {
+      const playlistId = extractYTPlaylistId(url);
+      const videoId = extractYTId(url);
+      const hasCustomPlaylist = streamData.selectedVideos && streamData.selectedVideos.length > 0 && streamData.videoDurations && streamData.videoDurations.length > 0;
+      
+      currentPlayingUrl = url;
+      currentPlaylistVideos = playlistVideosStr;
+      
+      if (hasCustomPlaylist) {
+        const updatedAtMs = streamData.updatedAt ? (streamData.updatedAt.toMillis ? streamData.updatedAt.toMillis() : new Date(streamData.updatedAt).getTime()) : Date.now();
+        const elapsed = Math.max(0, (Date.now() - updatedAtMs) / 1000);
+        const mode = streamData.playMode || 'offair';
+        const totalD = streamData.videoDurations.reduce((a, b) => a + b, 0);
+
+        if (mode === 'repeat' && elapsed >= totalD) {
+          triggerRepeatTransition();
+          return;
+        } else {
+          const loopElapsed = mode === 'loop' ? (elapsed % totalD) : elapsed;
+          if (mode === 'offair' && elapsed >= totalD) {
+            showOffAir();
+            return;
+          }
+
+          let accumulatedTime = 0;
+          let currentIndex = 0;
+          let offsetSeconds = 0;
+          const durations = streamData.videoDurations;
+          const videos = streamData.selectedVideos;
+
+          for (let i = 0; i < durations.length; i++) {
+            const d = durations[i];
+            if (loopElapsed < accumulatedTime + d) {
+              currentIndex = i;
+              offsetSeconds = Math.floor(loopElapsed - accumulatedTime);
+              break;
+            }
+            accumulatedTime += d;
+          }
+
+          const rotatedPlaylist = videos.slice(currentIndex).concat(videos.slice(0, currentIndex));
+          ytPlayer.loadPlaylist(rotatedPlaylist, 0, offsetSeconds);
+          if (mode === 'loop') {
+            ytPlayer.setLoop(true);
+          } else {
+            ytPlayer.setLoop(false);
+          }
+        }
+      } else if (playlistId) {
+        ytPlayer.loadPlaylist(playlistId, 0, startSeconds || 0);
+        const mode = streamData.playMode || 'offair';
+        if (mode === 'repeat') {
+          ytPlayer.setLoop(true);
+        }
+      } else if (videoId) {
+        ytPlayer.loadVideoById(videoId, startSeconds || 0);
+        const mode = streamData.playMode || 'offair';
+        if (mode === 'loop') {
+          ytPlayer.setLoop(true);
+        }
+      }
+      
+      if (window.isUnmuted) {
+        try {
+          ytPlayer.unMute();
+          ytPlayer.setVolume(100);
+        } catch (e) {}
+      } else {
+        try {
+          ytPlayer.mute();
+        } catch (e) {}
+      }
+      try {
+        ytPlayer.playVideo();
+      } catch (e) {}
+      
+      return; // Success! Return early.
+    } catch (e) {
+      console.warn("YouTube transition reuse failed, falling back to full recreation:", e);
+      // Fall through to full recreation
+    }
+  }
+
+  stopPlayer();
+  currentPlayingUrl = url;
+  currentPlayingType = type;
+  currentPlaylistVideos = playlistVideosStr;
+
+  if(type==='hls'){
+    $('video-el').classList.remove('hidden');$('iframe-container').style.display = 'none';
+    if(Hls.isSupported()){
+      hls=new Hls({lowLatencyMode:true,backBufferLength:30});
+      hls.loadSource(url);hls.attachMedia($('video-el'));
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+        const video = $('video-el');
+        video.muted = !window.isUnmuted;
+        video.play().catch((err)=>{
+          if (err.name === 'NotAllowedError') {
+            console.log("Unmuted autoplay blocked, falling back to muted HLS");
+            video.muted = true;
+            window.isUnmuted = false;
+            video.play().catch(()=>{});
+          }
+        });
+      });
+      hls.on(Hls.Events.ERROR,(e,d)=>{
+        if(d.fatal) {
+          console.warn("HLS fatal error. Stopping and restarting player in 5s...");
+          stopPlayer();
+          setTimeout(()=>startPlayer(url,type),5000);
+        }
+      });
+    } else if($('video-el').canPlayType('application/vnd.apple.mpegurl')){
+      const video = $('video-el');
+      video.src=url;
+      video.muted = !window.isUnmuted;
+      video.play().catch((err)=>{
+        if (err.name === 'NotAllowedError') {
+          console.log("Unmuted autoplay blocked, falling back to muted HLS native");
+          video.muted = true;
+          window.isUnmuted = false;
+          video.play().catch(()=>{});
+        }
+      });
+    }
+  } else if(type==='youtube'){
+    $('video-el').classList.add('hidden');
+    const hasCustomPlaylist = streamData.selectedVideos && streamData.selectedVideos.length > 0;
+    const playlistId = extractYTPlaylistId(url);
+    const videoId = extractYTId(url);
+    if (hasCustomPlaylist || playlistId || videoId) {
+      initYouTubePlayer(videoId, playlistId, startSeconds);
+    } else {
+      $('iframe-container').style.display = 'block';
+      $('iframe-el').style.display = 'block';
+      $('iframe-el').src=url;
+    }
+  } else if(type==='facebook'){
+    $('video-el').classList.add('hidden');
+    $('iframe-container').style.display = 'block';
+    $('iframe-overlay').style.display = 'block';
+    $('iframe-el').style.display = 'block';
+    $('iframe-el').src=`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true`;
+  } else {
+    $('video-el').classList.add('hidden');
+    $('iframe-container').style.display = 'block';
+    $('iframe-overlay').style.display = 'block';
+    $('iframe-el').style.display = 'block';
+    $('iframe-el').src=url;
+  }
+}
+
+function updateLiveBadge() {
+  const badge = $('live-badge');
+  const dot = $('live-dot');
+  const label = $('live-label');
+  if (!badge) return;
+
+  const isLive = state === 'live';
+  const isOffAir = state === 'offair';
+  const isPreviewMode = (typeof isPreview !== 'undefined' && isPreview);
+  const c = configData || {};
+
+  if (isLive || isPreviewMode) {
+    const badgeText = (c.liveBadgeText !== undefined && c.liveBadgeText !== null) ? String(c.liveBadgeText).trim() : 'LIVE';
+    if (badgeText !== '') {
+      if (label) label.textContent = badgeText;
+      if (dot) dot.style.display = 'block';
+      badge.style.display = 'flex';
+      badge.classList.add('show');
+    } else {
+      if (label) label.textContent = '';
+      if (dot) dot.style.display = 'none';
+      badge.style.display = 'none';
+      badge.classList.remove('show');
+    }
+  } else if (isOffAir) {
+    if (label) label.textContent = 'OFF AIR';
+    if (dot) dot.style.display = 'block';
+    badge.style.display = 'flex';
+    badge.classList.add('show');
+  } else {
+    badge.style.display = 'none';
+    badge.classList.remove('show');
+  }
+}
+
+function showOffAir(){
+  state='offair';stopPlayer();
+  const c=configData;
+  if(c.offlineImageUrl)$('offair-bg').style.backgroundImage=`url('${c.offlineImageUrl}')`;
+  $('offair-sub').textContent=c.offlineText||"We'll be back soon — stay tuned";
+  $('offair-screen').classList.add('visible');
+  updateLiveBadge();
+  if (typeof updateAnnouncementUI === 'function') updateAnnouncementUI();
+}
+
+function showLive(startSeconds){
+  state='live';
+  $('offair-screen').classList.remove('visible');
+  updateLiveBadge();
+  if (typeof updateAnnouncementUI === 'function') updateAnnouncementUI();
+  startPlayer(streamData.streamUrl,streamData.streamType,startSeconds);
+}
+
+window.logoDragging = false;
+window.badgeDragging = false;
+
+function applyBranding(c){
+  const name=c.channelName||'JTBS Classic';
+  document.title=name;
+  
+  // Handle App Download Popup
+  const isApp = navigator.userAgent.includes('JTBS-Android-App');
+  const hideAppDownload = localStorage.getItem('hideAppDownload') === 'true';
+  const popup = $('app-download-popup');
+  const downloadLink = $('app-download-link');
+  
+  if (c.appDownloadUrl && !isApp && !hideAppDownload && popup && downloadLink) {
+    downloadLink.href = c.appDownloadUrl;
+    setTimeout(() => {
+      if (configData.appDownloadUrl && localStorage.getItem('hideAppDownload') !== 'true') {
+        popup.classList.add('show');
+      }
+    }, 3000);
+  } else if (popup) {
+    popup.classList.remove('show');
+  }
+
+  
+  const wmTextEl = document.querySelector('.channel-name');
+  if (wmTextEl) {
+    if (c.watermarkText !== undefined && c.watermarkText !== "") {
+      wmTextEl.textContent = c.watermarkText;
+      wmTextEl.style.display = 'block';
+    } else {
+      wmTextEl.textContent = '';
+      wmTextEl.style.display = 'none';
+    }
+    const textSize = c.watermarkTextSize || 16;
+    wmTextEl.style.fontSize = textSize + 'px';
+  }
+  
+  const wm = $('wm-yours');
+  if (wm) {
+    if (c.logoTop !== undefined && c.logoLeft !== undefined) {
+      if (!window.logoDragging) {
+        wm.style.top = c.logoTop + '%';
+        wm.style.left = c.logoLeft + '%';
+        wm.style.transform = 'none';
+      }
+    } else {
+      if (!window.logoDragging) {
+        wm.style.top = '';
+        wm.style.left = '';
+        wm.style.transform = 'none';
+      }
+    }
+  }
+
+  const logo=document.getElementById('channel-logo');
+  if(logo) {
+    if(c.logoUrl && c.logoUrl.trim() !== "") {
+      logo.src=c.logoUrl;
+      logo.style.display = 'block';
+    } else {
+      logo.src='';
+      logo.style.display = 'none';
+    }
+    const size = c.logoSize || 60;
+    logo.style.width = size + 'px';
+    logo.style.height = size + 'px';
+  }
+
+  const badge = $('live-badge');
+  if (badge) {
+    updateLiveBadge();
+    
+    // Position handling
+    if (c.badgeTop !== undefined && c.badgeLeft !== undefined) {
+      if (!window.badgeDragging) {
+        badge.style.top = c.badgeTop + '%';
+        badge.style.left = c.badgeLeft + '%';
+        badge.style.transform = 'none';
+      }
+    } else {
+      if (!window.badgeDragging) {
+        badge.style.top = '';
+        badge.style.left = '';
+        badge.style.transform = 'none';
+      }
+    }
+    
+    // Size handling
+    const badgeSize = c.badgeSize || 12;
+    badge.style.fontSize = badgeSize + 'px';
+    const badgePadding = Math.round(badgeSize * 0.5) + 'px ' + Math.round(badgeSize * 1.1) + 'px';
+    badge.style.padding = badgePadding;
+    
+    const dot = $('live-dot');
+    if (dot) {
+      const dotSize = Math.round(badgeSize * 0.75);
+      dot.style.width = dotSize + 'px';
+      dot.style.height = dotSize + 'px';
+    }
+  }
+}
+
+let isTransitioning = false;
+function triggerRepeatTransition() {
+  if (isTransitioning) return;
+  isTransitioning = true;
+  console.log("Triggering repeat transition...");
+
+  const isFullPlaylistActive = streamData.selectedVideos && streamData.allVideos && 
+                               streamData.selectedVideos.length === streamData.allVideos.length;
+
+  if (!isFullPlaylistActive && streamData.allVideos && streamData.allVideos.length > 0) {
+    console.log("Transitioning to full playlist...");
+    db.doc('streamState/main').update({
+      selectedVideos: streamData.allVideos,
+      videoDurations: streamData.allDurations,
+      duration: streamData.allDurations.reduce((a, b) => a + b, 0),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      console.log("Firestore updated to full playlist.");
+      isTransitioning = false;
+    }).catch(err => {
+      console.error("Failed to update streamState to full playlist:", err);
+      isTransitioning = false;
+    });
+  } else {
+    console.log("Repeating playlist from beginning...");
+    db.doc('streamState/main').update({
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      console.log("Firestore updatedAt reset.");
+      isTransitioning = false;
+    }).catch(err => {
+      console.error("Failed to reset updatedAt:", err);
+      isTransitioning = false;
+    });
+  }
+}
+
+function tryRender(){
+  if(!cfgLoaded||!stLoaded)return;
+  applyBranding(configData);
+
+  let isLiveNow = streamData.isLive && streamData.streamUrl;
+  let startSeconds = 0;
+
+  if (isLiveNow && streamData.streamType === 'youtube') {
+    let elapsed = 0;
+    if (streamData.updatedAt) {
+      try {
+        const millis = streamData.updatedAt.toMillis ? streamData.updatedAt.toMillis() : new Date(streamData.updatedAt).getTime();
+        if (millis) {
+          elapsed = Math.max(0, (Date.now() - millis) / 1000);
+        }
+      } catch (err) {
+        console.warn("Error parsing updatedAt timestamp:", err);
+      }
+    }
+    const mode = streamData.playMode || 'offair';
+    
+    if (streamData.selectedVideos && streamData.selectedVideos.length > 0 && streamData.videoDurations && streamData.videoDurations.length > 0) {
+      const totalPlaylistDuration = streamData.videoDurations.reduce((a, b) => a + b, 0);
+      if (mode === 'offair') {
+        if (elapsed > totalPlaylistDuration) {
+          isLiveNow = false;
+        } else {
+          isLiveNow = true;
+          startSeconds = 0;
+        }
+      } else if (mode === 'repeat') {
+        if (elapsed >= totalPlaylistDuration) {
+          triggerRepeatTransition();
+          return;
+        } else {
+          isLiveNow = true;
+          startSeconds = 0;
+        }
+      } else {
+        isLiveNow = true;
+        startSeconds = 0;
+      }
+    } else {
+      const isPlaylist = /[?&]list=([A-Za-z0-9_-]+)/.test(streamData.streamUrl);
+      if (isPlaylist) {
+        isLiveNow = true;
+        startSeconds = 0;
+      } else {
+        if (streamData.duration) {
+          if (mode === 'loop') {
+            isLiveNow = true;
+            startSeconds = Math.floor(elapsed % streamData.duration);
+          } else {
+            if (elapsed > streamData.duration) {
+              isLiveNow = false;
+            } else {
+              startSeconds = Math.floor(elapsed);
+            }
+          }
+        } else {
+          isLiveNow = true;
+          startSeconds = 0;
+        }
+      }
+    }
+  }
+
+  if(isLiveNow){
+    document.body.classList.add('live-state');
+    $('wm-yours').style.display = 'flex';
+    showLive(startSeconds);
+  } else {
+    document.body.classList.remove('live-state');
+    if (configData.showLogoOffAir) {
+      $('wm-yours').style.display = 'flex';
+    } else {
+      $('wm-yours').style.display = 'none';
+    }
+    showOffAir();
+  }
+}
+
+// Global unmute handler
+function handleUnmute() {
+  window.isUnmuted = true;
+  const video = $('video-el');
+  if (video) {
+    video.muted = false;
+    video.volume = 1;
+    if (video.paused) {
+      video.play().catch(err => console.log("Play failed on unmute:", err));
+    }
+  }
+  if (ytPlayer && typeof ytPlayer.unMute === 'function') {
+    ytPlayer.unMute();
+    ytPlayer.setVolume(100);
+    try {
+      if (typeof ytPlayer.getPlayerState === 'function' && ytPlayer.getPlayerState() !== 1) {
+        ytPlayer.playVideo();
+      }
+    } catch(e) {}
+  }
+}
+document.body.addEventListener('click', handleUnmute);
+document.body.addEventListener('touchstart', handleUnmute);
+
+window.addEventListener('blur', () => {
+  setTimeout(() => {
+    const activeEl = document.activeElement;
+    const ytIframe = document.querySelector('#iframe-container iframe');
+    const iframeEl = $('iframe-el');
+    if (activeEl && (activeEl === ytIframe || activeEl === iframeEl)) {
+      console.log("Iframe click detected via window blur!");
+      handleUnmute();
+    }
+  }, 100);
+});
+
+window.togglePreviewMute = function(shouldMute) {
+  window.isUnmuted = !shouldMute;
+  const video = $('video-el');
+  if (video) {
+    video.muted = shouldMute;
+    if (!shouldMute && video.paused) {
+      video.play().catch(()=>{});
+    }
+  }
+  if (ytPlayer && typeof ytPlayer.mute === 'function') {
+    if (shouldMute) {
+      ytPlayer.mute();
+    } else {
+      ytPlayer.unMute();
+      ytPlayer.setVolume(100);
+      try {
+        ytPlayer.playVideo();
+      } catch(e) {}
+    }
+  }
+  return window.isUnmuted;
+};
+
+
+
+window.closeAppDownloadPopup = function() {
+  const popup = $('app-download-popup');
+  if (popup) popup.classList.remove('show');
+  localStorage.setItem('hideAppDownload', 'true');
+};
+
+// Draggable logo and live badge in preview mode
+function makeDraggable(el, topKey, leftKey, draggingFlagName) {
+  el.style.pointerEvents = 'auto';
+  el.style.cursor = 'move';
+
+  let currentX = 0;
+  let currentY = 0;
+  let initialX = 0;
+  let initialY = 0;
+  let xOffset = 0;
+  let yOffset = 0;
+  let isDragging = false;
+
+  el.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  el.addEventListener('touchstart', dragStart, {passive: false});
+  document.addEventListener('touchmove', drag, {passive: false});
+  document.addEventListener('touchend', dragEnd);
+
+  function dragStart(e) {
+    if (e.type === 'touchstart') {
+      initialX = e.touches[0].clientX - xOffset;
+      initialY = e.touches[0].clientY - yOffset;
+    } else {
+      initialX = e.clientX - xOffset;
+      initialY = e.clientY - yOffset;
+    }
+    
+    if (e.target === el || el.contains(e.target)) {
+      isDragging = true;
+      window[draggingFlagName] = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      if (e.type === 'touchmove') {
+        currentX = e.touches[0].clientX - initialX;
+        currentY = e.touches[0].clientY - initialY;
+      } else {
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+      }
+      xOffset = currentX;
+      yOffset = currentY;
+      el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+    }
+  }
+
+  function dragEnd(e) {
+    if (isDragging) {
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+      window[draggingFlagName] = false;
+
+      const rect = el.getBoundingClientRect();
+      const topPct = (rect.top / window.innerHeight) * 100;
+      const leftPct = (rect.left / window.innerWidth) * 100;
+
+      // Reset local offsets since applyBranding will reset translation to none
+      xOffset = 0;
+      yOffset = 0;
+      currentX = 0;
+      currentY = 0;
+
+      db.doc('config/main').set({
+        [topKey]: topPct,
+        [leftKey]: leftPct
+      }, {merge: true}).then(() => {
+        console.log(`${el.id} position saved:`, topPct, leftPct);
+      }).catch(err => {
+        console.error(`Error saving position for ${el.id}:`, err);
+      });
+    }
+  }
+}
+
+if (isPreview) {
+  const wm = $('wm-yours');
+  if (wm) makeDraggable(wm, 'logoTop', 'logoLeft', 'logoDragging');
+
+  const badge = $('live-badge');
+  if (badge) makeDraggable(badge, 'badgeTop', 'badgeLeft', 'badgeDragging');
+}
+
+db.doc('config/main').onSnapshot(snap=>{configData=snap.exists?snap.data():{};cfgLoaded=true;applyBranding(configData);tryRender();},()=>{cfgLoaded=true;tryRender();});
+db.doc('streamState/main').onSnapshot(snap=>{streamData=snap.exists?snap.data():{isLive:false};stLoaded=true;tryRender();},()=>{stLoaded=true;tryRender();});
+let announcementData = {};
+db.doc('announcement/current').onSnapshot(snap => {
+  announcementData = snap.exists ? snap.data() : {};
+  if (typeof updateAnnouncementUI === 'function') updateAnnouncementUI();
+});
+
+function updateAnnouncementUI() {
+  const banner = $('offair-announcement');
+  const textEl = $('announcement-text-el');
+  if (!banner || !textEl) return;
+
+  const isOffAir = state === 'offair';
+  
+  if (isOffAir && announcementData.active && announcementData.text) {
+    textEl.textContent = announcementData.text;
+    banner.classList.remove('gold', 'red', 'blue', 'green', 'purple');
+    banner.classList.add(announcementData.color || 'gold');
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+setInterval(()=>{
+  if(state==='live'&&!$('iframe-el').classList.contains('active')&&!$('video-el').paused&&$('video-el').readyState<2) {
+    console.warn("Watchdog: stream stalled. Forcing restart...");
+    stopPlayer();
+    startPlayer(streamData.streamUrl,streamData.streamType);
+  }
+},15000);
+
+// ── FULLSCREEN TOGGLE ────────────────────────────────────────
+function toggleFullscreen() {
+  const docEl = document.documentElement;
+  const video = $('video-el');
+  
+  if (!document.fullscreenElement && 
+      !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen().catch(()=>{});
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen().catch(()=>{});
+    } else if (docEl.mozRequestFullScreen) {
+      docEl.mozRequestFullScreen().catch(()=>{});
+    } else if (docEl.msRequestFullscreen) {
+      docEl.msRequestFullscreen().catch(()=>{});
+    } else if (video && video.webkitEnterFullscreen) {
+      try { video.webkitEnterFullscreen(); } catch(e) {}
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(()=>{});
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen().catch(()=>{});
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen().catch(()=>{});
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen().catch(()=>{});
+    }
+  }
+}
+
+function onFullscreenChange() {
+  const fsBtn = $('fullscreen-btn');
+  if (!fsBtn) return;
+  const isFS = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+  if (isFS) {
+    fsBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6m10-6h-6v6M4 10h6V4m10 6h-6V4"/></svg>`;
+  } else {
+    fsBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>`;
+  }
+}
+
+const fsBtn = $('fullscreen-btn');
+if (fsBtn) {
+  fsBtn.addEventListener('click', toggleFullscreen);
+}
+document.addEventListener('fullscreenchange', onFullscreenChange);
+document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+document.addEventListener('mozfullscreenchange', onFullscreenChange);
+document.addEventListener('MSFullscreenChange', onFullscreenChange);
+
+if (typeof isPreview !== 'undefined' && isPreview) {
+  if (fsBtn) fsBtn.style.display = 'none';
+  const clock = $('clock-wrap');
+  if (clock) clock.style.right = '22px';
+}
+
+// ── VIEWER TRACKING & HEARTBEAT ──────────────────────────────
+function getBrowserAndOS() {
+  const ua = navigator.userAgent;
+  let os = "Unknown OS";
+  let device = "Web";
+  let browser = "Unknown Browser";
+
+  if (ua.includes('JTBS-Android-App')) {
+    os = "Android";
+    device = "App";
+    browser = "App";
+    return { os, device, browser };
+  }
+
+  if (/android/i.test(ua)) {
+    os = "Android";
+    device = "Android";
+  } else if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+    os = "iOS";
+    device = "iOS";
+  } else if (/Windows/i.test(ua)) {
+    os = "Windows";
+    device = "Web";
+  } else if (/Mac/i.test(ua)) {
+    os = "macOS";
+    device = "Web";
+  } else if (/Linux/i.test(ua)) {
+    os = "Linux";
+    device = "Web";
+  }
+
+  if (/chrome|crios/i.test(ua) && !/edge|edg/i.test(ua) && !/opr/i.test(ua)) {
+    browser = "Chrome";
+  } else if (/safari/i.test(ua) && !/chrome|crios/i.test(ua)) {
+    browser = "Safari";
+  } else if (/firefox|fxios/i.test(ua)) {
+    browser = "Firefox";
+  } else if (/edge|edg/i.test(ua)) {
+    browser = "Edge";
+  } else if (/opr/i.test(ua)) {
+    browser = "Opera";
+  }
+
+  return { os, device, browser };
+}
+
+const sessionID = 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+let viewerData = {
+  id: sessionID,
+  ip: 'Unknown',
+  location: 'Unknown',
+  os: 'Unknown OS',
+  device: 'Web',
+  browser: 'Unknown Browser',
+  lastActive: firebase.firestore.FieldValue.serverTimestamp()
+};
+
+const clientInfo = getBrowserAndOS();
+viewerData.os = clientInfo.os;
+viewerData.device = clientInfo.device;
+viewerData.browser = clientInfo.browser;
+
+function updateViewerHeartbeat() {
+  if (typeof isPreview !== 'undefined' && isPreview) return;
+  viewerData.lastActive = firebase.firestore.FieldValue.serverTimestamp();
+  db.collection('activeViewers').doc(sessionID).set(viewerData, { merge: true })
+    .catch(err => console.error("Heartbeat error:", err));
+}
+
+fetch('https://ipapi.co/json/')
+  .then(res => res.json())
+  .then(data => {
+    viewerData.ip = data.ip || 'Unknown';
+    viewerData.location = (data.city && data.country_name) ? data.city + ", " + data.country_name : (data.country_name || 'Unknown');
+    updateViewerHeartbeat();
+  })
+  .catch(() => {
+    fetch('https://geolocation-db.com/json/')
+      .then(res => res.json())
+      .then(data => {
+        viewerData.ip = data.IPv4 || 'Unknown';
+        viewerData.location = (data.city && data.country_name) ? data.city + ", " + data.country_name : (data.country_name || 'Unknown');
+        updateViewerHeartbeat();
+      })
+      .catch(() => {
+        updateViewerHeartbeat();
+      });
+  });
+
+setInterval(updateViewerHeartbeat, 15000);
+
+window.addEventListener('beforeunload', () => {
+  if (typeof isPreview !== 'undefined' && isPreview) return;
+  db.collection('activeViewers').doc(sessionID).delete().catch(()=>{});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+services:
+  jtbs-live:
+    build: .
+    container_name: jtbs-live-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+    volumes:
+      - ./jtbs-live/public:/app/jtbs-live/public:ro

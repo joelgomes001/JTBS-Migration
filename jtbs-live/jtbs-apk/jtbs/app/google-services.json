@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "216123186659",
+    "firebase_url": "https://jtbs-classic-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "jtbs-classic",
+    "storage_bucket": "jtbs-classic.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216123186659:android:58f8970e21d49a1ebf94d6",
+        "android_client_info": {
+          "package_name": "com.jtbs.classic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216123186659-sjmmo53vrru68q634rnjb7uja3bq9f0n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApLpahVerMlG9xyroYrW7AauA3wY_ypDQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216123186659-sjmmo53vrru68q634rnjb7uja3bq9f0n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
