@@ -1,0 +1,45 @@
+# ─────────────────────────────────────────────────────────────
+# JTBS Classic / JTBS Live — Apache & cPanel Web Configuration
+# ─────────────────────────────────────────────────────────────
+
+# Enable URL Rewriting
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Route /admin and /admin/* to admin.html
+  RewriteRule ^admin(/.*)?$ admin.html [L,QSA]
+
+  # Allow direct access to existing files and directories
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Fallback all other non-existing files to index.html (SPA)
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# MIME Types for IPTV Playlists & Video Streams
+<IfModule mod_mime.c>
+  AddType application/x-mpegurl .m3u .m3u8
+  AddType application/vnd.apple.mpegurl .m3u8
+  AddType application/dash+xml .mpd
+  AddType video/mp4 .mp4
+  AddType application/json .json
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# Global CORS Headers for IPTV Players & Video Streaming
+<IfModule mod_headers.c>
+  Header always set Access-Control-Allow-Origin "*"
+  Header always set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+  Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Range"
+  Header always set Access-Control-Expose-Headers "Content-Length, Content-Range"
+
+  # Disable caching for HTML files and M3U playlists
+  <FilesMatch "\.(html|m3u|m3u8)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires 0
+  </FilesMatch>
+</IfModule>
