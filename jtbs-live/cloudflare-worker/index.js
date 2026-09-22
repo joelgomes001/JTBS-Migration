@@ -843,14 +843,14 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
       }
 
-      // If stream URL is an MP4/video file, package it dynamically as a 5-segment HLS playlist!
+      // If stream URL is a direct video/TS stream or non-HLS URL, dynamically redirect!
       if (!streamUrl.includes('.m3u8') && !streamUrl.includes('mpegurl')) {
-        return new Response(makeOfflinePlaylist(streamUrl, 10, url.origin, target.doc), {
-          status: 200,
+        return new Response(null, {
+          status: 302,
           headers: {
-            'Content-Type': 'application/vnd.apple.mpegurl',
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-            'Access-Control-Allow-Origin': '*'
+            'Location': streamUrl,
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
           }
         });
       }
