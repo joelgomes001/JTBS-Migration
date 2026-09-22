@@ -23,3 +23,48 @@ https://jtbsclassic.dpdns.org/live5.m3u8
 
 #EXTINF:-1 tvg-id="JTBS.Feed6" tvg-name="JTBS Feed 6" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 6 (live6)
 https://jtbsclassic.dpdns.org/live6.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed7" tvg-name="JTBS Feed 7" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 7 (live7)
+https://jtbsclassic.dpdns.org/live7.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed8" tvg-name="JTBS Feed 8" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 8 (live8)
+https://jtbsclassic.dpdns.org/live8.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed9" tvg-name="JTBS Feed 9" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 9 (live9)
+https://jtbsclassic.dpdns.org/live9.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed10" tvg-name="JTBS Feed 10" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 10 (live10)
+https://jtbsclassic.dpdns.org/live10.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed11" tvg-name="JTBS Feed 11" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 11 (live11)
+https://jtbsclassic.dpdns.org/live11.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed12" tvg-name="JTBS Feed 12" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 12 (live12)
+https://jtbsclassic.dpdns.org/live12.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed13" tvg-name="JTBS Feed 13" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 13 (live13)
+https://jtbsclassic.dpdns.org/live13.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed14" tvg-name="JTBS Feed 14" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 14 (live14)
+https://jtbsclassic.dpdns.org/live14.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed15" tvg-name="JTBS Feed 15" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 15 (live15)
+https://jtbsclassic.dpdns.org/live15.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed16" tvg-name="JTBS Feed 16" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 16 (live16)
+https://jtbsclassic.dpdns.org/live16.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed17" tvg-name="JTBS Feed 17" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 17 (live17)
+https://jtbsclassic.dpdns.org/live17.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed18" tvg-name="JTBS Feed 18" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 18 (live18)
+https://jtbsclassic.dpdns.org/live18.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed19" tvg-name="JTBS Feed 19" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 19 (live19)
+https://jtbsclassic.dpdns.org/live19.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Feed20" tvg-name="JTBS Feed 20" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Feed 20 (live20)
+https://jtbsclassic.dpdns.org/live20.m3u8
+
+#EXTINF:-1 tvg-id="JTBS.Srinjana" tvg-name="JTBS Srinjana" tvg-logo="https://jtbsclassic.dpdns.org/favicon.ico" group-title="JTBS Feeds",JTBS Srinjana (Srinjana.m3u8)
+https://jtbsclassic.dpdns.org/Srinjana.m3u8

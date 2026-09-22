@@ -1080,12 +1080,12 @@ tr:last-child td{border-bottom:none;}
     </div>
   </div>
 
-  <!-- OTHER STREAMS (Feeds 1 to 6) -->
+  <!-- OTHER STREAMS (Feeds 1 to 20 & Srinjana) -->
   <div class="tab-panel" id="tab-otherstreams" style="max-width: 900px;">
     <div class="card">
-      <div class="card-title">Other Stream Feeds (1 – 6)</div>
+      <div class="card-title">Other Stream Feeds (1 – 20 & Srinjana)</div>
       <div class="hint" style="margin-top:-10px; margin-bottom:18px; line-height:1.6;">
-        Manage 6 independent secondary stream feeds. Each feed has its own dedicated IPTV link (<code style="color:var(--gold);">live1.m3u8</code> to <code style="color:var(--gold);">live6.m3u8</code>).
+        Manage 20 independent secondary stream feeds (<code style="color:var(--gold);">live1.m3u8</code> to <code style="color:var(--gold);">live20.m3u8</code>) plus the dedicated <code style="color:var(--gold);">Srinjana.m3u8</code> feed.
       </div>
 
       <!-- Feed Sub-Tabs -->
@@ -1096,9 +1096,24 @@ tr:last-child td{border-bottom:none;}
         <button class="feed-tab-btn" data-feed="4" onclick="switchFeedTab(4)">Feed 4 (live4)</button>
         <button class="feed-tab-btn" data-feed="5" onclick="switchFeedTab(5)">Feed 5 (live5)</button>
         <button class="feed-tab-btn" data-feed="6" onclick="switchFeedTab(6)">Feed 6 (live6)</button>
+        <button class="feed-tab-btn" data-feed="7" onclick="switchFeedTab(7)">Feed 7 (live7)</button>
+        <button class="feed-tab-btn" data-feed="8" onclick="switchFeedTab(8)">Feed 8 (live8)</button>
+        <button class="feed-tab-btn" data-feed="9" onclick="switchFeedTab(9)">Feed 9 (live9)</button>
+        <button class="feed-tab-btn" data-feed="10" onclick="switchFeedTab(10)">Feed 10 (live10)</button>
+        <button class="feed-tab-btn" data-feed="11" onclick="switchFeedTab(11)">Feed 11 (live11)</button>
+        <button class="feed-tab-btn" data-feed="12" onclick="switchFeedTab(12)">Feed 12 (live12)</button>
+        <button class="feed-tab-btn" data-feed="13" onclick="switchFeedTab(13)">Feed 13 (live13)</button>
+        <button class="feed-tab-btn" data-feed="14" onclick="switchFeedTab(14)">Feed 14 (live14)</button>
+        <button class="feed-tab-btn" data-feed="15" onclick="switchFeedTab(15)">Feed 15 (live15)</button>
+        <button class="feed-tab-btn" data-feed="16" onclick="switchFeedTab(16)">Feed 16 (live16)</button>
+        <button class="feed-tab-btn" data-feed="17" onclick="switchFeedTab(17)">Feed 17 (live17)</button>
+        <button class="feed-tab-btn" data-feed="18" onclick="switchFeedTab(18)">Feed 18 (live18)</button>
+        <button class="feed-tab-btn" data-feed="19" onclick="switchFeedTab(19)">Feed 19 (live19)</button>
+        <button class="feed-tab-btn" data-feed="20" onclick="switchFeedTab(20)">Feed 20 (live20)</button>
+        <button class="feed-tab-btn" data-feed="srinjana" onclick="switchFeedTab('srinjana')">Srinjana (Srinjana.m3u8)</button>
       </div>
 
-      <!-- 6 Feed Control Panels -->
+      <!-- 20 Feed Control Panels -->
       <div id="feed-panels-container">
         <!-- Generated dynamically in JS -->
       </div>
@@ -1128,6 +1143,21 @@ tr:last-child td{border-bottom:none;}
           <option value="feed4">Feed 4 (live4)</option>
           <option value="feed5">Feed 5 (live5)</option>
           <option value="feed6">Feed 6 (live6)</option>
+          <option value="feed7">Feed 7 (live7)</option>
+          <option value="feed8">Feed 8 (live8)</option>
+          <option value="feed9">Feed 9 (live9)</option>
+          <option value="feed10">Feed 10 (live10)</option>
+          <option value="feed11">Feed 11 (live11)</option>
+          <option value="feed12">Feed 12 (live12)</option>
+          <option value="feed13">Feed 13 (live13)</option>
+          <option value="feed14">Feed 14 (live14)</option>
+          <option value="feed15">Feed 15 (live15)</option>
+          <option value="feed16">Feed 16 (live16)</option>
+          <option value="feed17">Feed 17 (live17)</option>
+          <option value="feed18">Feed 18 (live18)</option>
+          <option value="feed19">Feed 19 (live19)</option>
+          <option value="feed20">Feed 20 (live20)</option>
+          <option value="srinjana">Srinjana (Srinjana.m3u8)</option>
         </select>
       </div>
       <button class="btn btn-primary btn-sm" id="save-epg-url-btn" onclick="saveEpgUrl()" style="width:auto; padding:8px 18px;">Apply EPG Source URL</button>
@@ -1155,6 +1185,21 @@ tr:last-child td{border-bottom:none;}
           <option value="feed4">Feed 4 (live4)</option>
           <option value="feed5">Feed 5 (live5)</option>
           <option value="feed6">Feed 6 (live6)</option>
+          <option value="feed7">Feed 7 (live7)</option>
+          <option value="feed8">Feed 8 (live8)</option>
+          <option value="feed9">Feed 9 (live9)</option>
+          <option value="feed10">Feed 10 (live10)</option>
+          <option value="feed11">Feed 11 (live11)</option>
+          <option value="feed12">Feed 12 (live12)</option>
+          <option value="feed13">Feed 13 (live13)</option>
+          <option value="feed14">Feed 14 (live14)</option>
+          <option value="feed15">Feed 15 (live15)</option>
+          <option value="feed16">Feed 16 (live16)</option>
+          <option value="feed17">Feed 17 (live17)</option>
+          <option value="feed18">Feed 18 (live18)</option>
+          <option value="feed19">Feed 19 (live19)</option>
+          <option value="feed20">Feed 20 (live20)</option>
+          <option value="srinjana">Srinjana (Srinjana.m3u8)</option>
           <option value="auto">Detect Automatically from XML Channel IDs</option>
         </select>
       </div>
@@ -1179,6 +1224,21 @@ tr:last-child td{border-bottom:none;}
           <option value="feed4">Feed 4 (live4)</option>
           <option value="feed5">Feed 5 (live5)</option>
           <option value="feed6">Feed 6 (live6)</option>
+          <option value="feed7">Feed 7 (live7)</option>
+          <option value="feed8">Feed 8 (live8)</option>
+          <option value="feed9">Feed 9 (live9)</option>
+          <option value="feed10">Feed 10 (live10)</option>
+          <option value="feed11">Feed 11 (live11)</option>
+          <option value="feed12">Feed 12 (live12)</option>
+          <option value="feed13">Feed 13 (live13)</option>
+          <option value="feed14">Feed 14 (live14)</option>
+          <option value="feed15">Feed 15 (live15)</option>
+          <option value="feed16">Feed 16 (live16)</option>
+          <option value="feed17">Feed 17 (live17)</option>
+          <option value="feed18">Feed 18 (live18)</option>
+          <option value="feed19">Feed 19 (live19)</option>
+          <option value="feed20">Feed 20 (live20)</option>
+          <option value="srinjana">Srinjana (Srinjana.m3u8)</option>
         </select>
       </div>
       <div class="field">
@@ -1221,6 +1281,21 @@ tr:last-child td{border-bottom:none;}
             <option value="feed4">Feed 4 (live4)</option>
             <option value="feed5">Feed 5 (live5)</option>
             <option value="feed6">Feed 6 (live6)</option>
+            <option value="feed7">Feed 7 (live7)</option>
+            <option value="feed8">Feed 8 (live8)</option>
+            <option value="feed9">Feed 9 (live9)</option>
+            <option value="feed10">Feed 10 (live10)</option>
+            <option value="feed11">Feed 11 (live11)</option>
+            <option value="feed12">Feed 12 (live12)</option>
+            <option value="feed13">Feed 13 (live13)</option>
+            <option value="feed14">Feed 14 (live14)</option>
+            <option value="feed15">Feed 15 (live15)</option>
+            <option value="feed16">Feed 16 (live16)</option>
+            <option value="feed17">Feed 17 (live17)</option>
+            <option value="feed18">Feed 18 (live18)</option>
+            <option value="feed19">Feed 19 (live19)</option>
+            <option value="feed20">Feed 20 (live20)</option>
+            <option value="srinjana">Srinjana (Srinjana.m3u8)</option>
           </select>
         </label>
         <div style="display:flex; gap:10px;">
@@ -1300,10 +1375,85 @@ tr:last-child td{border-bottom:none;}
               <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed5.epg.xml</td>
               <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed5.epg.xml', this)">Copy Link</button></td>
             </tr>
-            <tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
               <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 6 (live6)</td>
               <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed6.epg.xml</td>
               <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed6.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 7 (live7)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed7.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed7.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 8 (live8)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed8.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed8.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 9 (live9)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed9.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed9.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 10 (live10)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed10.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed10.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 11 (live11)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed11.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed11.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 12 (live12)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed12.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed12.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 13 (live13)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed13.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed13.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 14 (live14)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed14.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed14.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 15 (live15)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed15.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed15.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 16 (live16)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed16.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed16.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 17 (live17)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed17.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed17.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 18 (live18)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed18.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed18.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 19 (live19)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed19.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed19.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Feed 20 (live20)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/feed20.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/feed20.epg.xml', this)">Copy Link</button></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 10px; font-weight:bold; color:var(--gold);">Srinjana (Srinjana.m3u8)</td>
+              <td style="padding:8px 10px; font-family:monospace; color:#8ab4f8;">https://jtbsclassic.dpdns.org/srinjana.epg.xml</td>
+              <td style="padding:8px 10px; text-align:center;"><button class="btn-gold-sm" onclick="copyEpgUrl('https://jtbsclassic.dpdns.org/srinjana.epg.xml', this)">Copy Link</button></td>
             </tr>
           </tbody>
         </table>
@@ -1321,26 +1471,56 @@ tr:last-child td{border-bottom:none;}
     <div class="field">
       <label>Copy EPG From (Source Feed)</label>
       <select id="copy-epg-src-channel">
-        <option value="feed3">Feed 3 (live3)</option>
         <option value="main">Main Channel</option>
         <option value="decoder">Decoder Stream (Box)</option>
         <option value="feed1">Feed 1 (live1)</option>
         <option value="feed2">Feed 2 (live2)</option>
+        <option value="feed3">Feed 3 (live3)</option>
         <option value="feed4">Feed 4 (live4)</option>
         <option value="feed5">Feed 5 (live5)</option>
         <option value="feed6">Feed 6 (live6)</option>
+        <option value="feed7">Feed 7 (live7)</option>
+        <option value="feed8">Feed 8 (live8)</option>
+        <option value="feed9">Feed 9 (live9)</option>
+        <option value="feed10">Feed 10 (live10)</option>
+        <option value="feed11">Feed 11 (live11)</option>
+        <option value="feed12">Feed 12 (live12)</option>
+        <option value="feed13">Feed 13 (live13)</option>
+        <option value="feed14">Feed 14 (live14)</option>
+        <option value="feed15">Feed 15 (live15)</option>
+        <option value="feed16">Feed 16 (live16)</option>
+        <option value="feed17">Feed 17 (live17)</option>
+        <option value="feed18">Feed 18 (live18)</option>
+        <option value="feed19">Feed 19 (live19)</option>
+        <option value="feed20">Feed 20 (live20)</option>
+        <option value="srinjana">Srinjana (Srinjana.m3u8)</option>
       </select>
     </div>
     
     <div class="field">
       <label>Copy EPG To (Target Feed)</label>
       <select id="copy-epg-dst-channel">
-        <option value="feed6">Feed 6 (live6)</option>
         <option value="feed1">Feed 1 (live1)</option>
         <option value="feed2">Feed 2 (live2)</option>
         <option value="feed3">Feed 3 (live3)</option>
         <option value="feed4">Feed 4 (live4)</option>
         <option value="feed5">Feed 5 (live5)</option>
+        <option value="feed6">Feed 6 (live6)</option>
+        <option value="feed7">Feed 7 (live7)</option>
+        <option value="feed8">Feed 8 (live8)</option>
+        <option value="feed9">Feed 9 (live9)</option>
+        <option value="feed10">Feed 10 (live10)</option>
+        <option value="feed11">Feed 11 (live11)</option>
+        <option value="feed12">Feed 12 (live12)</option>
+        <option value="feed13">Feed 13 (live13)</option>
+        <option value="feed14">Feed 14 (live14)</option>
+        <option value="feed15">Feed 15 (live15)</option>
+        <option value="feed16">Feed 16 (live16)</option>
+        <option value="feed17">Feed 17 (live17)</option>
+        <option value="feed18">Feed 18 (live18)</option>
+        <option value="feed19">Feed 19 (live19)</option>
+        <option value="feed20">Feed 20 (live20)</option>
+        <option value="srinjana">Srinjana (Srinjana.m3u8)</option>
         <option value="main">Main Channel</option>
         <option value="decoder">Decoder Stream (Box)</option>
       </select>
@@ -3397,36 +3577,46 @@ window.deleteDecoder = function(id, displayName) {
   });
 };
 
-// ── OTHER STREAMS (FEEDS 1..6) ──────────────────────────────────
+// ── OTHER STREAMS (FEEDS 1..20 & SRINJANA) ────────────────────────
+const ALL_FEED_DEFINITIONS = [
+  ...Array.from({ length: 20 }, (_, idx) => {
+    const num = idx + 1;
+    return { id: `feed${num}`, key: `${num}`, name: `Feed ${num}`, title: `Feed ${num} Control`, endpoint: `live${num}.m3u8` };
+  }),
+  { id: 'srinjana', key: 'srinjana', name: 'Srinjana', title: 'Srinjana Feed Control', endpoint: 'Srinjana.m3u8' }
+];
+
 let activeFeedTab = 1;
 
-window.switchFeedTab = function(feedNum) {
-  activeFeedTab = feedNum;
+window.switchFeedTab = function(feedKey) {
+  activeFeedTab = feedKey;
   document.querySelectorAll('#feed-subtabs .feed-tab-btn').forEach(btn => {
-    const isCurrent = parseInt(btn.dataset.feed) === feedNum;
+    const isCurrent = String(btn.dataset.feed) === String(feedKey);
     btn.style.background = isCurrent ? '' : 'transparent';
     btn.style.borderColor = isCurrent ? '' : 'var(--border2)';
     btn.style.color = isCurrent ? 'var(--gold)' : 'var(--sub)';
     if (isCurrent) btn.classList.add('active'); else btn.classList.remove('active');
   });
 
-  for (let i = 1; i <= 6; i++) {
-    const panel = $(`feed-panel-${i}`);
-    if (panel) panel.style.display = i === feedNum ? 'block' : 'none';
-  }
+  ALL_FEED_DEFINITIONS.forEach(feed => {
+    const panel = $(`feed-panel-${feed.key}`);
+    if (panel) panel.style.display = String(feed.key) === String(feedKey) ? 'block' : 'none';
+  });
 };
 
 function loadOtherStreams() {
   const container = $('feed-panels-container');
   if (!container) return;
 
-  // Build 6 Feed control panels dynamically matching Stream tab structure
+  // Build Feed control panels dynamically matching Stream tab structure
   let html = '';
-  for (let i = 1; i <= 6; i++) {
+  for (const feed of ALL_FEED_DEFINITIONS) {
+    const i = feed.key;
+    const scope = feed.id;
     html += `
-      <div id="feed-panel-${i}" class="feed-panel" style="display: ${i === 1 ? 'block' : 'none'};">
+      <div id="feed-panel-${i}" class="feed-panel" style="display: ${i === 1 || i === '1' ? 'block' : 'none'};">
         <div style="font-weight: 800; font-size: 15px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; font-family: var(--classic-title-font);">
-          Feed ${i} Control (<code style="color:var(--text);">live${i}.m3u8</code>)
+          ${feed.title} (<code style="color:var(--text);">${feed.endpoint}</code>)
         </div>
 
         <div class="toggle-row" style="margin-bottom: 16px;">
@@ -3482,7 +3672,7 @@ function loadOtherStreams() {
           <!-- PLAYLIST SELECTOR CARD (Shown ONLY for YouTube Playlists) -->
           <div id="feed${i}-playlist-selector-card" class="playlist-panel" style="display:none; margin-top: 14px;">
             <div class="playlist-header">
-              <span class="playlist-header-title">Feed ${i} Playlist Videos</span>
+              <span class="playlist-header-title">${feed.name} Playlist Videos</span>
             </div>
             <div class="playlist-toolbar">
               <button class="btn-gold-sm" id="feed${i}-playlist-select-all-btn">Select All</button>
@@ -3497,14 +3687,14 @@ function loadOtherStreams() {
           <!-- Per-Feed Offline Image & HLS Settings -->
           <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border2);">
             <div class="field">
-              <label>Offline Image URL (Feed ${i})</label>
+              <label>Offline Image URL (${feed.name})</label>
               <input type="url" id="feed-offline-image-${i}" placeholder="https://i.postimg.cc/gkDpS0vy/originalcolorbars720.jpg"/>
-              <div class="hint">Direct image link (PNG/JPG/WebP) shown on web/app when Feed ${i} is off air.</div>
+              <div class="hint">Direct image link (PNG/JPG/WebP) shown on web/app when ${feed.name} is off air.</div>
             </div>
             <div class="field">
-              <label>Offline HLS Stream URL (Feed ${i})</label>
+              <label>Offline HLS Stream URL (${feed.name})</label>
               <input type="url" id="feed-offline-hls-${i}" placeholder="https://infinite-hls-stream.vercel.app/stream.m3u8"/>
-              <div class="hint">HLS (.m3u8) or MP4 video link played in IPTV players (VLC/TiviMate) when Feed ${i} is off air.</div>
+              <div class="hint">HLS (.m3u8) or MP4 video link played in IPTV players (VLC/TiviMate) when ${feed.name} is off air.</div>
             </div>
             <div class="field" id="feed-offline-mp4-options-container-${i}" style="display:none; margin-top: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 12px;">
               <label style="margin-bottom: 6px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; text-transform: uppercase; font-size: 12px;">Playback Mode (Loop / Off Air)</label>
@@ -3520,22 +3710,22 @@ function loadOtherStreams() {
               </div>
             </div>
             <div class="field">
-              <label>Offline Message (Feed ${i})</label>
+              <label>Offline Message (${feed.name})</label>
               <input type="text" id="feed-offline-text-${i}" placeholder="We'll be back soon — stay tuned"/>
             </div>
           </div>
 
-          <button class="btn btn-primary" id="feed-save-btn-${i}" style="margin-top: 14px;">Save Feed ${i} Settings</button>
-          <div class="save-msg" id="feed-save-msg-${i}">Feed ${i} updated</div>
+          <button class="btn btn-primary" id="feed-save-btn-${i}" style="margin-top: 14px;">Save ${feed.name} Settings</button>
+          <div class="save-msg" id="feed-save-msg-${i}">${feed.name} updated</div>
         </div>
 
         <!-- Dedicated IPTV Link Card -->
         <div style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed var(--border2);">
-          <label style="font-weight: 700; color: var(--gold); font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Dedicated IPTV Link for Feed ${i}</label>
+          <label style="font-weight: 700; color: var(--gold); font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Dedicated IPTV Link for ${feed.name}</label>
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
             <input type="text" id="feed-iptv-url-${i}" readonly
               style="flex:1; font-family: monospace; font-size: 13px; padding: 9px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border2); border-radius: 6px; color: var(--gold); cursor: text;"
-              value="https://jtbsclassic.dpdns.org/live${i}.m3u8"
+              value="https://jtbsclassic.dpdns.org/${feed.endpoint}"
             />
             <button class="btn-gold-sm" onclick="copyIPTV('feed-iptv-url-${i}')" style="white-space: nowrap;">Copy</button>
           </div>
@@ -3545,9 +3735,10 @@ function loadOtherStreams() {
   }
   container.innerHTML = html;
 
-  // Bind real-time events & Firestore listeners for each feed (1..6)
-  for (let i = 1; i <= 6; i++) {
-    const scope = `feed${i}`;
+  // Bind real-time events & Firestore listeners for each feed
+  for (const feed of ALL_FEED_DEFINITIONS) {
+    const i = feed.key;
+    const scope = feed.id;
     const docRef = db.doc(`streamState/${scope}`);
 
     // No image preview needed for video URL
@@ -3685,7 +3876,7 @@ function loadOtherStreams() {
 
           flash(`feed-save-msg-${i}`);
         } catch (err) {
-          alert(`Error saving Feed ${i}: ` + err.message);
+          alert(`Error saving ${feed.name}: ` + err.message);
         } finally {
           saveBtn.disabled = false;
         }
@@ -3703,7 +3894,7 @@ function loadOtherStreams() {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
         } catch (err) {
-          alert(`Error toggling Feed ${i}: ` + err.message);
+          alert(`Error toggling ${feed.name}: ` + err.message);
         }
       });
     }
@@ -4178,12 +4369,15 @@ async function uploadEpgFile() {
           const cId = channelIdAttr.toLowerCase();
           if (cId.includes('main')) channel = 'main';
           else if (cId.includes('decoder')) channel = 'decoder';
-          else if (cId.includes('feed1') || cId.includes('live1')) channel = 'feed1';
-          else if (cId.includes('feed2') || cId.includes('live2')) channel = 'feed2';
-          else if (cId.includes('feed3') || cId.includes('live3')) channel = 'feed3';
-          else if (cId.includes('feed4') || cId.includes('live4')) channel = 'feed4';
-          else if (cId.includes('feed5') || cId.includes('live5')) channel = 'feed5';
-          else if (cId.includes('feed6') || cId.includes('live6')) channel = 'feed6';
+          else if (cId.includes('srinjana')) channel = 'srinjana';
+          else {
+            for (let f = 1; f <= 20; f++) {
+              if (cId.includes(`feed${f}`) || cId.includes(`live${f}`)) {
+                channel = `feed${f}`;
+                break;
+              }
+            }
+          }
         }
 
         const docRef = db.collection('epg').doc();
@@ -4538,7 +4732,22 @@ async function downloadEpgXml() {
       'feed3': [],
       'feed4': [],
       'feed5': [],
-      'feed6': []
+      'feed6': [],
+      'feed7': [],
+      'feed8': [],
+      'feed9': [],
+      'feed10': [],
+      'feed11': [],
+      'feed12': [],
+      'feed13': [],
+      'feed14': [],
+      'feed15': [],
+      'feed16': [],
+      'feed17': [],
+      'feed18': [],
+      'feed19': [],
+      'feed20': [],
+      'srinjana': []
     };
 
     if (channelFilter === 'all' || channelFilter === 'main') {
@@ -4570,7 +4779,22 @@ async function downloadEpgXml() {
       'feed3': { id: 'JTBS.Feed3', name: 'JTBS Feed 3' },
       'feed4': { id: 'JTBS.Feed4', name: 'JTBS Feed 4' },
       'feed5': { id: 'JTBS.Feed5', name: 'JTBS Feed 5' },
-      'feed6': { id: 'JTBS.Feed6', name: 'JTBS Feed 6' }
+      'feed6': { id: 'JTBS.Feed6', name: 'JTBS Feed 6' },
+      'feed7': { id: 'JTBS.Feed7', name: 'JTBS Feed 7' },
+      'feed8': { id: 'JTBS.Feed8', name: 'JTBS Feed 8' },
+      'feed9': { id: 'JTBS.Feed9', name: 'JTBS Feed 9' },
+      'feed10': { id: 'JTBS.Feed10', name: 'JTBS Feed 10' },
+      'feed11': { id: 'JTBS.Feed11', name: 'JTBS Feed 11' },
+      'feed12': { id: 'JTBS.Feed12', name: 'JTBS Feed 12' },
+      'feed13': { id: 'JTBS.Feed13', name: 'JTBS Feed 13' },
+      'feed14': { id: 'JTBS.Feed14', name: 'JTBS Feed 14' },
+      'feed15': { id: 'JTBS.Feed15', name: 'JTBS Feed 15' },
+      'feed16': { id: 'JTBS.Feed16', name: 'JTBS Feed 16' },
+      'feed17': { id: 'JTBS.Feed17', name: 'JTBS Feed 17' },
+      'feed18': { id: 'JTBS.Feed18', name: 'JTBS Feed 18' },
+      'feed19': { id: 'JTBS.Feed19', name: 'JTBS Feed 19' },
+      'feed20': { id: 'JTBS.Feed20', name: 'JTBS Feed 20' },
+      'srinjana': { id: 'JTBS.Srinjana', name: 'JTBS Srinjana' }
     };
 
     let channelHeaderXml = '';

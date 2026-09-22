@@ -561,13 +561,15 @@ ${proxiedVideoUrl}`;
       targetFeed = url.searchParams.get('channel') || null;
     } else if (path.endsWith('.epg.xml')) {
       const feedStr = path.replace('.epg.xml', '').replace('/', '').toLowerCase();
-      if (['main', 'decoder', 'feed1', 'feed2', 'feed3', 'feed4', 'feed5', 'feed6'].includes(feedStr)) {
+      const validFeeds = ['main', 'decoder', 'srinjana', ...Array.from({ length: 20 }, (_, i) => `feed${i + 1}`)];
+      if (validFeeds.includes(feedStr)) {
         isEpgReq = true;
         targetFeed = feedStr;
       }
     } else if (path.startsWith('/epg/')) {
       const feedStr = path.replace('/epg/', '').replace('.xml', '').toLowerCase();
-      if (['main', 'decoder', 'feed1', 'feed2', 'feed3', 'feed4', 'feed5', 'feed6'].includes(feedStr)) {
+      const validFeeds = ['main', 'decoder', 'srinjana', ...Array.from({ length: 20 }, (_, i) => `feed${i + 1}`)];
+      if (validFeeds.includes(feedStr)) {
         isEpgReq = true;
         targetFeed = feedStr;
       }
@@ -652,7 +654,22 @@ ${proxiedVideoUrl}`;
           'feed3': [],
           'feed4': [],
           'feed5': [],
-          'feed6': []
+          'feed6': [],
+          'feed7': [],
+          'feed8': [],
+          'feed9': [],
+          'feed10': [],
+          'feed11': [],
+          'feed12': [],
+          'feed13': [],
+          'feed14': [],
+          'feed15': [],
+          'feed16': [],
+          'feed17': [],
+          'feed18': [],
+          'feed19': [],
+          'feed20': [],
+          'srinjana': []
         };
 
         if (!targetFeed || targetFeed === 'main') {
@@ -684,7 +701,22 @@ ${proxiedVideoUrl}`;
           'feed3': { id: 'JTBS.Feed3', name: 'JTBS Feed 3' },
           'feed4': { id: 'JTBS.Feed4', name: 'JTBS Feed 4' },
           'feed5': { id: 'JTBS.Feed5', name: 'JTBS Feed 5' },
-          'feed6': { id: 'JTBS.Feed6', name: 'JTBS Feed 6' }
+          'feed6': { id: 'JTBS.Feed6', name: 'JTBS Feed 6' },
+          'feed7': { id: 'JTBS.Feed7', name: 'JTBS Feed 7' },
+          'feed8': { id: 'JTBS.Feed8', name: 'JTBS Feed 8' },
+          'feed9': { id: 'JTBS.Feed9', name: 'JTBS Feed 9' },
+          'feed10': { id: 'JTBS.Feed10', name: 'JTBS Feed 10' },
+          'feed11': { id: 'JTBS.Feed11', name: 'JTBS Feed 11' },
+          'feed12': { id: 'JTBS.Feed12', name: 'JTBS Feed 12' },
+          'feed13': { id: 'JTBS.Feed13', name: 'JTBS Feed 13' },
+          'feed14': { id: 'JTBS.Feed14', name: 'JTBS Feed 14' },
+          'feed15': { id: 'JTBS.Feed15', name: 'JTBS Feed 15' },
+          'feed16': { id: 'JTBS.Feed16', name: 'JTBS Feed 16' },
+          'feed17': { id: 'JTBS.Feed17', name: 'JTBS Feed 17' },
+          'feed18': { id: 'JTBS.Feed18', name: 'JTBS Feed 18' },
+          'feed19': { id: 'JTBS.Feed19', name: 'JTBS Feed 19' },
+          'feed20': { id: 'JTBS.Feed20', name: 'JTBS Feed 20' },
+          'srinjana': { id: 'JTBS.Srinjana', name: 'JTBS Srinjana' }
         };
 
         let channelHeaderXml = '';
@@ -932,7 +964,39 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       '/live5': { doc: 'feed5', type: 'public' },
       '/live5.m3u8': { doc: 'feed5', type: 'public' },
       '/live6': { doc: 'feed6', type: 'public' },
-      '/live6.m3u8': { doc: 'feed6', type: 'public' }
+      '/live6.m3u8': { doc: 'feed6', type: 'public' },
+      '/live7': { doc: 'feed7', type: 'public' },
+      '/live7.m3u8': { doc: 'feed7', type: 'public' },
+      '/live8': { doc: 'feed8', type: 'public' },
+      '/live8.m3u8': { doc: 'feed8', type: 'public' },
+      '/live9': { doc: 'feed9', type: 'public' },
+      '/live9.m3u8': { doc: 'feed9', type: 'public' },
+      '/live10': { doc: 'feed10', type: 'public' },
+      '/live10.m3u8': { doc: 'feed10', type: 'public' },
+      '/live11': { doc: 'feed11', type: 'public' },
+      '/live11.m3u8': { doc: 'feed11', type: 'public' },
+      '/live12': { doc: 'feed12', type: 'public' },
+      '/live12.m3u8': { doc: 'feed12', type: 'public' },
+      '/live13': { doc: 'feed13', type: 'public' },
+      '/live13.m3u8': { doc: 'feed13', type: 'public' },
+      '/live14': { doc: 'feed14', type: 'public' },
+      '/live14.m3u8': { doc: 'feed14', type: 'public' },
+      '/live15': { doc: 'feed15', type: 'public' },
+      '/live15.m3u8': { doc: 'feed15', type: 'public' },
+      '/live16': { doc: 'feed16', type: 'public' },
+      '/live16.m3u8': { doc: 'feed16', type: 'public' },
+      '/live17': { doc: 'feed17', type: 'public' },
+      '/live17.m3u8': { doc: 'feed17', type: 'public' },
+      '/live18': { doc: 'feed18', type: 'public' },
+      '/live18.m3u8': { doc: 'feed18', type: 'public' },
+      '/live19': { doc: 'feed19', type: 'public' },
+      '/live19.m3u8': { doc: 'feed19', type: 'public' },
+      '/live20': { doc: 'feed20', type: 'public' },
+      '/live20.m3u8': { doc: 'feed20', type: 'public' },
+      '/srinjana': { doc: 'srinjana', type: 'public' },
+      '/srinjana.m3u8': { doc: 'srinjana', type: 'public' },
+      '/Srinjana': { doc: 'srinjana', type: 'public' },
+      '/Srinjana.m3u8': { doc: 'srinjana', type: 'public' }
     };
 
     const target = pathToDoc[path];
