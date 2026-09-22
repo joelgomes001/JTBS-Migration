@@ -191,6 +191,21 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
   const rewrittenLines = [];
   const cleanCookie = deduplicateCookies(cookieStr || '');
 
+  // Calculate actual max segment duration to fix HLS live polling interval in VLC
+  let maxSegDuration = 2;
+  for (let line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('#EXTINF:')) {
+      const match = trimmed.match(/#EXTINF:([0-9.]+)/);
+      if (match) {
+        const d = parseFloat(match[1]);
+        if (!isNaN(d) && d > maxSegDuration) {
+          maxSegDuration = Math.ceil(d);
+        }
+      }
+    }
+  }
+
   for (let line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
@@ -198,6 +213,13 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
     if (injectDiscontinuity && !insertedDiscontinuity && (trimmed.startsWith('#EXTINF:') || trimmed.startsWith('#EXT-X-STREAM-INF'))) {
       rewrittenLines.push('#EXT-X-DISCONTINUITY');
       insertedDiscontinuity = true;
+    }
+
+    // Replace bloated TARGETDURATION (e.g. 24s) with real segment duration (e.g. 3s)
+    // so VLC reloads the playlist every 2-3s instead of stalling when the 14s window ends
+    if (trimmed.startsWith('#EXT-X-TARGETDURATION:')) {
+      rewrittenLines.push(`#EXT-X-TARGETDURATION:${maxSegDuration}`);
+      continue;
     }
 
     if (trimmed.startsWith('#')) {
@@ -747,9 +769,10 @@ ${channelHeaderXml}${programmesXml}</tv>`;
 
       // EDGE CACHE: Instant RAM delivery (<15ms) for video chunks
       const edgeCache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
-      // Normalise cache key by stripping volatile query parameters
+      // Normalise cache key to worker origin so Cloudflare Cache API successfully stores it
       const cleanCacheKeyUrl = targetUrl.split('?')[0];
-      const cacheKey = new Request(cleanCacheKeyUrl);
+      const segFileName = cleanCacheKeyUrl.substring(cleanCacheKeyUrl.lastIndexOf('/') + 1);
+      const cacheKey = new Request(`${url.origin}/segment-cache/${encodeURIComponent(docName)}/${segFileName}`);
 
       if (isMediaSegment && edgeCache) {
         try {
