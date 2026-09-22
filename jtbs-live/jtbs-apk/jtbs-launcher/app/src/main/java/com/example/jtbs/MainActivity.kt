@@ -63,31 +63,37 @@ class TLSSocketFactory : SSLSocketFactory() {
     override fun getDefaultCipherSuites(): Array<String> = delegate.defaultCipherSuites
     override fun getSupportedCipherSuites(): Array<String> = delegate.supportedCipherSuites
 
-    private fun enableTLSOnSocket(socket: Socket): Socket {
+    private fun enableTLSOnSocket(socket: Socket, host: String? = null): Socket {
         if (socket is SSLSocket) {
             socket.enabledProtocols = arrayOf("TLSv1.1", "TLSv1.2")
+            if (!host.isNullOrEmpty()) {
+                try {
+                    val method = socket.javaClass.getMethod("setHostname", String::class.java)
+                    method.invoke(socket, host)
+                } catch (ignored: Exception) {}
+            }
         }
         return socket
     }
 
     override fun createSocket(s: Socket, host: String, port: Int, autoClose: Boolean): Socket {
-        return enableTLSOnSocket(delegate.createSocket(s, host, port, autoClose))
+        return enableTLSOnSocket(delegate.createSocket(s, host, port, autoClose), host)
     }
 
     override fun createSocket(host: String, port: Int): Socket {
-        return enableTLSOnSocket(delegate.createSocket(host, port))
+        return enableTLSOnSocket(delegate.createSocket(host, port), host)
     }
 
     override fun createSocket(host: String, port: Int, localHost: InetAddress, localPort: Int): Socket {
-        return enableTLSOnSocket(delegate.createSocket(host, port, localHost, localPort))
+        return enableTLSOnSocket(delegate.createSocket(host, port, localHost, localPort), host)
     }
 
     override fun createSocket(host: InetAddress, port: Int): Socket {
-        return enableTLSOnSocket(delegate.createSocket(host, port))
+        return enableTLSOnSocket(delegate.createSocket(host, port), host.hostName)
     }
 
     override fun createSocket(address: InetAddress, port: Int, localAddress: InetAddress, localPort: Int): Socket {
-        return enableTLSOnSocket(delegate.createSocket(address, port, localAddress, localPort))
+        return enableTLSOnSocket(delegate.createSocket(address, port, localAddress, localPort), address.hostName)
     }
 }
 
@@ -669,7 +675,7 @@ class MainActivity : Activity() {
         isConfigFetching = true
         Thread {
             try {
-                val url = URL("https://jtbsclassic.dpdns.org/api/streamState/main")
+                val url = URL("http://jtbsclassic.dpdns.org/api/streamState/main")
                 val conn = url.openConnection() as HttpURLConnection
                 
                 conn.requestMethod = "GET"
@@ -727,7 +733,7 @@ class MainActivity : Activity() {
                     var fetchSuccess = false
                     try {
                         val devId = android.provider.Settings.Secure.getString(contentResolver, android.provider.Settings.Secure.ANDROID_ID) ?: "unknown_device"
-                        val controlUrl = URL("https://jtbsclassic.dpdns.org/api/decoderControl/$devId")
+                        val controlUrl = URL("http://jtbsclassic.dpdns.org/api/decoderControl/$devId")
                         val controlConn = controlUrl.openConnection() as HttpURLConnection
                         controlConn.requestMethod = "GET"
                         controlConn.setRequestProperty("Connection", "close")
@@ -754,6 +760,12 @@ class MainActivity : Activity() {
                         if (!initialStartupComplete) {
                             loadingText?.text = "CONNECTING"
                         } else {
+                            val p = playbackService?.getPlayer()
+                            if (p != null && (p.isPlaying || p.playbackState == Player.STATE_READY)) {
+                                LogUtil.logI(LogUtil.TAG_PLAYER, "fetchConfig returned ${conn.responseCode} but player is playing, keeping current stream.")
+                                return@runOnUiThread
+                            }
+                            playbackService?.stop()
                             loadLocalOfflineImage()
                             offAirLayout?.visibility = View.VISIBLE
                             playerView?.visibility = View.GONE
@@ -763,10 +775,17 @@ class MainActivity : Activity() {
                     }
                 }
             } catch (e: Exception) {
+                LogUtil.logE(LogUtil.TAG_PLAYER, "fetchConfig failed: ${e.message}", e)
                 runOnUiThread {
                     if (!initialStartupComplete) {
                         loadingText?.text = "CONNECTING"
                     } else {
+                        val p = playbackService?.getPlayer()
+                        if (p != null && (p.isPlaying || p.playbackState == Player.STATE_READY)) {
+                            LogUtil.logI(LogUtil.TAG_PLAYER, "fetchConfig failed but player is playing, keeping current stream.")
+                            return@runOnUiThread
+                        }
+                        playbackService?.stop()
                         loadLocalOfflineImage()
                         offAirLayout?.visibility = View.VISIBLE
                         playerView?.visibility = View.GONE
@@ -1330,7 +1349,7 @@ class MainActivity : Activity() {
                 sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
                 val timestampStr = sdf.format(java.util.Date())
 
-                val url = URL("https://jtbsclassic.dpdns.org/api/decoderStatus/$devId" +
+                val url = URL("http://jtbsclassic.dpdns.org/api/decoderStatus/$devId" +
                         "?updateMask.fieldPaths=deviceId" +
                         "&updateMask.fieldPaths=deviceName" +
                         "&updateMask.fieldPaths=lastSeen" +
@@ -1389,7 +1408,7 @@ class MainActivity : Activity() {
     private fun fetchBrandingConfig() {
         Thread {
             try {
-                val url = URL("https://jtbsclassic.dpdns.org/api/config/main")
+                val url = URL("http://jtbsclassic.dpdns.org/api/config/main")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
                 conn.setRequestProperty("Connection", "close")
@@ -1483,6 +1502,7 @@ class MainActivity : Activity() {
             return
         }
         videoValidated = false
+        playbackService?.stop()
 
         LogUtil.logI(
             LogUtil.TAG_RECOVERY,

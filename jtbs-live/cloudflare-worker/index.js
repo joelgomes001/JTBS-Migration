@@ -14,19 +14,75 @@ function base64ToUint8Array(base64) {
   return bytes;
 }
 
+function deduplicateCookies(cookieStr) {
+  if (!cookieStr) return '';
+  const seen = new Set();
+  const result = [];
+  const parts = cookieStr.split(';');
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const kv = trimmed.split('=');
+    const key = kv[0].trim().toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      result.push(trimmed);
+    }
+  }
+  return result.join('; ');
+}
+
 function extractSetCookies(headers) {
   const cookies = [];
-  const setCookieHeader = headers.get('set-cookie');
-  if (setCookieHeader) {
-    const parts = setCookieHeader.split(/,(?=[^;]+;)/);
-    for (const part of parts) {
-      const cookieKV = part.split(';')[0].trim();
-      if (cookieKV && !cookieKV.toLowerCase().startsWith('path=') && !cookieKV.toLowerCase().startsWith('expires=')) {
+  const seen = new Set();
+  let rawCookies = [];
+  if (typeof headers.getSetCookie === 'function') {
+    rawCookies = headers.getSetCookie();
+  } else {
+    const setCookieHeader = headers.get('set-cookie');
+    if (setCookieHeader) {
+      rawCookies = setCookieHeader.split(/,(?=[^;]+;)/);
+    }
+  }
+  for (const part of rawCookies) {
+    const cookieKV = part.split(';')[0].trim();
+    if (cookieKV && !cookieKV.toLowerCase().startsWith('path=') && !cookieKV.toLowerCase().startsWith('expires=')) {
+      const key = cookieKV.split('=')[0].trim().toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
         cookies.push(cookieKV);
       }
     }
   }
   return cookies.join('; ');
+}
+
+const upstreamSessionStore = new Map();
+
+async function refreshUpstreamSession(docName, streamUrl) {
+  if (!streamUrl) return '';
+  try {
+    let target = streamUrl;
+    if (!target.includes('cookieCheck=')) {
+      target += (target.includes('?') ? '&' : '?') + 'cookieCheck=1';
+    }
+    const res = await fetch(target, {
+      redirect: 'follow',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'cf-tunnel-skip-offline-page': 'true',
+        'Cookie': 'cookieCheck=1'
+      }
+    });
+    if (res.ok) {
+      const cookie = extractSetCookies(res.headers);
+      if (cookie) {
+        upstreamSessionStore.set(docName, { cookie, timestamp: Date.now(), streamUrl });
+        return cookie;
+      }
+    }
+  } catch (e) {}
+  return '';
 }
 
 const memoryStore = new Map();
@@ -133,6 +189,7 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
   const lines = m3u8Text.split(/\r?\n/);
   let insertedDiscontinuity = false;
   const rewrittenLines = [];
+  const cleanCookie = deduplicateCookies(cookieStr || '');
 
   for (let line of lines) {
     const trimmed = line.trim();
@@ -151,8 +208,8 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
     try {
       const absoluteUrl = new URL(trimmed, baseUrl).href;
       let proxyUrl = `${workerOrigin}/proxy?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(absoluteUrl)}`;
-      if (cookieStr) {
-        proxyUrl += `&cookie=${encodeURIComponent(cookieStr)}`;
+      if (cleanCookie) {
+        proxyUrl += `&cookie=${encodeURIComponent(cleanCookie)}`;
       }
       rewrittenLines.push(proxyUrl);
     } catch (e) {
@@ -165,6 +222,19 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
 
 export default {
   async fetch(request) {
+    // 0. Handle CORS preflight options immediately
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+          'Access-Control-Allow-Headers': '*',
+          'Access-Control-Max-Age': '86400'
+        }
+      });
+    }
+
     const url = new URL(request.url);
     const path = url.pathname.toLowerCase();
 
@@ -642,10 +712,11 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       }
     }
 
-    // 1. PROXY HANDLER: Directly proxy any requested media URL with CORS
+    // 1. PROXY HANDLER: Directly proxy any requested media URL with Edge Caching & 401 Session Auto-Recovery
     if (path.startsWith('/proxy')) {
       let targetUrl = url.searchParams.get('url');
       const passedCookie = url.searchParams.get('cookie') || '';
+      const docName = url.searchParams.get('doc') || 'main';
       
       const rawSearch = url.search;
       const urlIdx = rawSearch.indexOf('url=');
@@ -670,24 +741,74 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         return new Response('Missing url parameter', { status: 400 });
       }
 
+      // Check if requested resource is an immutable video segment (.ts, .m4s, .mp4)
+      const isMediaSegment = !targetUrl.includes('.m3u8') && !targetUrl.includes('mpegurl') &&
+        (targetUrl.includes('.ts') || targetUrl.includes('.m4s') || targetUrl.includes('.mp4'));
+
+      // EDGE CACHE: Instant RAM delivery (<15ms) for video chunks
+      const edgeCache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
+      // Normalise cache key by stripping volatile query parameters
+      const cleanCacheKeyUrl = targetUrl.split('?')[0];
+      const cacheKey = new Request(cleanCacheKeyUrl);
+
+      if (isMediaSegment && edgeCache) {
+        try {
+          const cachedChunk = await edgeCache.match(cacheKey);
+          if (cachedChunk) {
+            return new Response(cachedChunk.body, {
+              status: 200,
+              headers: {
+                'Content-Type': targetUrl.includes('.mp4') ? 'video/mp4' : 'video/mp2t',
+                'Cache-Control': 'public, max-age=86400, s-maxage=31536000, immutable',
+                'Access-Control-Allow-Origin': '*',
+                'X-Edge-Cache': 'HIT'
+              }
+            });
+          }
+        } catch (e) {}
+      }
+
       if (!targetUrl.includes('cookieCheck=')) {
         targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'cookieCheck=1';
       }
 
-      let cookieHeader = 'cookieCheck=1';
-      if (passedCookie) {
-        cookieHeader += `; ${passedCookie}`;
+      let activeCookie = passedCookie;
+      const sessionData = upstreamSessionStore.get(docName);
+      if (!activeCookie && sessionData && sessionData.cookie) {
+        activeCookie = sessionData.cookie;
       }
 
+      let cookieHeader = deduplicateCookies([ 'cookieCheck=1', activeCookie ].filter(Boolean).join('; '));
+
       try {
-        const proxyRes = await fetch(targetUrl, {
+        let proxyRes = await fetch(targetUrl, {
           redirect: 'follow',
+          cf: isMediaSegment ? { cacheEverything: true, cacheTtl: 86400 } : undefined,
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'cf-tunnel-skip-offline-page': 'true',
             'Cookie': cookieHeader
           }
         });
+
+        // 401 AUTO-RECOVERY: If MediaMTX session expired, re-negotiate fresh session and retry
+        if (proxyRes.status === 401) {
+          const streamUrl = sessionData?.streamUrl || memoryStore.get(docName)?.streamUrl || '';
+          const freshCookie = await refreshUpstreamSession(docName, streamUrl);
+          if (freshCookie) {
+            activeCookie = freshCookie;
+            cookieHeader = deduplicateCookies([ 'cookieCheck=1', freshCookie ].filter(Boolean).join('; '));
+            proxyRes = await fetch(targetUrl, {
+              redirect: 'follow',
+              cf: isMediaSegment ? { cacheEverything: true, cacheTtl: 86400 } : undefined,
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'cf-tunnel-skip-offline-page': 'true',
+                'Cookie': cookieHeader
+              }
+            });
+          }
+        }
 
         if (!proxyRes.ok) {
           return new Response(`Proxy source error: ${proxyRes.status}`, { 
@@ -697,13 +818,21 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
 
         const newCookie = extractSetCookies(proxyRes.headers);
-        const combinedCookie = [passedCookie, newCookie].filter(Boolean).join('; ');
+        const combinedCookie = deduplicateCookies([activeCookie, newCookie].filter(Boolean).join('; '));
+        if (combinedCookie) {
+          const existing = upstreamSessionStore.get(docName);
+          upstreamSessionStore.set(docName, {
+            cookie: combinedCookie,
+            timestamp: Date.now(),
+            streamUrl: existing?.streamUrl || ''
+          });
+        }
+
         let contentType = proxyRes.headers.get('Content-Type') || '';
 
-        // If sub-playlist, rewrite relative URLs
+        // If sub-playlist (.m3u8), rewrite relative URLs
         if (contentType.includes('mpegurl') || contentType.includes('m3u8') || targetUrl.includes('.m3u8')) {
           const rawText = await proxyRes.text();
-          const docName = url.searchParams.get('doc') || 'main';
           const rewrittenPlaylist = rewriteM3u8(rawText, targetUrl, url.origin, combinedCookie, docName);
 
           return new Response(rewrittenPlaylist, {
@@ -711,6 +840,8 @@ ${channelHeaderXml}${programmesXml}</tv>`;
             headers: {
               'Content-Type': 'application/vnd.apple.mpegurl',
               'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+              'Pragma': 'no-cache',
+              'Expires': '0',
               'Access-Control-Allow-Origin': '*'
             }
           });
@@ -718,6 +849,31 @@ ${channelHeaderXml}${programmesXml}</tv>`;
 
         if (!contentType || contentType.includes('audio/mpeg') || contentType.includes('text/plain')) {
           contentType = targetUrl.includes('.mp4') ? 'video/mp4' : 'video/mp2t';
+        }
+
+        // Cache video chunk in Edge Cache and stream to client
+        if (isMediaSegment) {
+          const chunkData = await proxyRes.arrayBuffer();
+          const chunkHeaders = {
+            'Content-Type': contentType,
+            'Cache-Control': 'public, max-age=86400, s-maxage=31536000, immutable',
+            'Access-Control-Allow-Origin': '*',
+            'X-Edge-Cache': 'MISS'
+          };
+
+          if (edgeCache) {
+            try {
+              await edgeCache.put(cacheKey, new Response(chunkData.slice(0), {
+                status: 200,
+                headers: chunkHeaders
+              }));
+            } catch (e) {}
+          }
+
+          return new Response(chunkData, {
+            status: 200,
+            headers: chunkHeaders
+          });
         }
 
         return new Response(proxyRes.body, {
@@ -883,6 +1039,13 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       }
 
       const sessionCookie = extractSetCookies(streamRes.headers);
+      if (sessionCookie) {
+        upstreamSessionStore.set(target.doc, {
+          cookie: sessionCookie,
+          timestamp: Date.now(),
+          streamUrl
+        });
+      }
       const rawBody = await streamRes.text();
       const rewrittenBody = rewriteM3u8(rawBody, streamUrl, url.origin, sessionCookie, target.doc);
 
@@ -891,6 +1054,8 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         headers: {
           'Content-Type': 'application/vnd.apple.mpegurl',
           'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
           'Access-Control-Allow-Origin': '*'
         }
       });
