@@ -1086,7 +1086,15 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
       }
 
-      // If stream URL is a direct video/TS stream or non-HLS URL, dynamically redirect!
+      // If stream URL is a YouTube or web video page, IPTV players cannot parse HTML web pages:
+      // Fallback gracefully to the feed's configured Offline HLS stream!
+      const isWebPageUrl = streamUrl.includes('youtube.com') || streamUrl.includes('youtu.be') || streamUrl.includes('facebook.com') || streamUrl.includes('fb.watch');
+      if (isWebPageUrl) {
+        const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
+        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
+      }
+
+      // If stream URL is a direct video file (MP4/TS/WebM) or non-HLS direct media stream, dynamically redirect!
       if (!streamUrl.includes('.m3u8') && !streamUrl.includes('mpegurl')) {
         return new Response(null, {
           status: 302,
