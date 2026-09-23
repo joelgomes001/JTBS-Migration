@@ -4028,27 +4028,45 @@ function loadOtherStreams() {
   const container = $('feed-panels-container');
   if (!container) return;
 
+  const curUser = auth.currentUser;
+  const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+
   // Build Feed control panels dynamically matching Stream tab structure
   let html = '';
   for (const feed of ALL_FEED_DEFINITIONS) {
     const i = feed.key;
     const scope = feed.id;
+    const isSrinjana = scope === 'srinjana';
+    const isLockedForUser = isSrinjana && !isGodfather;
+
     html += `
       <div id="feed-panel-${i}" class="feed-panel" style="display: ${i === 1 || i === '1' ? 'block' : 'none'};">
-        <div style="font-weight: 800; font-size: 15px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; font-family: var(--classic-title-font);">
-          ${feed.title} (<code style="color:var(--text);">${feed.endpoint}</code>)
+        <div style="font-weight: 800; font-size: 15px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; font-family: var(--classic-title-font); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <span>${feed.title} (<code style="color:var(--text);">${feed.endpoint}</code>)</span>
+          ${isSrinjana ? `<span class="role-badge godfather" style="font-size:11px; padding:3px 10px;">👑 GODFATHER EXCLUSIVE</span>` : ''}
         </div>
+
+        ${isLockedForUser ? `
+          <div style="background: rgba(245, 158, 11, 0.12); border: 1.5px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; color: #fde68a;">
+            <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; color: #fbbf24;">
+              <span>👑 GODFATHER PROTECTED STREAM FEED</span>
+            </div>
+            <div style="font-size: 12px; line-height: 1.5;">
+              Only <strong>Joel Sohan Gomes (Godfather)</strong> is authorized to modify or redirect <code>Srinjana.m3u8</code>. Controls are locked for Superadmins and Admins.
+            </div>
+          </div>
+        ` : ''}
 
         <div class="toggle-row" style="margin-bottom: 16px;">
           <span class="toggle-label">Stream Status</span>
-          <label class="toggle-switch"><input type="checkbox" id="feed-toggle-${i}"/><span class="toggle-track"></span></label>
+          <label class="toggle-switch"><input type="checkbox" id="feed-toggle-${i}" ${isLockedForUser ? 'disabled style="cursor:not-allowed;"' : ''}/><span class="toggle-track"></span></label>
         </div>
         <span id="feed-status-text-${i}" class="status-off">OFFLINE</span>
 
         <div style="margin-top: 20px;">
           <div class="field">
             <label>Stream URL</label>
-            <input type="url" id="feed-url-input-${i}" placeholder="YouTube, HLS, DASH, MP4, WebM, MKV, AVI, MOV, TS, or RTMP URL"/>
+            <input type="url" id="feed-url-input-${i}" placeholder="YouTube, HLS, DASH, MP4, WebM, MKV, AVI, MOV, TS, or RTMP URL" ${isLockedForUser ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}/>
             <div class="hint" id="feed${i}-url-hint">Accepts: YouTube · HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS · RTMP</div>
           </div>
 
@@ -4057,15 +4075,15 @@ function loadOtherStreams() {
             <label style="margin-bottom: 8px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; text-transform: uppercase; font-size: 12px;">YouTube Playback Mode</label>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); cursor: pointer;">
-                <input type="radio" name="feed${i}-yt-play-mode" value="offair" checked style="width: auto; margin: 0; cursor: pointer;"/>
+                <input type="radio" name="feed${i}-yt-play-mode" value="offair" checked ${isLockedForUser ? 'disabled' : ''} style="width: auto; margin: 0; cursor: pointer;"/>
                 <span><strong>Off Air:</strong> Play once, then stream goes off air</span>
               </label>
               <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); cursor: pointer;">
-                <input type="radio" name="feed${i}-yt-play-mode" value="repeat" style="width: auto; margin: 0; cursor: pointer;"/>
+                <input type="radio" name="feed${i}-yt-play-mode" value="repeat" ${isLockedForUser ? 'disabled' : ''} style="width: auto; margin: 0; cursor: pointer;"/>
                 <span><strong>Repeat:</strong> Complete playlist, then restart from beginning</span>
               </label>
               <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); cursor: pointer;">
-                <input type="radio" name="feed${i}-yt-play-mode" value="loop" style="width: auto; margin: 0; cursor: pointer;"/>
+                <input type="radio" name="feed${i}-yt-play-mode" value="loop" ${isLockedForUser ? 'disabled' : ''} style="width: auto; margin: 0; cursor: pointer;"/>
                 <span><strong>Loop:</strong> Keep running the given YouTube video</span>
               </label>
             </div>
@@ -4079,11 +4097,11 @@ function loadOtherStreams() {
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); cursor: pointer;">
-                <input type="radio" name="feed${i}-mp4-play-mode" value="repeat" checked style="width: auto; margin: 0; cursor: pointer;"/>
+                <input type="radio" name="feed${i}-mp4-play-mode" value="repeat" checked ${isLockedForUser ? 'disabled' : ''} style="width: auto; margin: 0; cursor: pointer;"/>
                 <span><strong>Repeat:</strong> Keep repeating same video</span>
               </label>
               <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); cursor: pointer;">
-                <input type="radio" name="feed${i}-mp4-play-mode" value="offair" style="width: auto; margin: 0; cursor: pointer;"/>
+                <input type="radio" name="feed${i}-mp4-play-mode" value="offair" ${isLockedForUser ? 'disabled' : ''} style="width: auto; margin: 0; cursor: pointer;"/>
                 <span><strong>Off Air:</strong> Play once, then stream goes off air</span>
               </label>
             </div>
@@ -4095,8 +4113,8 @@ function loadOtherStreams() {
               <span class="playlist-header-title">${feed.name} Playlist Videos</span>
             </div>
             <div class="playlist-toolbar">
-              <button class="btn-gold-sm" id="feed${i}-playlist-select-all-btn">Select All</button>
-              <button class="btn-gold-sm" id="feed${i}-playlist-deselect-all-btn" style="background:transparent; border-color:var(--border2); color:var(--sub);">Deselect All</button>
+              <button class="btn-gold-sm" id="feed${i}-playlist-select-all-btn" ${isLockedForUser ? 'disabled' : ''}>Select All</button>
+              <button class="btn-gold-sm" id="feed${i}-playlist-deselect-all-btn" ${isLockedForUser ? 'disabled' : ''} style="background:transparent; border-color:var(--border2); color:var(--sub);">Deselect All</button>
               <span class="playlist-selected-info"><span id="feed${i}-playlist-selected-count">0</span> selected</span>
             </div>
             <div class="playlist-videos-list" id="feed${i}-playlist-videos-list">
@@ -4108,34 +4126,36 @@ function loadOtherStreams() {
           <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border2);">
             <div class="field">
               <label>Offline Image URL (${feed.name})</label>
-              <input type="url" id="feed-offline-image-${i}" placeholder="https://i.postimg.cc/gkDpS0vy/originalcolorbars720.jpg"/>
+              <input type="url" id="feed-offline-image-${i}" placeholder="https://i.postimg.cc/gkDpS0vy/originalcolorbars720.jpg" ${isLockedForUser ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}/>
               <div class="hint">Direct image link (PNG/JPG/WebP) shown on web/app when ${feed.name} is off air.</div>
             </div>
             <div class="field">
               <label>Offline HLS Stream URL (${feed.name})</label>
-              <input type="url" id="feed-offline-hls-${i}" placeholder="https://infinite-hls-stream.vercel.app/stream.m3u8"/>
+              <input type="url" id="feed-offline-hls-${i}" placeholder="https://infinite-hls-stream.vercel.app/stream.m3u8" ${isLockedForUser ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}/>
               <div class="hint">HLS (.m3u8) or MP4 video link played in IPTV players (VLC/TiviMate) when ${feed.name} is off air.</div>
             </div>
             <div class="field" id="feed-offline-mp4-options-container-${i}" style="display:none; margin-top: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 12px;">
               <label style="margin-bottom: 6px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; text-transform: uppercase; font-size: 12px;">Playback Mode (Loop / Off Air)</label>
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <label style="display: flex; align-items: center; gap: 8px; text-transform: none; font-size: 14px; color: var(--text); cursor: pointer;">
-                  <input type="radio" name="feed-offline-mp4-play-mode-${i}" value="repeat" checked style="width: auto; margin: 0; cursor: pointer;"/>
+                  <input type="radio" name="feed-offline-mp4-play-mode-${i}" value="repeat" checked ${isLockedForUser ? 'disabled' : ''} style="width: auto; margin: 0; cursor: pointer;"/>
                   <span><strong>Loop / Repeat:</strong> Keep looping stream infinitely (Default)</span>
                 </label>
                 <label style="display: flex; align-items: center; gap: 8px; text-transform: none; font-size: 14px; color: var(--text); cursor: pointer;">
-                  <input type="radio" name="feed-offline-mp4-play-mode-${i}" value="offair" style="width: auto; margin: 0; cursor: pointer;"/>
+                  <input type="radio" name="feed-offline-mp4-play-mode-${i}" value="offair" ${isLockedForUser ? 'disabled' : ''} style="width: auto; margin: 0; cursor: pointer;"/>
                   <span><strong>Off Air:</strong> Play once, then stop</span>
                 </label>
               </div>
             </div>
             <div class="field">
               <label>Offline Message (${feed.name})</label>
-              <input type="text" id="feed-offline-text-${i}" placeholder="We'll be back soon — stay tuned"/>
+              <input type="text" id="feed-offline-text-${i}" placeholder="We'll be back soon — stay tuned" ${isLockedForUser ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}/>
             </div>
           </div>
 
-          <button class="btn btn-primary" id="feed-save-btn-${i}" style="margin-top: 14px;">Save ${feed.name} Settings</button>
+          <button class="btn btn-primary" id="feed-save-btn-${i}" ${isLockedForUser ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} style="margin-top: 14px;">
+            ${isLockedForUser ? '🔒 Locked (Godfather Authority Required)' : `Save ${feed.name} Settings`}
+          </button>
           <div class="save-msg" id="feed-save-msg-${i}">${feed.name} updated</div>
         </div>
 
@@ -4160,11 +4180,11 @@ function loadOtherStreams() {
     const i = feed.key;
     const scope = feed.id;
     const docRef = db.doc(`streamState/${scope}`);
-
-    // No image preview needed for video URL
+    const isSrinjana = scope === 'srinjana';
+    const isLockedForUser = isSrinjana && !isGodfather;
 
     const urlInput = $(`feed-url-input-${i}`);
-    if (urlInput) {
+    if (urlInput && !isLockedForUser) {
       urlInput.addEventListener('input', function() {
         const url = this.value;
         const t = detectType(url);
@@ -4188,7 +4208,7 @@ function loadOtherStreams() {
     const selectAllBtn = $(`feed${i}-playlist-select-all-btn`);
     const deselectAllBtn = $(`feed${i}-playlist-deselect-all-btn`);
 
-    if (selectAllBtn) {
+    if (selectAllBtn && !isLockedForUser) {
       selectAllBtn.addEventListener('click', () => {
         if (playlists[scope] && playlists[scope].videos) {
           playlists[scope].videos.forEach(v => v.selected = true);
@@ -4197,7 +4217,7 @@ function loadOtherStreams() {
         }
       });
     }
-    if (deselectAllBtn) {
+    if (deselectAllBtn && !isLockedForUser) {
       deselectAllBtn.addEventListener('click', () => {
         if (playlists[scope] && playlists[scope].videos) {
           playlists[scope].videos.forEach(v => v.selected = false);
@@ -4262,6 +4282,15 @@ function loadOtherStreams() {
     const saveBtn = $(`feed-save-btn-${i}`);
     if (saveBtn) {
       saveBtn.addEventListener('click', async () => {
+        if (scope === 'srinjana') {
+          const checkUser = auth.currentUser;
+          const checkGodfather = checkUser && ((checkUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+          if (!checkGodfather) {
+            alert('Access Denied: Only Godfather (Joel Sohan Gomes) is authorized to modify Srinjana stream.');
+            return;
+          }
+        }
+
         saveBtn.disabled = true;
         const isLive = $(`feed-toggle-${i}`).checked;
         const streamUrl = $(`feed-url-input-${i}`).value.trim();
@@ -4298,16 +4327,37 @@ function loadOtherStreams() {
         } catch (err) {
           alert(`Error saving ${feed.name}: ` + err.message);
         } finally {
-          saveBtn.disabled = false;
+          if (!isLockedForUser) saveBtn.disabled = false;
         }
       });
     }
 
     // Toggle switch real-time save
     const toggleSwitch = $(`feed-toggle-${i}`);
-    if (toggleSwitch) {
+    if (toggleSwitch && !isLockedForUser) {
       toggleSwitch.addEventListener('change', async () => {
+        if (scope === 'srinjana') {
+          const checkUser = auth.currentUser;
+          const checkGodfather = checkUser && ((checkUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+          if (!checkGodfather) {
+            alert('Access Denied: Only Godfather (Joel Sohan Gomes) is authorized to modify Srinjana stream.');
+            toggleSwitch.checked = !toggleSwitch.checked;
+            return;
+          }
+        }
         const isLive = toggleSwitch.checked;
+        try {
+          await docRef.set({
+            isLive: isLive,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        } catch (err) {
+          alert(`Error toggling ${feed.name}: ` + err.message);
+        }
+      });
+    }
+  }
+}
         try {
           await docRef.set({
             isLive: isLive,
@@ -5639,6 +5689,15 @@ window.assignVaultLinkFromSelect = async function(selectEl, url) {
   if (!target) return;
 
   const targetName = selectEl.options[selectEl.selectedIndex].text;
+  const curUser = auth.currentUser;
+  const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+
+  if (target === 'srinjana' && !isGodfather) {
+    alert('Access Denied: Only Godfather (Joel Sohan Gomes) is authorized to modify or assign the Srinjana.m3u8 stream.');
+    selectEl.value = '';
+    return;
+  }
+
   if (!confirm(`Are you sure you want to assign this stream link to "${targetName}" and turn it ON?`)) {
     selectEl.value = '';
     return;

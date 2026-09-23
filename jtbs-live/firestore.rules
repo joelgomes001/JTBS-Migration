@@ -23,7 +23,7 @@ service cloud.firestore {
 
     match /streamState/{doc}  {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if (doc == 'srinjana') ? isGodfather() : isAdmin();
     }
     match /epg/{id}           {
       allow read: if true;
