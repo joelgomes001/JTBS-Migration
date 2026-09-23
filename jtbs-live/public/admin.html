@@ -1550,33 +1550,6 @@ tr:last-child td{border-bottom:none;}
         <div style="grid-column: 1/-1; text-align: center; color: var(--sub); padding: 40px;">No decoders registered. Turn on a decoder box running the launcher app to register.</div>
       </div>
     </div>
-
-    <!-- 📺 Decoder Box OSD Marquee / Ticker Dispatcher -->
-    <div class="card" style="margin-top: 20px; background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.4); border-radius:8px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
-      <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-        <span style="font-weight:700; color:#fde68a; font-size:14px; display:flex; align-items:center; gap:6px;">
-          <span>📺 Decoder Box OSD Marquee Ticker Dispatcher</span>
-        </span>
-        <span id="godfather-decoder-ticker-status-badge" class="role-badge" style="font-size:10px; background:rgba(255,255,255,0.1); color:var(--sub);">IDLE</span>
-      </div>
-      <div style="font-size:12px; color:#fef3c7; margin-bottom:12px; line-height:1.4;">
-        Send a real-time scrolling marquee message on top of live video to physical decoder boxes across your network.
-      </div>
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <input type="text" id="godfather-decoder-ticker-text" placeholder="e.g. Scheduled satellite maintenance tonight - JTBS Classic" style="font-size:13px; padding:8px 12px; width:100%;" />
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <select id="godfather-decoder-ticker-target" style="flex:1; min-width:180px; padding:7px 10px; font-size:12px; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
-            <option value="all">🌐 All Active Decoders</option>
-          </select>
-          <button class="btn-gold-sm" onclick="godfatherPushDecoderTicker()" style="padding:7px 16px; font-size:12px; background:linear-gradient(180deg, #f59e0b 0%, #b45309 100%); border-color:#fcd34d; color:#111; font-weight:700; white-space:nowrap;">
-            📡 Push Ticker to Decoders
-          </button>
-          <button class="btn-gold-sm" onclick="godfatherClearDecoderTicker()" style="padding:7px 12px; font-size:12px; background:transparent; border-color:var(--border2); color:var(--sub); white-space:nowrap;">
-            🛑 Clear Ticker
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- OTHER STREAMS (Feeds 1 to 20 & Srinjana) -->
