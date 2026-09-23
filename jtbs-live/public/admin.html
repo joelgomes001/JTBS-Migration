@@ -823,6 +823,24 @@ tr:last-child td{border-bottom:none;}
       <button class="btn-logout" id="logout-btn">Logout</button>
     </div>
   </div>
+
+  <!-- 👑 GODFATHER BROADCAST HUD (Appears when Godfather pushes a live notice) -->
+  <div id="godfather-broadcast-hud" style="display:none; position:relative; z-index:999; margin: 12px 20px 4px 20px; padding: 12px 18px; border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.4); animation: slideDown 0.3s ease;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:22px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">👑</span>
+        <div>
+          <div style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#fde047;" id="godfather-hud-title">GODFATHER NETWORK BROADCAST</div>
+          <div id="godfather-hud-message" style="font-size:13px; font-weight:600; color:#ffffff; line-height:1.4;"></div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span id="godfather-hud-time" style="font-size:11px; color:rgba(255,255,255,0.75); font-family:monospace;"></span>
+        <button id="godfather-hud-dismiss-btn" class="btn-gold-sm" style="display:none; padding:4px 10px; font-size:11px; background:rgba(0,0,0,0.4); border-color:rgba(255,255,255,0.3); color:#fff;" onclick="godfatherClearBroadcast()">🛑 Clear Broadcast</button>
+      </div>
+    </div>
+  </div>
+
   <div class="tabs-nav">
     <button class="tab-btn active" data-tab="stream">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>Stream
@@ -1395,6 +1413,116 @@ tr:last-child td{border-bottom:none;}
           Private encrypted storage only visible to Godfather. Keep notes on admin temporary passwords, phone numbers, and keys.
         </div>
         <textarea id="godfather-credentials-notepad" rows="5" placeholder="# 👑 Godfather Secret Admin Credential Log&#10;# Store temporary passwords, admin phone numbers, and private notes here...&#10;&#10;admin1@example.com | Pass: Jtbs#Live2026 | Phone: +91 9876543210&#10;superadmin2@example.com | Pass: SuperGod#77" style="font-family: monospace; font-size:12px; line-height:1.6; resize:vertical; width:100%;" oninput="localStorage.setItem('jtbs_godfather_notes_local', this.value)"></textarea>
+      </div>
+
+      <!-- 📢 GODFATHER COMMAND CENTER: ADMIN HUD BROADCAST & DECODER OSD TICKER -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:14px; margin-bottom:16px;">
+        <!-- Admin HUD Flash Broadcast -->
+        <div style="background:rgba(239,68,68,0.08); border:1.5px solid rgba(239,68,68,0.4); border-radius:8px; padding:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+            <div style="font-weight:700; color:#fca5a5; font-size:13px; display:flex; align-items:center; gap:6px;">
+              <span>👑 Admin HUD Live Flash Broadcast</span>
+            </div>
+            <span id="godfather-broadcast-status-badge" class="role-badge" style="font-size:10px; background:rgba(255,255,255,0.1); color:var(--sub);">IDLE</span>
+          </div>
+          <div style="font-size:11px; color:#fecaca; margin-bottom:10px; line-height:1.4;">
+            Push an instant high-priority banner directly across the screens of all connected Superadmins & Admins.
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <input type="text" id="godfather-broadcast-text" placeholder="e.g. 🚨 Live event on Feed 3 - Please do not alter feeds" style="font-size:12px; padding:7px 10px; width:100%;" />
+            <div style="display:flex; gap:8px;">
+              <select id="godfather-broadcast-severity" style="flex:1; padding:6px 8px; font-size:12px; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
+                <option value="warning">⚠️ Important Notice (Gold)</option>
+                <option value="critical">🚨 Emergency Alert (Red)</option>
+                <option value="info">📢 Information (Blue)</option>
+              </select>
+              <button class="btn-gold-sm" onclick="godfatherSendBroadcast()" style="padding:6px 14px; font-size:12px; background:linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); border-color:#f87171; color:#fff; white-space:nowrap;">
+                ⚡ Broadcast
+              </button>
+              <button class="btn-gold-sm" onclick="godfatherClearBroadcast()" style="padding:6px 10px; font-size:12px; background:transparent; border-color:var(--border2); color:var(--sub); white-space:nowrap;">
+                🛑 Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Decoder OSD Marquee / Ticker -->
+        <div style="background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.4); border-radius:8px; padding:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+            <div style="font-weight:700; color:#fde68a; font-size:13px; display:flex; align-items:center; gap:6px;">
+              <span>📺 Decoder Box OSD Marquee Ticker</span>
+            </div>
+            <span id="godfather-decoder-ticker-status-badge" class="role-badge" style="font-size:10px; background:rgba(255,255,255,0.1); color:var(--sub);">IDLE</span>
+          </div>
+          <div style="font-size:11px; color:#fef3c7; margin-bottom:10px; line-height:1.4;">
+            Send a real-time scrolling marquee message on top of live video to physical decoder boxes.
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <input type="text" id="godfather-decoder-ticker-text" placeholder="e.g. Scheduled satellite maintenance tonight - JTBS Classic" style="font-size:12px; padding:7px 10px; width:100%;" />
+            <div style="display:flex; gap:8px;">
+              <select id="godfather-decoder-ticker-target" style="flex:1; padding:6px 8px; font-size:12px; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
+                <option value="all">🌐 All Active Decoders</option>
+              </select>
+              <button class="btn-gold-sm" onclick="godfatherPushDecoderTicker()" style="padding:6px 14px; font-size:12px; background:linear-gradient(180deg, #f59e0b 0%, #b45309 100%); border-color:#fcd34d; color:#111; font-weight:700; white-space:nowrap;">
+                📡 Push Ticker
+              </button>
+              <button class="btn-gold-sm" onclick="godfatherClearDecoderTicker()" style="padding:6px 10px; font-size:12px; background:transparent; border-color:var(--border2); color:var(--sub); white-space:nowrap;">
+                🛑 Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🦅 GODFATHER WATCHTOWER (22-CHANNEL MULTI-STREAM SURVEILLANCE WALL) -->
+      <div style="background:rgba(15,23,42,0.6); border:1.5px solid rgba(56,189,248,0.35); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div style="font-weight:700; color:#7dd3fc; font-size:14px; display:flex; align-items:center; gap:8px;">
+            <span>🦅 Godfather Watchtower (22-Channel Multi-Stream Wall)</span>
+            <span class="role-badge" style="background:#0369a1; color:#e0f2fe; font-size:10px;">SURVEILLANCE</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button class="btn-gold-sm" id="godfather-watchtower-toggle-btn" onclick="godfatherToggleWatchtowerWall()" style="padding:5px 12px; font-size:11px;">▶️ Activate All Video Feeds</button>
+            <button class="btn-gold-sm" onclick="godfatherRefreshWatchtower()" style="padding:5px 10px; font-size:11px; background:transparent; border-color:var(--border2); color:var(--sub);">🔄 Refresh</button>
+          </div>
+        </div>
+        <div style="font-size:12px; color:#bae6fd; margin-bottom:12px; line-height:1.4;">
+          Real-time multi-view surveillance of all 22 live stream channels side-by-side with live audio/video monitors, stream status, and instant jump links.
+        </div>
+        <div id="godfather-watchtower-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:12px; max-height: 480px; overflow-y: auto; padding:6px;">
+          <div style="color:var(--sub); padding:20px; text-align:center; grid-column:1/-1;">Loading channel monitors…</div>
+        </div>
+      </div>
+
+      <!-- 📜 SUPERADMIN LIVE ACTIVITY & AUDIT TRAIL (WITH 1-CLICK REVERT) -->
+      <div style="background:rgba(30,41,59,0.5); border:1.5px solid rgba(148,163,184,0.3); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div style="font-weight:700; color:#e2e8f0; font-size:14px; display:flex; align-items:center; gap:8px;">
+            <span>📜 Superadmin Live Activity & Audit Trail</span>
+            <span class="role-badge" style="background:#334155; color:#f8fafc; font-size:10px;">REAL-TIME LOG</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="btn-gold-sm" onclick="godfatherClearAuditLogs()" style="padding:4px 10px; font-size:11px; background:transparent; border-color:var(--border2); color:var(--red);">🗑️ Clear Logs</button>
+          </div>
+        </div>
+        <div style="font-size:12px; color:#cbd5e1; margin-bottom:12px; line-height:1.4;">
+          Live monitoring of all superadmin and admin actions across streams, decoders, and branding. Click <strong>⚡ Revert</strong> next to any stream change to immediately undo and restore the previous stream state.
+        </div>
+        <div class="users-table-wrap" style="max-height: 320px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+          <table style="width:100%; border-collapse:collapse; font-size:12px;">
+            <thead>
+              <tr style="background:rgba(255,255,255,0.06);">
+                <th style="padding:8px 10px; color:#cbd5e1;">Time</th>
+                <th style="padding:8px 10px; color:#cbd5e1;">Admin</th>
+                <th style="padding:8px 10px; color:#cbd5e1;">Action & Details</th>
+                <th style="padding:8px 10px; color:#cbd5e1; text-align:center;">Undo / Revert</th>
+              </tr>
+            </thead>
+            <tbody id="godfather-audit-logs-tbody">
+              <tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">Listening for admin activity…</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div id="godfather-msg" class="save-msg" style="margin-top:0;"></div>
@@ -2478,9 +2606,15 @@ function initDashboard(user,role){
   initLinkVault();
   window.currentUserRole = role;
   window.currentUserUid = user.uid;
+  godfatherListenBroadcast();
   if(canAccessUsers) loadUsers(user,role);
-  if(isGodfather && typeof window.godfatherLoadCredentials === 'function') window.godfatherLoadCredentials();
-  if(isGodfather && typeof window.godfatherRefreshFeedMatrix === 'function') window.godfatherRefreshFeedMatrix();
+  if(isGodfather) {
+    if (typeof window.godfatherLoadCredentials === 'function') window.godfatherLoadCredentials();
+    if (typeof window.godfatherRefreshFeedMatrix === 'function') window.godfatherRefreshFeedMatrix();
+    if (typeof window.godfatherInitWatchtower === 'function') window.godfatherInitWatchtower();
+    if (typeof window.godfatherInitAuditLogs === 'function') window.godfatherInitAuditLogs();
+    if (typeof window.godfatherListenDecoderTicker === 'function') window.godfatherListenDecoderTicker();
+  }
 
   // Populate IPTV direct link URLs (reads iptvDomain from config/main)
   function updateIPTVLinks(domain) {
@@ -2742,6 +2876,422 @@ window.godfatherAssignFeed = async function(selectEl, feedId) {
     alert(`Error updating assignment: ${err.message}`);
   } finally {
     selectEl.disabled = false;
+  }
+};
+
+// ── GODFATHER BROADCASTS & DECODER OSD TICKER ─────────────────
+let godfatherBroadcastUnsub = null;
+
+function godfatherListenBroadcast() {
+  if (godfatherBroadcastUnsub) return;
+  godfatherBroadcastUnsub = db.doc('config/godfatherBroadcast').onSnapshot(snap => {
+    const hud = $('godfather-broadcast-hud');
+    const msgEl = $('godfather-hud-message');
+    const titleEl = $('godfather-hud-title');
+    const timeEl = $('godfather-hud-time');
+    const dismissBtn = $('godfather-hud-dismiss-btn');
+    const statusBadge = $('godfather-broadcast-status-badge');
+
+    const curUser = auth.currentUser;
+    const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+
+    if (!snap.exists) {
+      if (hud) hud.style.display = 'none';
+      if (statusBadge) { statusBadge.textContent = 'IDLE'; statusBadge.style.background = 'rgba(255,255,255,0.1)'; statusBadge.style.color = 'var(--sub)'; }
+      return;
+    }
+
+    const data = snap.data();
+    if (!data.active || !data.message) {
+      if (hud) hud.style.display = 'none';
+      if (statusBadge) { statusBadge.textContent = 'IDLE'; statusBadge.style.background = 'rgba(255,255,255,0.1)'; statusBadge.style.color = 'var(--sub)'; }
+      return;
+    }
+
+    if (statusBadge) {
+      statusBadge.textContent = '● ACTIVE LIVE';
+      statusBadge.style.background = 'rgba(239,68,68,0.2)';
+      statusBadge.style.color = '#fca5a5';
+    }
+
+    if (hud) {
+      hud.style.display = 'block';
+      const sev = data.severity || 'warning';
+      if (sev === 'critical') {
+        hud.style.background = 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #450a0a 100%)';
+        hud.style.border = '2px solid #ef4444';
+        if (titleEl) titleEl.textContent = '🚨 CRITICAL GODFATHER OVERRIDE ALERT';
+      } else if (sev === 'info') {
+        hud.style.background = 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #172554 100%)';
+        hud.style.border = '2px solid #60a5fa';
+        if (titleEl) titleEl.textContent = '📢 GODFATHER NETWORK BULLETIN';
+      } else {
+        hud.style.background = 'linear-gradient(135deg, #78350f 0%, #92400e 50%, #451a03 100%)';
+        hud.style.border = '2px solid #f59e0b';
+        if (titleEl) titleEl.textContent = '👑 GODFATHER URGENT NOTICE';
+      }
+
+      if (msgEl) msgEl.textContent = data.message;
+      if (timeEl && data.sentAt) {
+        try {
+          const d = data.sentAt.toDate ? data.sentAt.toDate() : new Date(data.sentAt);
+          timeEl.textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } catch(e) { timeEl.textContent = ''; }
+      }
+      if (dismissBtn) {
+        dismissBtn.style.display = isGodfather ? 'inline-block' : 'none';
+      }
+    }
+  });
+}
+
+window.godfatherSendBroadcast = async function() {
+  const input = $('godfather-broadcast-text');
+  const sevEl = $('godfather-broadcast-severity');
+  if (!input || !input.value.trim()) {
+    alert('Please enter a broadcast message.');
+    return;
+  }
+  const text = input.value.trim();
+  const severity = sevEl ? sevEl.value : 'warning';
+  
+  try {
+    await db.doc('config/godfatherBroadcast').set({
+      active: true,
+      message: text,
+      severity: severity,
+      sentBy: 'Joel Sohan Gomes (Godfather)',
+      sentAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    logAdminAction('broadcast_sent', 'all', `Sent ${severity.toUpperCase()} broadcast: "${text}"`);
+    input.value = '';
+    alert('✓ Flash Broadcast successfully pushed to all Superadmins & Admins!');
+  } catch(err) {
+    alert(`Error pushing broadcast: ${err.message}`);
+  }
+};
+
+window.godfatherClearBroadcast = async function() {
+  try {
+    await db.doc('config/godfatherBroadcast').set({
+      active: false,
+      message: '',
+      clearedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    logAdminAction('broadcast_cleared', 'all', 'Cleared active broadcast banner');
+  } catch(err) {
+    alert(`Error clearing broadcast: ${err.message}`);
+  }
+};
+
+window.godfatherPushDecoderTicker = async function() {
+  const input = $('godfather-decoder-ticker-text');
+  const targetEl = $('godfather-decoder-ticker-target');
+  if (!input || !input.value.trim()) {
+    alert('Please enter a ticker message for decoders.');
+    return;
+  }
+  const text = input.value.trim();
+  const target = targetEl ? targetEl.value : 'all';
+
+  try {
+    await db.doc('config/decoderTicker').set({
+      active: true,
+      text: text,
+      target: target,
+      speed: 6,
+      color: '#ffd700',
+      sentBy: 'Joel Sohan Gomes (Godfather)',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    logAdminAction('decoder_ticker_pushed', target, `Pushed OSD Ticker to [${target}]: "${text}"`);
+    input.value = '';
+    alert(`✓ Decoder OSD Ticker successfully pushed to ${target === 'all' ? 'all decoder boxes' : 'decoder ' + target}!`);
+  } catch(err) {
+    alert(`Error pushing ticker: ${err.message}`);
+  }
+};
+
+window.godfatherClearDecoderTicker = async function() {
+  try {
+    await db.doc('config/decoderTicker').set({
+      active: false,
+      text: '',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    logAdminAction('decoder_ticker_cleared', 'all', 'Cleared decoder OSD ticker');
+    alert('✓ Decoder OSD Ticker cleared.');
+  } catch(err) {
+    alert(`Error clearing ticker: ${err.message}`);
+  }
+};
+
+window.godfatherListenDecoderTicker = function() {
+  db.doc('config/decoderTicker').onSnapshot(snap => {
+    const badge = $('godfather-decoder-ticker-status-badge');
+    if (!badge) return;
+    if (snap.exists && snap.data().active && snap.data().text) {
+      badge.textContent = '● TICKER ACTIVE';
+      badge.style.background = 'rgba(245,158,11,0.25)';
+      badge.style.color = '#fde68a';
+    } else {
+      badge.textContent = 'IDLE';
+      badge.style.background = 'rgba(255,255,255,0.1)';
+      badge.style.color = 'var(--sub)';
+    }
+  });
+
+  // Populate decoder target list
+  db.collection('decoderStatus').onSnapshot(snap => {
+    const targetSel = $('godfather-decoder-ticker-target');
+    if (!targetSel) return;
+    let opts = '<option value="all">🌐 All Active Decoders</option>';
+    snap.forEach(doc => {
+      const d = doc.data();
+      opts += `<option value="${doc.id}">📺 ${d.customName || d.friendlyName || doc.id}</option>`;
+    });
+    targetSel.innerHTML = opts;
+  });
+};
+
+// ── 🦅 GODFATHER WATCHTOWER (22-CHANNEL SURVEILLANCE) ─────────
+let watchtowerActiveHls = {};
+let watchtowerWallRunning = false;
+
+window.godfatherInitWatchtower = function() {
+  godfatherRefreshWatchtower();
+};
+
+window.godfatherRefreshWatchtower = async function() {
+  const grid = $('godfather-watchtower-grid');
+  if (!grid) return;
+
+  try {
+    const streamSnaps = await db.collection('streamState').get();
+    const streamMap = {};
+    streamSnaps.forEach(d => { streamMap[d.id] = d.data(); });
+
+    let html = '';
+    ALL_MANAGED_CHANNELS.forEach(ch => {
+      const d = streamMap[ch.id] || {};
+      const isLive = !!d.isLive || (ch.id === 'main' && (!!d.isLive || !!d.decoderIsLive));
+      const isSrinjana = ch.id === 'srinjana';
+      const assignedName = isSrinjana ? '👑 Godfather' : (d.assignedName || d.assignedEmail || '🌐 Open to All');
+      const streamUrl = d.streamUrl || d.decoderStreamUrl || '';
+
+      html += `
+        <div class="watchtower-tile" id="watchtower-tile-${ch.id}" style="background:rgba(15,23,42,0.85); border:1px solid ${isLive ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.08)'}; border-radius:6px; padding:10px; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; color:#fff; font-size:12px; font-family:var(--classic-title-font);">${ch.name}</span>
+            <span class="${isLive ? 'status-live' : 'status-off'}" style="font-size:10px; font-weight:700;">
+              ${isLive ? '● LIVE' : '● OFF'}
+            </span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--sub);">
+            <span style="font-family:monospace; color:var(--gold);">${ch.endpoint}</span>
+            <span class="role-badge" style="font-size:9px; padding:2px 6px;">${assignedName}</span>
+          </div>
+          <div style="position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:4px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+            <video id="watchtower-video-${ch.id}" playsinline muted style="width:100%; height:100%; object-fit:contain; display:${isLive ? 'block' : 'none'};"></video>
+            <div id="watchtower-offair-${ch.id}" style="display:${isLive ? 'none' : 'flex'}; flex-direction:column; align-items:center; justify-content:center; color:var(--sub); font-size:11px; gap:4px;">
+              <span>📡</span>
+              <span>Off Air</span>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+            <button class="btn-gold-sm" onclick="godfatherPlaySingleMonitor('${ch.id}', '${encodeURIComponent(streamUrl)}')" style="padding:3px 8px; font-size:10px; flex:1;">
+              ${isLive ? '▶️ Preview' : '⚪ Offline'}
+            </button>
+            <button class="btn-gold-sm" onclick="godfatherJumpToFeed('${ch.id}')" style="padding:3px 8px; font-size:10px; background:transparent; border-color:var(--border2); color:var(--gold);">
+              ⚡ Jump
+            </button>
+          </div>
+        </div>
+      `;
+    });
+    grid.innerHTML = html;
+  } catch(err) {
+    grid.innerHTML = `<div style="color:var(--red); padding:14px; text-align:center;">Error loading watchtower: ${err.message}</div>`;
+  }
+};
+
+window.godfatherPlaySingleMonitor = function(chId, encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  const vid = $(`watchtower-video-${chId}`);
+  if (!vid || !url) return;
+
+  vid.style.display = 'block';
+  if (watchtowerActiveHls[chId]) {
+    watchtowerActiveHls[chId].destroy();
+    delete watchtowerActiveHls[chId];
+  }
+
+  if (window.Hls && Hls.isSupported() && url.includes('.m3u8')) {
+    const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+    hls.loadSource(url);
+    hls.attachMedia(vid);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      vid.play().catch(()=>{});
+    });
+    watchtowerActiveHls[chId] = hls;
+  } else {
+    vid.src = url;
+    vid.play().catch(()=>{});
+  }
+};
+
+window.godfatherToggleWatchtowerWall = function() {
+  watchtowerWallRunning = !watchtowerWallRunning;
+  const btn = $('godfather-watchtower-toggle-btn');
+  if (btn) {
+    btn.textContent = watchtowerWallRunning ? '⏸️ Stop All Live Previews' : '▶️ Activate All Video Feeds';
+    btn.style.background = watchtowerWallRunning ? 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)' : '';
+  }
+
+  if (!watchtowerWallRunning) {
+    Object.keys(watchtowerActiveHls).forEach(k => {
+      if (watchtowerActiveHls[k]) watchtowerActiveHls[k].destroy();
+    });
+    watchtowerActiveHls = {};
+    document.querySelectorAll('[id^="watchtower-video-"]').forEach(v => {
+      v.pause();
+      v.src = '';
+    });
+  } else {
+    db.collection('streamState').get().then(snap => {
+      snap.forEach(doc => {
+        const d = doc.data();
+        if (d.isLive && d.streamUrl) {
+          godfatherPlaySingleMonitor(doc.id, encodeURIComponent(d.streamUrl));
+        }
+      });
+    });
+  }
+};
+
+window.godfatherJumpToFeed = function(feedId) {
+  if (feedId === 'main') {
+    document.querySelector('[data-tab="stream"]').click();
+  } else {
+    document.querySelector('[data-tab="otherstreams"]').click();
+    const feedKey = feedId.replace('feed', '');
+    if (typeof window.switchFeedTab === 'function') {
+      window.switchFeedTab(feedKey);
+    }
+  }
+};
+
+// ── 📜 SUPERADMIN AUDIT LOGGING & 1-CLICK REVERT ──────────────
+let auditLogsUnsub = null;
+
+function logAdminAction(action, targetFeed, details, previousState, newState) {
+  const curUser = auth.currentUser;
+  const uid = curUser ? curUser.uid : 'anon';
+  const email = curUser ? (curUser.email || 'anonymous') : 'anonymous';
+  const name = curUser ? (curUser.displayName || email) : 'anonymous';
+  const role = window.currentUserRole || 'admin';
+
+  db.collection('adminAuditLogs').add({
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    userUid: uid,
+    userEmail: email,
+    userName: name,
+    userRole: role,
+    action: action,
+    targetFeed: targetFeed || 'global',
+    details: details || '',
+    previousState: previousState || null,
+    newState: newState || null
+  }).catch(e => console.error("Audit log write error:", e));
+}
+
+window.godfatherInitAuditLogs = function() {
+  if (auditLogsUnsub) return;
+  const tbody = $('godfather-audit-logs-tbody');
+  if (!tbody) return;
+
+  auditLogsUnsub = db.collection('adminAuditLogs')
+    .orderBy('timestamp', 'desc')
+    .limit(40)
+    .onSnapshot(snap => {
+      if (snap.empty) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">No recent administrative actions recorded yet.</td></tr>';
+        return;
+      }
+
+      let rows = '';
+      snap.forEach(doc => {
+        const d = doc.data();
+        const logId = doc.id;
+        let timeStr = 'Just now';
+        if (d.timestamp) {
+          try {
+            const dt = d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp);
+            timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' · ' + dt.toLocaleDateString([], { month: 'short', day: 'numeric' });
+          } catch(e){}
+        }
+
+        const roleBadge = d.userRole === 'godfather' ? 'role-badge godfather' : (d.userRole === 'superadmin' ? 'role-badge superadmin' : 'role-badge admin');
+        const hasRevertableState = d.previousState && d.targetFeed && d.targetFeed !== 'global';
+        const prevJson = d.previousState ? encodeURIComponent(JSON.stringify(d.previousState)) : '';
+
+        rows += `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <td style="padding:8px 10px; font-family:monospace; color:var(--sub); font-size:11px; white-space:nowrap;">${timeStr}</td>
+            <td style="padding:8px 10px; white-space:nowrap;">
+              <span style="font-weight:600; color:#fff; font-size:12px;">${esc(d.userName || d.userEmail || 'Unknown')}</span>
+              <span class="${roleBadge}" style="font-size:9px; margin-left:4px; padding:1px 5px;">${esc(d.userRole || 'admin')}</span>
+            </td>
+            <td style="padding:8px 10px; font-size:12px; color:#e2e8f0;">
+              <div style="font-weight:600; color:var(--gold); margin-bottom:2px;">[${esc(d.targetFeed || 'System')}] ${esc(d.action)}</div>
+              <div style="color:#cbd5e1; font-size:11px; word-break:break-all;">${esc(d.details || '')}</div>
+            </td>
+            <td style="padding:8px 10px; text-align:center; white-space:nowrap;">
+              ${hasRevertableState ? `
+                <button class="btn-gold-sm" onclick="godfatherRevertAuditLog('${logId}', '${d.targetFeed}', '${prevJson}')" style="padding:4px 8px; font-size:11px; background:linear-gradient(180deg, #f59e0b 0%, #b45309 100%); color:#111; font-weight:700;">
+                  ⚡ Revert
+                </button>
+              ` : `
+                <span style="color:var(--sub); font-size:11px;">—</span>
+              `}
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = rows;
+    }, err => {
+      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--red); padding:14px; text-align:center;">Error loading audit logs: ${err.message}</td></tr>`;
+    });
+};
+
+window.godfatherRevertAuditLog = async function(logId, targetFeed, encodedPrevJson) {
+  if (!confirm(`Are you sure you want to REVERT ${targetFeed} to its previous state? This will undo the admin's changes immediately.`)) {
+    return;
+  }
+
+  try {
+    const prevState = JSON.parse(decodeURIComponent(encodedPrevJson));
+    prevState.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+    prevState.updatedBy = auth.currentUser ? auth.currentUser.uid : 'godfather';
+
+    await db.doc(`streamState/${targetFeed}`).set(prevState, { merge: true });
+    logAdminAction('godfather_revert', targetFeed, `Godfather reverted ${targetFeed} to previous state.`);
+    alert(`✓ Stream feed "${targetFeed}" successfully reverted to its previous state!`);
+  } catch(err) {
+    alert(`Error reverting state: ${err.message}`);
+  }
+};
+
+window.godfatherClearAuditLogs = async function() {
+  if (!confirm('Are you sure you want to clear the audit history logs?')) return;
+  try {
+    const snap = await db.collection('adminAuditLogs').limit(100).get();
+    const batch = db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    alert('✓ Audit logs cleared.');
+  } catch(err) {
+    alert(`Error clearing audit logs: ${err.message}`);
   }
 };
 
@@ -3665,9 +4215,11 @@ function saveStreamState(url, duration) {
     data.allDurations = firebase.firestore.FieldValue.delete();
   }
 
+  const prevState = window.currentStreamStateData || {};
   db.doc('streamState/main').set(data, {merge:true}).then(() => {
     $('live-save-msg').textContent = '✓ Stream is live';
     flash('live-save-msg', false);
+    logAdminAction('stream_start', 'main', `Set Main Stream LIVE with URL: ${url}`, prevState, data);
   }).catch(e => {
     $('live-save-msg').textContent = '✗ ' + e.message;
     flash('live-save-msg', true);
@@ -3719,11 +4271,13 @@ function savePublicStreamState(url, duration) {
     data.allDurations = firebase.firestore.FieldValue.delete();
   }
 
+  const prevState = window.currentStreamStateData || {};
   db.doc('streamState/main').set(data, {merge:true}).then(() => {
     if ($('public-live-save-msg')) {
       $('public-live-save-msg').textContent = '✓ Public stream is live';
       flash('public-live-save-msg', false);
     }
+    logAdminAction('stream_start', 'main', `Set Public Stream LIVE with URL: ${url}`, prevState, data);
   }).catch(e => {
     if ($('public-live-save-msg')) {
       $('public-live-save-msg').textContent = '✗ ' + e.message;
@@ -3778,11 +4332,13 @@ function saveDecoderStreamState(url, duration) {
     data.decoderAllDurations = firebase.firestore.FieldValue.delete();
   }
 
+  const prevState = window.currentStreamStateData || {};
   db.doc('streamState/main').set(data, {merge:true}).then(() => {
     if ($('decoder-live-save-msg')) {
       $('decoder-live-save-msg').textContent = '✓ Decoder stream is live';
       flash('decoder-live-save-msg', false);
     }
+    logAdminAction('stream_start', 'main', `Set Decoder Box Stream LIVE with URL: ${url}`, prevState, data);
   }).catch(e => {
     if ($('decoder-live-save-msg')) {
       $('decoder-live-save-msg').textContent = '✗ ' + e.message;
@@ -5230,23 +5786,25 @@ function loadOtherStreams() {
         const selectedVids = playlists[scope] && playlists[scope].videos ? 
           playlists[scope].videos.filter(v => v.selected).map(v => v.id) : [];
 
-        try {
-          await docRef.set({
-            isLive: isLive,
-            streamUrl: streamUrl,
-            streamType: detectType(streamUrl),
-            mode: ytPlayMode,
-            playMode: ytPlayMode,
-            mp4PlayMode: mp4PlayMode,
-            selectedVideos: selectedVids,
-            offlineImageUrl: offlineImageUrl,
-            offlineHlsUrl: offlineHlsUrl,
-            offlineVideoUrl: offlineHlsUrl || offlineImageUrl,
-            offlineText: offlineText,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
+        const payload = {
+          isLive: isLive,
+          streamUrl: streamUrl,
+          streamType: detectType(streamUrl),
+          mode: ytPlayMode,
+          playMode: ytPlayMode,
+          mp4PlayMode: mp4PlayMode,
+          selectedVideos: selectedVids,
+          offlineImageUrl: offlineImageUrl,
+          offlineHlsUrl: offlineHlsUrl,
+          offlineVideoUrl: offlineHlsUrl || offlineImageUrl,
+          offlineText: offlineText,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
+        try {
+          await docRef.set(payload, { merge: true });
           flash(`feed-save-msg-${i}`);
+          logAdminAction('update_feed', scope, `Updated ${feed.name} URL: ${streamUrl || '(empty)'} (Live: ${isLive})`, checkData, payload);
         } catch (err) {
           alert(`Error saving ${feed.name}: ` + err.message);
         } finally {
@@ -5267,11 +5825,13 @@ function loadOtherStreams() {
           return;
         }
         const isLive = toggleSwitch.checked;
+        const togglePayload = {
+          isLive: isLive,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
         try {
-          await docRef.set({
-            isLive: isLive,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
+          await docRef.set(togglePayload, { merge: true });
+          logAdminAction('toggle_feed', scope, `Toggled ${feed.name} status to ${isLive ? 'LIVE' : 'OFFLINE'}`, checkData, togglePayload);
         } catch (err) {
           alert(`Error toggling ${feed.name}: ` + err.message);
         }
@@ -6617,27 +7177,21 @@ window.assignVaultLinkFromSelect = async function(selectEl, url) {
 
     const isMain = target === 'main';
     const isDecoder = target === 'decoder';
+    const updatePayload = {
+      streamUrl: url,
+      isLive: true,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
     if (isMain) {
-      await db.collection('streamState').doc('main').set({
-        streamUrl: url,
-        isLive: true,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      await db.collection('streamState').doc('main').set(updatePayload, { merge: true });
     } else if (isDecoder) {
-      await db.collection('streamState').doc('decoder').set({
-        streamUrl: url,
-        isLive: true,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      await db.collection('streamState').doc('decoder').set(updatePayload, { merge: true });
     } else {
-      await db.collection('streamState').doc(target).set({
-        streamUrl: url,
-        isLive: true,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      await db.collection('streamState').doc(target).set(updatePayload, { merge: true });
     }
 
+    logAdminAction('assign_vault_link', docTarget, `Assigned vault link to ${targetName}: "${url}"`, feedData, updatePayload);
     alert(`✓ Stream URL successfully assigned to ${targetName} and set LIVE!`);
   } catch (err) {
     alert(`Error assigning stream: ${err.message}`);

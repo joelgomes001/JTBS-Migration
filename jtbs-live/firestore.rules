@@ -48,6 +48,19 @@ service cloud.firestore {
     match /config/godfatherCredentials {
       allow read, write: if isGodfather();
     }
+    match /config/godfatherBroadcast {
+      allow read: if true;
+      allow write: if isGodfather();
+    }
+    match /config/decoderTicker {
+      allow read: if true;
+      allow write: if isGodfather();
+    }
+    match /adminAuditLogs/{id} {
+      allow read: if isSuperAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if isGodfather();
+    }
     match /config/{doc}       { allow read: if true; allow write: if isAdmin(); }
     match /announcement/current{ allow read: if true; allow write: if isAdmin(); }
     match /blessCount/main    { allow read: if true; allow write: if true; }
