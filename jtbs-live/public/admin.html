@@ -1619,7 +1619,7 @@ tr:last-child td{border-bottom:none;}
       <div class="card-title">
         <span>Stream Link Vault (TXT Notepad)</span>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn-gold-sm" onclick="saveVaultToCloud()" style="padding: 6px 14px; font-size: 13px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); border-color: #a7f3d0; color: #fff;">💾 Save to Cloud</button>
+          <button class="btn-gold-sm" onclick="saveVaultToCloud()" style="padding: 6px 14px; font-size: 13px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); border-color: #a7f3d0; color: #fff;">💾 Save Links</button>
           <label class="btn-gold-sm" style="padding: 6px 14px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; margin: 0;">
             📁 Import .txt / .m3u
             <input type="file" id="vault-file-import" accept=".txt,.m3u,.m3u8" style="display: none;" onchange="importVaultFile(event)" />
@@ -1631,7 +1631,7 @@ tr:last-child td{border-bottom:none;}
       </div>
       
       <div class="hint" style="margin-top: -10px; margin-bottom: 12px;">
-        Store all your stream links in plain text. Format: <code>Title | URL</code> or raw URL per line. Saved permanently to Firestore cloud.
+        Store all your stream links in plain text. Format: <code>Title | URL</code> or raw URL per line.
       </div>
 
       <textarea id="vault-raw-textarea" rows="10" placeholder="# JTBS Stream Link Vault&#10;# Paste one stream per line, or format as: Channel Title | Stream URL&#10;&#10;Mayapur TV HD | https://video4.mayapur.tv/allTemples/MayapurTV/MayapurTVHD/playlist.m3u8&#10;Srinjana Feed Backup | https://example.com/live/srinjana.m3u8&#10;VLC Direct Stream | rtmp://example.com/live/stream" style="font-family: var(--pixel-font); font-size: 13px; line-height: 1.6; resize: vertical;" oninput="onVaultTextareaInput()"></textarea>
@@ -5487,12 +5487,12 @@ window.saveVaultToCloud = async function() {
     } catch(e){}
 
     if (msg) {
-      msg.textContent = '✓ Stored & Synced to Cloud in Firestore!';
+      msg.textContent = '✓ Links Saved Successfully!';
       msg.classList.add('show');
       setTimeout(() => msg.classList.remove('show'), 3500);
     }
   } catch (err) {
-    alert(`Failed to save to cloud: ${err.message}`);
+    alert(`Failed to save links: ${err.message}`);
   }
 };
 
