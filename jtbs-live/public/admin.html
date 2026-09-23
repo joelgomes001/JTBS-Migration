@@ -1566,6 +1566,35 @@ tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
+      <!-- 🔐 GODFATHER LINK VAULT ACCESS AUTHORIZATION MATRIX -->
+      <div style="background:rgba(99,102,241,0.08); border:1.5px solid rgba(99,102,241,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+          <div style="font-weight:700; color:#c7d2fe; font-size:14px; display:flex; align-items:center; gap:8px;">
+            <span>🔐 Link Vault Access Authorization Matrix</span>
+            <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:10px;">GODFATHER SECURITY</span>
+          </div>
+          <button class="btn-gold-sm" onclick="godfatherRefreshVaultAccessMatrix()" style="padding:4px 12px; font-size:11px;">🔄 Refresh Matrix</button>
+        </div>
+        <div style="font-size:12px; color:#e0e7ff; margin-bottom:12px; line-height:1.4;">
+          Select which Admins & Superadmins are permitted to view raw stream URLs in the Link Vault. All unauthorized admins will see a locked screen.
+        </div>
+        <div class="users-table-wrap" style="max-height: 280px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+          <table style="width:100%; border-collapse:collapse; font-size:12px;">
+            <thead>
+              <tr style="background:rgba(255,255,255,0.06);">
+                <th style="padding:8px 10px; color:#a5b4fc;">Admin User</th>
+                <th style="padding:8px 10px; color:#a5b4fc;">Role</th>
+                <th style="padding:8px 10px; color:#a5b4fc; text-align:center;">Link Vault Permission</th>
+                <th style="padding:8px 10px; color:#a5b4fc; text-align:center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="godfather-vault-matrix-tbody">
+              <tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">Loading user permissions…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Godfather Private Credentials Vault Notepad -->
       <div style="background:rgba(255,215,0,0.05); border:1px solid rgba(255,215,0,0.25); border-radius:8px; padding:16px; margin-bottom:16px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
@@ -2061,92 +2090,133 @@ tr:last-child td{border-bottom:none;}
   <!-- LINK VAULT & STREAM PREVIEWER -->
   <div class="tab-panel" id="tab-linkvault" style="max-width: 960px;">
     
-    <!-- CARD 1: LIVE STREAM PREVIEW PLAYER -->
-    <div class="card" id="vault-player-card">
-      <div class="card-title">
-        <span>HLS Stream Preview & Tester</span>
-        <div id="vault-player-status-badge" class="vault-status-badge vault-badge-idle">
-          <span style="font-size:10px;">●</span> IDLE
+    <!-- ACCESS PERMISSION STATUS HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:16px; font-weight:700; color:#fff; font-family:var(--classic-title-font);">Stream Link Repository</span>
+        <span id="vault-access-status-badge" class="role-badge" style="font-size:10px;">CHECKING ACCESS…</span>
+      </div>
+      <div id="vault-godfather-badge" style="display:none;">
+        <span class="role-badge godfather" style="font-size:10px;">👑 GODFATHER MASTER CONTROL</span>
+      </div>
+    </div>
+
+    <!-- LOCKED ACCESS SCREEN (SHOWN TO UNAUTHORIZED ADMINS) -->
+    <div id="vault-locked-content" class="card" style="display:none; text-align:center; padding: 48px 24px; border: 1.5px solid rgba(239, 68, 68, 0.4); background: linear-gradient(180deg, rgba(30, 15, 15, 0.95) 0%, rgba(15, 10, 10, 0.98) 100%); border-radius: 12px; box-shadow: 0 0 30px rgba(239, 68, 68, 0.15); margin-bottom: 20px;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 28px;">
+        🔒
+      </div>
+      <h2 style="color: #fca5a5; font-size: 20px; font-weight: 800; margin-bottom: 8px; font-family: var(--classic-title-font); letter-spacing: 0.5px;">
+        LINK VAULT ACCESS RESTRICTED
+      </h2>
+      <p style="color: #cbd5e1; font-size: 13px; max-width: 520px; margin: 0 auto 20px; line-height: 1.6;">
+        You do not currently have permission to view raw stream URLs or the master repository notepad.
+      </p>
+      <div style="display: inline-block; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 12px 18px; margin-bottom: 22px; text-align: left;">
+        <div style="font-weight: 700; color: #fbbf24; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+          <span>👑</span> Authorization Required
+        </div>
+        <div style="font-size: 12px; color: #fde68a;">
+          To view links, ask permission from <strong>Godfather (Joel Sohan Gomes)</strong>.
         </div>
       </div>
-      <div class="hint" style="margin-top:-10px; margin-bottom:16px;">
-        Preview and test HLS live stream URLs in real time (<code style="color:var(--text)">.m3u8</code>).
+      <div>
+        <a href="mailto:joel.s.gomes001@gmail.com?subject=JTBS%20Classic%20-%20Link%20Vault%20Access%20Request&body=Hi%20Godfather%2C%20please%20grant%20my%20admin%20account%20permission%20to%20view%20the%20Link%20Vault." class="btn-gold-sm" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; font-size: 13px; text-decoration: none; font-weight: 700;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Request Permission from Godfather
+        </a>
       </div>
+    </div>
 
-      <!-- Player Frame -->
-      <div class="vault-player-wrap" style="aspect-ratio: 16/9; max-height: 420px; display: flex; align-items: center; justify-content: center; background: #050b14; position: relative;">
-        <!-- Video element for HLS streams -->
-        <video id="vault-video-player" controls playsinline style="width: 100%; height: 100%; object-fit: contain; display: block;"></video>
-        <!-- Placeholder overlay when idle -->
-        <div id="vault-player-idle-overlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5, 11, 20, 0.95); color: var(--sub); pointer-events: none;">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.6;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <div style="font-size: 14px; font-weight: 700; color: #fff; font-family: var(--classic-title-font);">HLS Stream Previewer</div>
-          <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">Click "▶ Preview" on any HLS (.m3u8) link below or paste a test URL</div>
+    <!-- AUTHORIZED CONTENT WRAPPER -->
+    <div id="vault-authorized-content">
+      <!-- CARD 1: LIVE STREAM PREVIEW PLAYER -->
+      <div class="card" id="vault-player-card">
+        <div class="card-title">
+          <span>HLS Stream Preview & Tester</span>
+          <div id="vault-player-status-badge" class="vault-status-badge vault-badge-idle">
+            <span style="font-size:10px;">●</span> IDLE
+          </div>
+        </div>
+        <div class="hint" style="margin-top:-10px; margin-bottom:16px;">
+          Preview and test HLS live stream URLs in real time (<code style="color:var(--text)">.m3u8</code>).
+        </div>
+
+        <!-- Player Frame -->
+        <div class="vault-player-wrap" style="aspect-ratio: 16/9; max-height: 420px; display: flex; align-items: center; justify-content: center; background: #050b14; position: relative;">
+          <!-- Video element for HLS streams -->
+          <video id="vault-video-player" controls playsinline style="width: 100%; height: 100%; object-fit: contain; display: block;"></video>
+          <!-- Placeholder overlay when idle -->
+          <div id="vault-player-idle-overlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5, 11, 20, 0.95); color: var(--sub); pointer-events: none;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.6;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <div style="font-size: 14px; font-weight: 700; color: #fff; font-family: var(--classic-title-font);">HLS Stream Previewer</div>
+            <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">Click "▶ Preview" on any HLS (.m3u8) link below or paste a test URL</div>
+          </div>
+        </div>
+
+        <!-- Currently Playing Info & Direct Test Input -->
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px;">
+            <span style="color: var(--sub);">Currently Playing: <strong id="vault-now-playing-title" style="color: var(--gold);">None</strong></span>
+            <span id="vault-stream-format-badge" class="vault-link-type-tag tag-hls" style="display: none;">HLS</span>
+          </div>
+          
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="vault-direct-test-url" placeholder="Paste any HLS test URL here (e.g. https://.../playlist.m3u8)..." style="flex: 1; min-width: 260px; font-family: var(--pixel-font); font-size: 13px;" />
+            <button class="btn btn-primary btn-sm" onclick="testVaultDirectUrl()" style="width: auto; padding: 9px 18px; white-space: nowrap;">▶ Play / Test HLS</button>
+            <button class="btn btn-secondary btn-sm" onclick="stopVaultPreviewPlayer()" style="width: auto; padding: 9px 14px; white-space: nowrap;">⏹ Stop</button>
+          </div>
         </div>
       </div>
 
-      <!-- Currently Playing Info & Direct Test Input -->
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px;">
-          <span style="color: var(--sub);">Currently Playing: <strong id="vault-now-playing-title" style="color: var(--gold);">None</strong></span>
-          <span id="vault-stream-format-badge" class="vault-link-type-tag tag-hls" style="display: none;">HLS</span>
+      <!-- CARD 2: STREAM LINK VAULT (TXT NOTEPAD) -->
+      <div class="card">
+        <div class="card-title">
+          <span>Stream Link Vault (TXT Notepad)</span>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-gold-sm" onclick="saveVaultToCloud()" style="padding: 6px 14px; font-size: 13px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); border-color: #a7f3d0; color: #fff;">💾 Save Links</button>
+            <label class="btn-gold-sm" style="padding: 6px 14px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; margin: 0;">
+              📁 Import .txt / .m3u
+              <input type="file" id="vault-file-import" accept=".txt,.m3u,.m3u8" style="display: none;" onchange="importVaultFile(event)" />
+            </label>
+            <button class="btn-gold-sm" onclick="exportVaultFile()" style="padding: 6px 14px; font-size: 13px;">📥 Export .txt</button>
+            <button class="btn-gold-sm" onclick="loadVaultFromCloud()" style="padding: 6px 12px; font-size: 13px;">🔄 Reload</button>
+            <button class="btn-gold-sm" onclick="clearVaultText()" style="padding: 6px 12px; font-size: 13px; background: rgba(220, 38, 38, 0.4); border-color: #ef4444; color: #fff;">🧹 Clear</button>
+          </div>
         </div>
         
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <input type="text" id="vault-direct-test-url" placeholder="Paste any HLS test URL here (e.g. https://.../playlist.m3u8)..." style="flex: 1; min-width: 260px; font-family: var(--pixel-font); font-size: 13px;" />
-          <button class="btn btn-primary btn-sm" onclick="testVaultDirectUrl()" style="width: auto; padding: 9px 18px; white-space: nowrap;">▶ Play / Test HLS</button>
-          <button class="btn btn-secondary btn-sm" onclick="stopVaultPreviewPlayer()" style="width: auto; padding: 9px 14px; white-space: nowrap;">⏹ Stop</button>
+        <div class="hint" style="margin-top: -10px; margin-bottom: 12px;">
+          Store all your stream links in plain text. Format: <code>Title | URL</code> or raw URL per line.
         </div>
-      </div>
-    </div>
 
-    <!-- CARD 2: STREAM LINK VAULT (TXT NOTEPAD) -->
-    <div class="card">
-      <div class="card-title">
-        <span>Stream Link Vault (TXT Notepad)</span>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn-gold-sm" onclick="saveVaultToCloud()" style="padding: 6px 14px; font-size: 13px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); border-color: #a7f3d0; color: #fff;">💾 Save Links</button>
-          <label class="btn-gold-sm" style="padding: 6px 14px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; margin: 0;">
-            📁 Import .txt / .m3u
-            <input type="file" id="vault-file-import" accept=".txt,.m3u,.m3u8" style="display: none;" onchange="importVaultFile(event)" />
-          </label>
-          <button class="btn-gold-sm" onclick="exportVaultFile()" style="padding: 6px 14px; font-size: 13px;">📥 Export .txt</button>
-          <button class="btn-gold-sm" onclick="loadVaultFromCloud()" style="padding: 6px 12px; font-size: 13px;">🔄 Reload</button>
-          <button class="btn-gold-sm" onclick="clearVaultText()" style="padding: 6px 12px; font-size: 13px; background: rgba(220, 38, 38, 0.4); border-color: #ef4444; color: #fff;">🧹 Clear</button>
-        </div>
-      </div>
-      
-      <div class="hint" style="margin-top: -10px; margin-bottom: 12px;">
-        Store all your stream links in plain text. Format: <code>Title | URL</code> or raw URL per line.
-      </div>
+        <textarea id="vault-raw-textarea" rows="10" placeholder="# JTBS Stream Link Vault&#10;# Paste one stream per line, or format as: Channel Title | Stream URL&#10;&#10;Mayapur TV HD | https://video4.mayapur.tv/allTemples/MayapurTV/MayapurTVHD/playlist.m3u8&#10;Srinjana Feed Backup | https://example.com/live/srinjana.m3u8&#10;VLC Direct Stream | rtmp://example.com/live/stream" style="font-family: var(--pixel-font); font-size: 13px; line-height: 1.6; resize: vertical;" oninput="onVaultTextareaInput()"></textarea>
 
-      <textarea id="vault-raw-textarea" rows="10" placeholder="# JTBS Stream Link Vault&#10;# Paste one stream per line, or format as: Channel Title | Stream URL&#10;&#10;Mayapur TV HD | https://video4.mayapur.tv/allTemples/MayapurTV/MayapurTVHD/playlist.m3u8&#10;Srinjana Feed Backup | https://example.com/live/srinjana.m3u8&#10;VLC Direct Stream | rtmp://example.com/live/stream" style="font-family: var(--pixel-font); font-size: 13px; line-height: 1.6; resize: vertical;" oninput="onVaultTextareaInput()"></textarea>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
-        <div id="vault-save-msg" class="save-msg" style="margin-top: 0;"></div>
-        <div id="vault-links-count" style="font-size: 13px; color: var(--sub); font-family: var(--classic-title-font);">0 links detected</div>
-      </div>
-    </div>
-
-    <!-- CARD 3: STORED LINKS & QUICK ASSIGN -->
-    <div class="card">
-      <div class="card-title">
-        <span>Stored Stream Links & 1-Click Feed Assign</span>
-      </div>
-      
-      <!-- Search & Filter Controls -->
-      <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
-        <input type="text" id="vault-search-filter" placeholder="🔍 Search links by title or URL..." oninput="renderParsedVaultLinks()" style="flex: 1; min-width: 220px; font-size: 14px;" />
-        <div style="display: flex; gap: 6px;">
-          <button class="btn-gold-sm vault-filter-btn active" id="filter-btn-all" onclick="setVaultTypeFilter('all')" style="padding: 6px 12px; font-size: 12px;">All</button>
-          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-hls" onclick="setVaultTypeFilter('hls')" style="padding: 6px 12px; font-size: 12px;">HLS (.m3u8 Only)</button>
-          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-other" onclick="setVaultTypeFilter('other')" style="padding: 6px 12px; font-size: 12px;">Other Streams</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
+          <div id="vault-save-msg" class="save-msg" style="margin-top: 0;"></div>
+          <div id="vault-links-count" style="font-size: 13px; color: var(--sub); font-family: var(--classic-title-font);">0 links detected</div>
         </div>
       </div>
 
-      <!-- Links List Container -->
-      <div id="vault-parsed-links-container" style="display: flex; flex-direction: column; gap: 10px;">
-        <div style="text-align: center; padding: 24px; color: var(--sub); font-size: 14px;">No stream links entered yet. Add links in the text box above and click "Save to Cloud".</div>
+      <!-- CARD 3: STORED LINKS & QUICK ASSIGN -->
+      <div class="card">
+        <div class="card-title">
+          <span>Stored Stream Links & 1-Click Feed Assign</span>
+        </div>
+        
+        <!-- Search & Filter Controls -->
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+          <input type="text" id="vault-search-filter" placeholder="🔍 Search links by title or URL..." oninput="renderParsedVaultLinks()" style="flex: 1; min-width: 220px; font-size: 14px;" />
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-gold-sm vault-filter-btn active" id="filter-btn-all" onclick="setVaultTypeFilter('all')" style="padding: 6px 12px; font-size: 12px;">All</button>
+            <button class="btn-gold-sm vault-filter-btn" id="filter-btn-hls" onclick="setVaultTypeFilter('hls')" style="padding: 6px 12px; font-size: 12px;">HLS (.m3u8 Only)</button>
+            <button class="btn-gold-sm vault-filter-btn" id="filter-btn-other" onclick="setVaultTypeFilter('other')" style="padding: 6px 12px; font-size: 12px;">Other Streams</button>
+          </div>
+        </div>
+
+        <!-- Links List Container -->
+        <div id="vault-parsed-links-container" style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="text-align: center; padding: 24px; color: var(--sub); font-size: 14px;">No stream links entered yet. Add links in the text box above and click "Save to Cloud".</div>
+        </div>
       </div>
     </div>
 
@@ -2400,6 +2470,19 @@ tr:last-child td{border-bottom:none;}
         <option value="godfather" id="edit-role-godfather-option" style="display:none;">👑 Godfather — Supreme Owner</option>
       </select>
     </div>
+
+    <!-- 🔐 Link Vault Access Authorization (Controlled by Godfather) -->
+    <div id="edit-admin-vault-access-section" style="margin-top:14px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.3); border-radius:8px; padding:12px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <input type="checkbox" id="edit-admin-can-access-vault" style="width:auto; cursor:pointer;" />
+        <label for="edit-admin-can-access-vault" style="margin-bottom:0; cursor:pointer; font-weight:700; color:#c7d2fe; font-size:13px;">
+          🔐 Grant Link Vault Access
+        </label>
+      </div>
+      <div style="font-size:11px; color:#a5b4fc; margin-top:4px; line-height:1.4;">
+        Allows this admin to view, copy, preview, and manage raw stream URLs in the Link Vault tab.
+      </div>
+    </div>
     <div style="margin: 18px 0 10px 0;">
       <button class="btn btn-gold-sm" id="edit-admin-reset-pw-btn" style="width:100%; text-align:center;">✉ Send Password Reset Email</button>
       <div id="edit-reset-msg" style="font-size:12px; color:var(--green); text-align:center; margin-top:6px; display:none;">✓ Password reset email sent!</div>
@@ -2598,6 +2681,10 @@ auth.onAuthStateChanged(async user=>{
         $('header-link-google-btn').style.display='inline-block';
         $('header-google-linked-badge').style.display='none';
       }
+
+      if (typeof window.checkVaultPermissionAndRender === 'function') {
+        window.checkVaultPermissionAndRender();
+      }
     }
   }, () => {
     // Fallback if permission/snapshot fails
@@ -2610,6 +2697,9 @@ auth.onAuthStateChanged(async user=>{
       $('header-google-linked-badge').style.display='none';
     }
     updateHeaderAvatar(user, null);
+    if (typeof window.checkVaultPermissionAndRender === 'function') {
+      window.checkVaultPermissionAndRender();
+    }
   });
 
   initDashboard(user,role);
@@ -2734,6 +2824,7 @@ function initDashboard(user,role){
   if(isGodfather) {
     if (typeof window.godfatherLoadCredentials === 'function') window.godfatherLoadCredentials();
     if (typeof window.godfatherRefreshFeedMatrix === 'function') window.godfatherRefreshFeedMatrix();
+    if (typeof window.godfatherRefreshVaultAccessMatrix === 'function') window.godfatherRefreshVaultAccessMatrix();
     if (typeof window.godfatherInitWatchtower === 'function') window.godfatherInitWatchtower();
     if (typeof window.godfatherInitAuditLogs === 'function') window.godfatherInitAuditLogs();
   }
@@ -4932,6 +5023,10 @@ function loadUsers(currentUser,role){
 
       const userInitial = (u.displayName || u.email || 'A').trim().charAt(0).toUpperCase() || 'A';
       const photoUrl = (u.photoURL || u.photoUrl || '').trim();
+      const hasVaultAccess = targetIsGodfather || (u.canAccessLinkVault === true);
+      const vaultBadge = hasVaultAccess 
+        ? `<span class="role-badge" style="background:rgba(99,102,241,0.2); color:#c7d2fe; font-size:9px; margin-left:4px; border:1px solid rgba(99,102,241,0.35);">🔐 Vault</span>`
+        : '';
       const avatarHtml = `
         <div class="table-avatar-circle" style="width:36px; height:36px; border-radius:50%; overflow:hidden; background:#1e3a8a; border:1.5px solid ${targetIsGodfather ? '#fbbf24' : 'rgba(255,255,255,0.3)'}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
           ${photoUrl ? `<img src="${esc(photoUrl)}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" /><span style="display:none; font-size:13px; font-weight:bold; color:#fff; font-family:var(--classic-title-font);">${userInitial}</span>` : `<span style="font-size:13px; font-weight:bold; color:#fff; font-family:var(--classic-title-font);">${userInitial}</span>`}
@@ -4949,7 +5044,12 @@ function loadUsers(currentUser,role){
             </div>
           </div>
         </td>
-        <td>${roleBadge}</td>
+        <td>
+          <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+            ${roleBadge}
+            ${vaultBadge}
+          </div>
+        </td>
         <td>${u.linkedGoogle?'<span class="google-badge linked">✓ Linked</span>':isMe?'<button class="btn-gold-sm link-google-btn">Link Google</button>':'<span class="google-badge">—</span>'}</td>
         <td>
           ${canEdit ? `<button class="btn btn-gold-sm btn-sm edit-btn" style="margin-right:5px;">Edit</button>` : `<span style="color:var(--sub); font-size:11px; padding:4px 6px; user-select:none;">🔒 Protected</span>`}
@@ -4959,7 +5059,7 @@ function loadUsers(currentUser,role){
       const editBtn = tr.querySelector('.edit-btn');
       if (editBtn) {
         editBtn.addEventListener('click', () => {
-          openEditAdmin(u.uid, u.email || '', u.displayName || '', u.role, photoUrl);
+          openEditAdmin(u.uid, u.email || '', u.displayName || '', u.role, photoUrl, u.canAccessLinkVault);
         });
       }
       const deleteBtn = tr.querySelector('.delete-btn');
@@ -5029,7 +5129,7 @@ window.deleteAdmin=async function(uid,email){
 };
 
 // ── EDIT ADMIN MODAL ──────────────────────────────────────────
-window.openEditAdmin=function(uid, email, displayName, role, photoUrl){
+window.openEditAdmin=function(uid, email, displayName, role, photoUrl, canAccessLinkVault){
   $('edit-admin-uid').value=uid;
   $('edit-admin-email').value=email;
   $('edit-admin-name').value=displayName;
@@ -5041,12 +5141,20 @@ window.openEditAdmin=function(uid, email, displayName, role, photoUrl){
 
   const curUser = auth.currentUser;
   const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+  
   const gfPwSection = $('edit-godfather-pw-section');
   if (gfPwSection) {
     gfPwSection.style.display = isGodfather ? 'block' : 'none';
     if ($('edit-godfather-new-pass')) $('edit-godfather-new-pass').value = '';
     const msg = $('edit-godfather-pw-msg');
     if (msg) msg.style.display = 'none';
+  }
+
+  const vaultSection = $('edit-admin-vault-access-section');
+  if (vaultSection) {
+    vaultSection.style.display = isGodfather ? 'block' : 'none';
+    const chk = $('edit-admin-can-access-vault');
+    if (chk) chk.checked = !!canAccessLinkVault;
   }
 
   $('edit-modal-overlay').classList.add('open');
@@ -5067,12 +5175,21 @@ $('edit-modal-save-btn').addEventListener('click',async()=>{
   $('edit-modal-save-btn').disabled=true;
   $('edit-modal-save-btn').textContent='Saving…';
   
+  const curUser = auth.currentUser;
+  const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+
   try{
-    await db.doc(`admins/${uid}`).update({
+    const updatePayload = {
       displayName: name,
       role: role,
       photoURL: photoUrl
-    });
+    };
+
+    if (isGodfather && $('edit-admin-can-access-vault')) {
+      updatePayload.canAccessLinkVault = $('edit-admin-can-access-vault').checked;
+    }
+
+    await db.doc(`admins/${uid}`).update(updatePayload);
     
     // Call the Cloud Function to update Auth Custom Claims for the user
     try {
@@ -5082,6 +5199,10 @@ $('edit-modal-save-btn').addEventListener('click',async()=>{
       console.warn("setAdminClaim skipped or unneeded:", claimErr);
     }
     
+    if (isGodfather && typeof godfatherRefreshVaultAccessMatrix === 'function') {
+      godfatherRefreshVaultAccessMatrix();
+    }
+
     $('edit-modal-overlay').classList.remove('open');
     alert('Admin updated successfully.');
   }catch(e){
@@ -7024,9 +7145,127 @@ let vaultMpegts = null;
 let currentVaultTypeFilter = 'all';
 let parsedVaultLinks = [];
 
+function canCurrentUserAccessLinkVault() {
+  const curUser = auth.currentUser;
+  if (!curUser) return false;
+  const isGodfather = (curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com' || (window.currentUserRole === 'godfather');
+  if (isGodfather) return true;
+  
+  const adminDoc = window.currentUserAdminDoc || {};
+  return adminDoc.canAccessLinkVault === true;
+}
+
+window.checkVaultPermissionAndRender = function() {
+  const hasAccess = canCurrentUserAccessLinkVault();
+  const authContent = $('vault-authorized-content');
+  const lockedContent = $('vault-locked-content');
+  const statusBadge = $('vault-access-status-badge');
+  const gfBadge = $('vault-godfather-badge');
+
+  const curUser = auth.currentUser;
+  const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com' || window.currentUserRole === 'godfather');
+
+  if (gfBadge) {
+    gfBadge.style.display = isGodfather ? 'block' : 'none';
+  }
+
+  if (hasAccess) {
+    if (authContent) authContent.style.display = 'block';
+    if (lockedContent) lockedContent.style.display = 'none';
+    if (statusBadge) {
+      statusBadge.className = isGodfather ? 'role-badge godfather' : 'role-badge superadmin';
+      statusBadge.style.background = isGodfather ? '' : '#059669';
+      statusBadge.style.color = '#fff';
+      statusBadge.textContent = isGodfather ? '👑 GODFATHER ACCESS' : '✓ ACCESS AUTHORIZED';
+    }
+    loadVaultFromCloud();
+  } else {
+    if (authContent) authContent.style.display = 'none';
+    if (lockedContent) lockedContent.style.display = 'block';
+    if (statusBadge) {
+      statusBadge.className = 'role-badge';
+      statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+      statusBadge.style.color = '#fca5a5';
+      statusBadge.textContent = '🔒 ACCESS RESTRICTED';
+    }
+    const textarea = $('vault-raw-textarea');
+    if (textarea) textarea.value = '';
+    parseAndCountVaultLinks('');
+    renderParsedVaultLinks();
+  }
+};
+
+window.godfatherRefreshVaultAccessMatrix = function() {
+  const tbody = $('godfather-vault-matrix-tbody');
+  if (!tbody) return;
+
+  db.collection('admins').get().then(snap => {
+    if (snap.empty) {
+      tbody.innerHTML = '<tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">No admins found.</td></tr>';
+      return;
+    }
+
+    let rows = '';
+    snap.forEach(doc => {
+      const u = doc.data();
+      const uid = doc.id;
+      const isGodfather = (u.role === 'godfather') || ((u.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+      const hasVault = isGodfather ? true : (u.canAccessLinkVault === true);
+
+      const statusBadge = isGodfather
+        ? `<span class="role-badge godfather" style="font-size:10px;">👑 MASTER (FULL)</span>`
+        : (hasVault 
+            ? `<span class="role-badge superadmin" style="font-size:10px; background:#059669; color:#fff;">✓ PERMITTED</span>`
+            : `<span class="role-badge" style="font-size:10px; background:rgba(239,68,68,0.2); color:#fca5a5;">🔒 LOCKED</span>`);
+
+      rows += `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+          <td style="padding:8px 10px; font-weight:600; color:#fff;">
+            <div>${esc(u.displayName || u.email || 'Admin')}</div>
+            <div style="font-size:11px; color:var(--sub); font-family:monospace;">${esc(u.email || '—')}</div>
+          </td>
+          <td style="padding:8px 10px;">
+            <span class="role-badge ${esc(u.role || 'admin')}" style="font-size:10px;">${esc(u.role || 'admin')}</span>
+          </td>
+          <td style="padding:8px 10px; text-align:center;">
+            ${statusBadge}
+          </td>
+          <td style="padding:8px 10px; text-align:center; white-space:nowrap;">
+            ${isGodfather ? `
+              <span style="color:var(--gold); font-size:11px; font-weight:700;">Owner</span>
+            ` : `
+              <button class="btn-gold-sm" onclick="godfatherToggleVaultPermission('${uid}', ${!hasVault}, '${esc(u.displayName || u.email)}')" style="padding:4px 10px; font-size:11px; ${hasVault ? 'background:rgba(220,38,38,0.3); border-color:#ef4444; color:#fff;' : 'background:linear-gradient(180deg, #10b981 0%, #047857 100%); border-color:#6ee7b7; color:#fff;'}">
+                ${hasVault ? '🚫 Revoke Access' : '✓ Grant Access'}
+              </button>
+            `}
+          </td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = rows;
+  }).catch(err => {
+    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--red); padding:14px; text-align:center;">Error: ${err.message}</td></tr>`;
+  });
+};
+
+window.godfatherToggleVaultPermission = async function(uid, allow, adminName) {
+  try {
+    await db.doc(`admins/${uid}`).set({
+      canAccessLinkVault: allow
+    }, { merge: true });
+
+    logAdminAction('godfather_vault_access', 'linkvault', `Godfather ${allow ? 'GRANTED' : 'REVOKED'} Link Vault access for admin: ${adminName}`);
+    godfatherRefreshVaultAccessMatrix();
+    if (typeof loadUsers === 'function') loadUsers(auth.currentUser, window.currentUserRole);
+    alert(`✓ Link Vault access ${allow ? 'GRANTED' : 'REVOKED'} for "${adminName}"`);
+  } catch(err) {
+    alert(`Error updating permission: ${err.message}`);
+  }
+};
+
 function initLinkVault() {
-  loadVaultFromCloud();
   setupVaultPlayerEvents();
+  window.checkVaultPermissionAndRender();
 }
 
 function setupVaultPlayerEvents() {
@@ -7394,6 +7633,10 @@ window.assignVaultLinkFromSelect = async function(selectEl, url) {
 };
 
 window.saveVaultToCloud = async function() {
+  if (!canCurrentUserAccessLinkVault()) {
+    alert('Access Denied: You do not have permission to modify the Link Vault.');
+    return;
+  }
   const textarea = $('vault-raw-textarea');
   const text = textarea ? textarea.value : '';
   const msg = $('vault-save-msg');
@@ -7428,6 +7671,14 @@ window.saveVaultToCloud = async function() {
 };
 
 window.loadVaultFromCloud = function() {
+  if (!canCurrentUserAccessLinkVault()) {
+    const textarea = $('vault-raw-textarea');
+    if (textarea) textarea.value = '';
+    parseAndCountVaultLinks('');
+    renderParsedVaultLinks();
+    return;
+  }
+
   // Check local cache first for instant populate
   try {
     const cached = localStorage.getItem('jtbs_link_vault_backup');
