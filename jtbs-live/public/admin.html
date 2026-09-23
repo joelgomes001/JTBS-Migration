@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>JTBS Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mpegts.js@1.7.3/dist/mpegts.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -5099,6 +5100,7 @@ function copyEpgUrl(url, btn) {
 
 // ── LINK VAULT & STREAM PREVIEWER LOGIC ─────────────────────────────
 let vaultHls = null;
+let vaultMpegts = null;
 let currentVaultTypeFilter = 'all';
 let parsedVaultLinks = [];
 
@@ -5166,6 +5168,10 @@ window.stopVaultPreviewPlayer = function() {
     vaultHls.destroy();
     vaultHls = null;
   }
+  if (vaultMpegts) {
+    vaultMpegts.destroy();
+    vaultMpegts = null;
+  }
 
   if (vid) {
     vid.pause();
@@ -5203,18 +5209,40 @@ window.previewVaultUrl = function(url, title) {
 
   // Detect stream type
   const type = detectType(url);
+  const uLower = url.toLowerCase();
+  const isTs = uLower.includes('.ts') || uLower.includes('/ts') || uLower.includes('format=ts');
+  const isRtmp = url.startsWith('rtmp://') || type === 'rtmp';
+
   if (formatBadge) {
     formatBadge.style.display = 'inline-block';
-    formatBadge.textContent = type.toUpperCase();
-    formatBadge.className = `vault-link-type-tag tag-${type}`;
+    formatBadge.textContent = isRtmp ? 'RTMP' : (isTs ? 'MPEG-TS' : type.toUpperCase());
+    formatBadge.className = `vault-link-type-tag tag-${isRtmp ? 'other' : (isTs ? 'video' : type)}`;
   }
 
   updateVaultPlayerBadge('loading', '⏳ CONNECTING');
 
-  // Stop previous HLS instance
+  // Stop previous player instances
   if (vaultHls) {
     vaultHls.destroy();
     vaultHls = null;
+  }
+  if (vaultMpegts) {
+    vaultMpegts.destroy();
+    vaultMpegts = null;
+  }
+
+  // Handle RTMP (Inform user of browser TCP sandbox limits)
+  if (isRtmp) {
+    if (vid) {
+      vid.pause();
+      vid.removeAttribute('src');
+      vid.load();
+      vid.style.display = 'none';
+    }
+    if (ytWrap) ytWrap.style.display = 'none';
+    updateVaultPlayerBadge('error', '🔴 RTMP REQUIRES VLC (BROWSER CANNOT OPEN RAW TCP)');
+    alert("ℹ️ RTMP Protocol Notice:\n\nWeb browsers cannot open raw 'rtmp://' TCP connections directly due to browser security restrictions.\n\nTo play this stream:\n1. Open VLC Media Player -> Media -> Open Network Stream -> Paste this RTMP link.\n2. Or restream it through MediaMTX / OBS to output an HLS (.m3u8) or WebRTC stream.");
+    return;
   }
 
   if (type === 'youtube') {
@@ -5241,7 +5269,7 @@ window.previewVaultUrl = function(url, title) {
     }
     if (vid) {
       vid.style.display = 'block';
-      const isHls = url.toLowerCase().includes('.m3u8') || url.toLowerCase().includes('mpegurl') || type === 'hls';
+      const isHls = uLower.includes('.m3u8') || uLower.includes('mpegurl') || type === 'hls';
 
       if (isHls && window.Hls && Hls.isSupported()) {
         vaultHls = new Hls({ enableWorker: true, lowLatencyMode: true });
@@ -5255,7 +5283,7 @@ window.previewVaultUrl = function(url, title) {
             switch (data.type) {
               case Hls.ErrorTypes.NETWORK_ERROR:
                 console.error("fatal network error encountered, try to recover", data);
-                updateVaultPlayerBadge('error', '🔴 NETWORK / CORS ERROR');
+                updateVaultPlayerBadge('error', '🔴 NETWORK / MIXED-CONTENT ERROR');
                 vaultHls.startLoad();
                 break;
               case Hls.ErrorTypes.MEDIA_ERROR:
@@ -5270,6 +5298,26 @@ window.previewVaultUrl = function(url, title) {
             }
           }
         });
+      } else if (isTs && window.mpegts && mpegts.isSupported()) {
+        try {
+          vaultMpegts = mpegts.createPlayer({
+            type: 'mse',
+            isLive: true,
+            url: url
+          }, {
+            enableWorker: true,
+            lazyLoad: false
+          });
+          vaultMpegts.attachMediaElement(vid);
+          vaultMpegts.load();
+          vaultMpegts.play().catch(e => console.log('mpegts play error:', e));
+          vaultMpegts.on(mpegts.Events.ERROR, function(type, detail, data) {
+            updateVaultPlayerBadge('error', '🔴 MPEG-TS PLAYBACK ERROR');
+          });
+        } catch (e) {
+          vid.src = url;
+          vid.play().catch(err => console.log('HTML5 TS fallback prevented:', err));
+        }
       } else {
         vid.src = url;
         vid.play().catch(e => console.log('Video play prevented:', e));
