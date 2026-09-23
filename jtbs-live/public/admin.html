@@ -2399,18 +2399,6 @@ tr:last-child td{border-bottom:none;}
         ⚡ Set New Password Now
       </button>
       <div id="edit-godfather-pw-msg" style="font-size:12px; color:#6ee7b7; text-align:center; margin-top:6px; display:none;"></div>
-    <!-- 🎯 Superadmin Feed Assignments Section (Visible to Godfather) -->
-    <div id="edit-feed-assignment-section" style="display:none; background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.35); border-radius:8px; padding:12px; margin-top:14px;">
-      <div style="color:#c7d2fe; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-        <span>🎯 Assigned Stream Feeds</span>
-        <span style="font-size:10px; color:var(--gold); font-weight:bold;">EXCLUSIVE ACCESS</span>
-      </div>
-      <div style="font-size:11px; color:#e0e7ff; margin-bottom:10px; line-height:1.4;">
-        Check the specific feeds this admin is authorized to modify. Unchecked feeds will be locked from them.
-      </div>
-      <div id="edit-assigned-feeds-checkboxes" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:6px; max-height:140px; overflow-y:auto; padding:8px; background:rgba(0,0,0,0.35); border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
-        <!-- Checkboxes dynamically rendered -->
-      </div>
     </div>
 
     <div id="edit-modal-error" style="background:rgba(224,85,85,.1); border:1px solid rgba(224,85,85,.25); border-radius:8px; padding:9px 13px; font-size:13px; color:var(--red); margin-top:12px; display:none;"></div>
@@ -4897,47 +4885,6 @@ window.openEditAdmin=function(uid, email, displayName, role, photoUrl){
     if (msg) msg.style.display = 'none';
   }
 
-  const gfFeedSection = $('edit-feed-assignment-section');
-  const gfFeedBoxContainer = $('edit-assigned-feeds-checkboxes');
-  if (gfFeedSection && gfFeedBoxContainer) {
-    if (isGodfather) {
-      gfFeedSection.style.display = 'block';
-      gfFeedBoxContainer.innerHTML = '<span style="color:var(--sub); font-size:11px;">Loading feed assignments...</span>';
-
-      Promise.all([
-        db.doc(`admins/${uid}`).get(),
-        db.collection('streamState').get()
-      ]).then(([adminSnap, streamSnap]) => {
-        const adminData = adminSnap.exists ? adminSnap.data() : {};
-        const assignedFeedsArray = adminData.assignedFeeds || [];
-        const assignedMap = {};
-        streamSnap.forEach(d => {
-          const s = d.data();
-          if (s.assignedTo === uid || (s.assignedEmail && s.assignedEmail.toLowerCase() === email.toLowerCase())) {
-            assignedMap[d.id] = true;
-          }
-        });
-
-        let boxHtml = '';
-        ALL_MANAGED_CHANNELS.forEach(ch => {
-          if (ch.id === 'srinjana') return; // Srinjana is strictly Godfather only
-          const isChecked = assignedFeedsArray.includes(ch.id) || assignedMap[ch.id];
-          boxHtml += `
-            <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text); cursor:pointer; padding:4px 6px; background:rgba(255,255,255,0.06); border-radius:4px; user-select:none;">
-              <input type="checkbox" class="edit-assigned-feed-cb" value="${ch.id}" ${isChecked ? 'checked' : ''} style="width:auto; margin:0; cursor:pointer;" />
-              <span style="font-family:var(--classic-title-font); font-weight:600;">${ch.name}</span>
-            </label>
-          `;
-        });
-        gfFeedBoxContainer.innerHTML = boxHtml;
-      }).catch(err => {
-        gfFeedBoxContainer.innerHTML = `<span style="color:var(--red); font-size:11px;">Error loading feeds: ${err.message}</span>`;
-      });
-    } else {
-      gfFeedSection.style.display = 'none';
-    }
-  }
-
   $('edit-modal-overlay').classList.add('open');
 };
 $('edit-modal-cancel-btn').addEventListener('click',()=>$('edit-modal-overlay').classList.remove('open'));
@@ -4955,9 +4902,6 @@ $('edit-modal-save-btn').addEventListener('click',async()=>{
   if(!name){errEl.textContent='Display name is required.';errEl.style.display='block';return;}
   $('edit-modal-save-btn').disabled=true;
   $('edit-modal-save-btn').textContent='Saving…';
-
-  const curUser = auth.currentUser;
-  const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
   
   try{
     await db.doc(`admins/${uid}`).update({
@@ -4965,45 +4909,6 @@ $('edit-modal-save-btn').addEventListener('click',async()=>{
       role: role,
       photoURL: photoUrl
     });
-
-    // If Godfather, save feed assignments
-    if (isGodfather) {
-      const selectedFeeds = [];
-      document.querySelectorAll('.edit-assigned-feed-cb:checked').forEach(cb => {
-        selectedFeeds.push(cb.value);
-      });
-
-      await db.doc(`admins/${uid}`).set({ assignedFeeds: selectedFeeds }, { merge: true });
-
-      const batch = db.batch();
-      for (const ch of ALL_MANAGED_CHANNELS) {
-        if (ch.id === 'srinjana') continue;
-        const feedRef = db.doc(`streamState/${ch.id}`);
-        if (selectedFeeds.includes(ch.id)) {
-          batch.set(feedRef, {
-            assignedTo: uid,
-            assignedEmail: email,
-            assignedName: name,
-            assignedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-        } else {
-          // If it was assigned to this user, remove it
-          const currentFeedDoc = await feedRef.get();
-          if (currentFeedDoc.exists && currentFeedDoc.data().assignedTo === uid) {
-            batch.set(feedRef, {
-              assignedTo: null,
-              assignedEmail: null,
-              assignedName: null,
-              assignedAt: null
-            }, { merge: true });
-          }
-        }
-      }
-      await batch.commit();
-      if (typeof godfatherRefreshFeedMatrix === 'function') {
-        godfatherRefreshFeedMatrix();
-      }
-    }
     
     // Call the Cloud Function to update Auth Custom Claims for the user
     try {
@@ -5840,21 +5745,33 @@ function loadOtherStreams() {
       window['currentFeed' + i + 'VideoIsLive'] = (data.playMode === 'live');
 
       if (feedUrlIn && document.activeElement !== feedUrlIn) {
-        feedUrlIn.value = data.streamUrl || '';
-        const t = detectType(data.streamUrl || '');
-        const h = {
-          'youtube': '✓ YouTube detected',
-          'hls': '✓ HLS stream detected',
-          'dash': '✓ DASH stream detected',
-          'rtmp': '✓ RTMP stream detected',
-          'video': '✓ Video file (MP4/WebM/MKV/AVI/MOV/TS) detected',
-          'iframe': '⚠ Custom URL format',
-          '': 'Accepts: YouTube · HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS · RTMP'
-        };
-        const hintEl = $(`feed${i}-url-hint`);
-        if (hintEl) hintEl.textContent = h[t] || h[''];
-        updateYTFields(scope, data.streamUrl || '', data.playMode || 'offair', data.selectedVideos);
-        updateMP4Fields(scope, data.streamUrl || '', data.mp4PlayMode || 'repeat');
+        if (isSrinjana && !isGodfather) {
+          feedUrlIn.value = 'srinjana.m3u8';
+          feedUrlIn.type = 'text';
+          feedUrlIn.readOnly = true;
+          feedUrlIn.style.color = '#fbbf24';
+          feedUrlIn.style.fontFamily = 'monospace';
+          feedUrlIn.style.fontWeight = '700';
+          const hintEl = $(`feed${i}-url-hint`);
+          if (hintEl) hintEl.innerHTML = '<span style="color:#fde047;">🔒 Upstream stream source is hidden (Godfather Only). Public endpoint: <strong>srinjana.m3u8</strong></span>';
+        } else {
+          feedUrlIn.value = data.streamUrl || '';
+          if (isSrinjana) feedUrlIn.type = 'url';
+          const t = detectType(data.streamUrl || '');
+          const h = {
+            'youtube': '✓ YouTube detected',
+            'hls': '✓ HLS stream detected',
+            'dash': '✓ DASH stream detected',
+            'rtmp': '✓ RTMP stream detected',
+            'video': '✓ Video file (MP4/WebM/MKV/AVI/MOV/TS) detected',
+            'iframe': '⚠ Custom URL format',
+            '': 'Accepts: YouTube · HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS · RTMP'
+          };
+          const hintEl = $(`feed${i}-url-hint`);
+          if (hintEl) hintEl.textContent = h[t] || h[''];
+          updateYTFields(scope, data.streamUrl || '', data.playMode || 'offair', data.selectedVideos);
+          updateMP4Fields(scope, data.streamUrl || '', data.mp4PlayMode || 'repeat');
+        }
       }
 
       if (feedOffImg && document.activeElement !== feedOffImg) {
