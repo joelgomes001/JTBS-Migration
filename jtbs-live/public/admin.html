@@ -506,18 +506,147 @@ tr:last-child td{border-bottom:none;}
 }
 
 /* MODAL */
-#modal-overlay, #edit-modal-overlay, #profile-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
-#modal-overlay.open, #edit-modal-overlay.open, #profile-modal-overlay.open{display:flex;}
+#modal-overlay, #edit-modal-overlay, #profile-modal-overlay, #copy-epg-modal-overlay, #epg-conflict-modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(6px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:16px 12px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+#modal-overlay.open, #edit-modal-overlay.open, #profile-modal-overlay.open, #copy-epg-modal-overlay.open, #epg-conflict-modal-overlay.open{
+  display:flex;
+}
 .modal{
-  background:linear-gradient(180deg, rgba(30,60,95,0.92) 0%, rgba(12,28,48,0.96) 100%);
+  background:linear-gradient(180deg, rgba(30,60,95,0.96) 0%, rgba(12,28,48,0.98) 100%);
   backdrop-filter:blur(18px);
   border:1px solid rgba(255,255,255,0.45);
-  border-radius:8px;padding:30px;width:100%;max-width:400px;
+  border-radius:10px;
+  padding:24px 20px;
+  width:100%;
+  max-width:440px;
+  max-height:88vh;
+  max-height:88dvh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.7), 0 16px 48px rgba(0,0,0,0.8), 0 0 24px rgba(40,140,240,0.5);
+  margin:auto;
 }
-.modal-title{font-size:16px;font-weight:700;margin-bottom:22px;color:#fff;text-shadow:0 0 10px rgba(80,180,255,0.8);}
-.modal-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:18px;color:#fff;text-shadow:0 0 10px rgba(80,180,255,0.8);display:flex;align-items:center;justify-content:space-between;}
+.modal-actions{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+  justify-content:flex-end;
+  position:sticky;
+  bottom:0;
+  background:linear-gradient(180deg, rgba(12,28,48,0) 0%, rgba(12,28,48,0.95) 30%, rgba(12,28,48,1) 100%);
+  padding-top:10px;
+  padding-bottom:4px;
+}
 #modal-error{background:rgba(224,85,85,.2);border:1px solid rgba(224,85,85,.4);border-radius:6px;padding:9px 13px;font-size:13px;color:#ff8888;margin-top:12px;display:none;}
+
+/* RESPONSIVE ANDROID & MOBILE OPTIMIZATIONS */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+  .topbar {
+    height: auto;
+    min-height: 52px;
+    padding: 6px 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .topbar-left {
+    gap: 6px;
+    flex: 1;
+    min-width: 130px;
+  }
+  .topbar-logo {
+    height: 28px;
+    max-width: 100px;
+  }
+  .topbar-title {
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .topbar-right {
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .user-profile-badge {
+    padding: 2px 8px 2px 3px;
+    gap: 5px;
+    max-width: 180px;
+  }
+  .admin-email {
+    font-size: 11px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .btn-logout {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  .google-badge {
+    display: none !important;
+  }
+  .tabs-nav {
+    padding: 6px 6px 0;
+    gap: 3px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .tab-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .tab-panel {
+    padding: 14px 8px;
+    max-width: 100% !important;
+  }
+  .card {
+    padding: 16px 12px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 14px;
+    gap: 6px;
+  }
+  .modal {
+    padding: 16px 12px;
+    max-height: 85vh;
+    max-height: 85dvh;
+    border-radius: 8px;
+  }
+  .preset-avatar-grid {
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 6px;
+    max-height: 110px;
+  }
+  .preset-avatar-item {
+    width: 40px;
+    height: 40px;
+  }
+  .field input, .field select, .field textarea {
+    font-size: 14px;
+  }
+  .users-table-wrap {
+    -webkit-overflow-scrolling: touch;
+  }
+}
 
 /* QUOTES TABLE */
 .quote-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);}
@@ -2145,9 +2274,12 @@ tr:last-child td{border-bottom:none;}
 <!-- MY PROFILE MODAL -->
 <div id="profile-modal-overlay">
   <div class="modal" style="max-width:440px;">
-    <div class="modal-title" style="display:flex; align-items:center; justify-content:space-between;">
-      <span>👤 My Admin Profile</span>
-      <span id="profile-modal-role-badge" class="role-badge admin">ADMIN</span>
+    <div class="modal-title">
+      <span style="display:flex; align-items:center; gap:6px;">👤 My Admin Profile</span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="profile-modal-role-badge" class="role-badge admin">ADMIN</span>
+        <button type="button" onclick="closeMyProfileModal()" style="background:transparent; border:none; color:rgba(255,255,255,0.7); font-size:18px; cursor:pointer; padding:0 4px; line-height:1;" title="Close">✕</button>
+      </div>
     </div>
     
     <!-- Big Avatar Preview -->

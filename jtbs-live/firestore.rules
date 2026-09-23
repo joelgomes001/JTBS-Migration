@@ -99,7 +99,9 @@ service cloud.firestore {
     match /admins/{uid}       {
       allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
       allow create: if isSuperAdmin();
-      allow update: if isGodfather() || (isSuperAdmin() && resource.data.role != 'godfather' && request.resource.data.role != 'godfather');
+      allow update: if isGodfather()
+                    || (request.auth != null && request.auth.uid == uid && (!('role' in request.resource.data) || resource == null || request.resource.data.role == resource.data.role))
+                    || (isSuperAdmin() && resource.data.role != 'godfather' && request.resource.data.role != 'godfather');
       allow delete: if isGodfather() || (isSuperAdmin() && resource.data.role != 'godfather');
     }
   }
