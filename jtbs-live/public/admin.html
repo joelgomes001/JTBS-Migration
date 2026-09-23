@@ -4381,18 +4381,6 @@ function loadOtherStreams() {
       });
     }
   }
-}
-        try {
-          await docRef.set({
-            isLive: isLive,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-        } catch (err) {
-          alert(`Error toggling ${feed.name}: ` + err.message);
-        }
-      });
-    }
-  }
 
   // Refresh IPTV domain URLs in feed inputs
   if (window._updateIPTVLinks) {
