@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>JTBS Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mpegts.js@1.7.3/dist/mpegts.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -1579,28 +1578,24 @@ tr:last-child td{border-bottom:none;}
     <!-- CARD 1: LIVE STREAM PREVIEW PLAYER -->
     <div class="card" id="vault-player-card">
       <div class="card-title">
-        <span>Live Stream Preview & Tester</span>
+        <span>HLS Stream Preview & Tester</span>
         <div id="vault-player-status-badge" class="vault-status-badge vault-badge-idle">
           <span style="font-size:10px;">●</span> IDLE
         </div>
       </div>
       <div class="hint" style="margin-top:-10px; margin-bottom:16px;">
-        Preview and test any stream URL in real time. Works with HLS (<code style="color:var(--text)">.m3u8</code>), YouTube, and direct video files (<code style="color:var(--text)">.mp4, .ts</code>).
+        Preview and test HLS live stream URLs in real time (<code style="color:var(--text)">.m3u8</code>).
       </div>
 
       <!-- Player Frame -->
       <div class="vault-player-wrap" style="aspect-ratio: 16/9; max-height: 420px; display: flex; align-items: center; justify-content: center; background: #050b14; position: relative;">
-        <!-- Video element for HLS / MP4 / Direct streams -->
+        <!-- Video element for HLS streams -->
         <video id="vault-video-player" controls playsinline style="width: 100%; height: 100%; object-fit: contain; display: block;"></video>
-        <!-- YouTube iframe wrapper -->
-        <div id="vault-youtube-wrap" style="display: none; width: 100%; height: 100%;">
-          <iframe id="vault-youtube-iframe" style="width: 100%; height: 100%; border: none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-        </div>
         <!-- Placeholder overlay when idle -->
         <div id="vault-player-idle-overlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5, 11, 20, 0.95); color: var(--sub); pointer-events: none;">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.6;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <div style="font-size: 14px; font-weight: 700; color: #fff; font-family: var(--classic-title-font);">Stream Preview Player</div>
-          <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">Click "Preview" on any link below or paste a test URL</div>
+          <div style="font-size: 14px; font-weight: 700; color: #fff; font-family: var(--classic-title-font);">HLS Stream Previewer</div>
+          <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">Click "▶ Preview" on any HLS (.m3u8) link below or paste a test URL</div>
         </div>
       </div>
 
@@ -1608,12 +1603,12 @@ tr:last-child td{border-bottom:none;}
       <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px;">
           <span style="color: var(--sub);">Currently Playing: <strong id="vault-now-playing-title" style="color: var(--gold);">None</strong></span>
-          <span id="vault-stream-format-badge" class="vault-link-type-tag tag-other" style="display: none;">HLS</span>
+          <span id="vault-stream-format-badge" class="vault-link-type-tag tag-hls" style="display: none;">HLS</span>
         </div>
         
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <input type="text" id="vault-direct-test-url" placeholder="Paste any test URL here (e.g. https://.../playlist.m3u8 or YouTube)..." style="flex: 1; min-width: 260px; font-family: var(--pixel-font); font-size: 13px;" />
-          <button class="btn btn-primary btn-sm" onclick="testVaultDirectUrl()" style="width: auto; padding: 9px 18px; white-space: nowrap;">▶ Play / Test</button>
+          <input type="text" id="vault-direct-test-url" placeholder="Paste any HLS test URL here (e.g. https://.../playlist.m3u8)..." style="flex: 1; min-width: 260px; font-family: var(--pixel-font); font-size: 13px;" />
+          <button class="btn btn-primary btn-sm" onclick="testVaultDirectUrl()" style="width: auto; padding: 9px 18px; white-space: nowrap;">▶ Play / Test HLS</button>
           <button class="btn btn-secondary btn-sm" onclick="stopVaultPreviewPlayer()" style="width: auto; padding: 9px 14px; white-space: nowrap;">⏹ Stop</button>
         </div>
       </div>
@@ -1639,7 +1634,7 @@ tr:last-child td{border-bottom:none;}
         Store all your stream links in plain text. Format: <code>Title | URL</code> or raw URL per line. Saved permanently to Firestore cloud.
       </div>
 
-      <textarea id="vault-raw-textarea" rows="10" placeholder="# JTBS Stream Link Vault&#10;# Paste one stream per line, or format as: Channel Title | Stream URL&#10;&#10;Mayapur TV HD | https://video4.mayapur.tv/allTemples/MayapurTV/MayapurTVHD/playlist.m3u8&#10;Srinjana Feed Backup | https://example.com/live/srinjana.m3u8&#10;Daily Devotional Live | https://www.youtube.com/watch?v=live_stream_id" style="font-family: var(--pixel-font); font-size: 13px; line-height: 1.6; resize: vertical;" oninput="onVaultTextareaInput()"></textarea>
+      <textarea id="vault-raw-textarea" rows="10" placeholder="# JTBS Stream Link Vault&#10;# Paste one stream per line, or format as: Channel Title | Stream URL&#10;&#10;Mayapur TV HD | https://video4.mayapur.tv/allTemples/MayapurTV/MayapurTVHD/playlist.m3u8&#10;Srinjana Feed Backup | https://example.com/live/srinjana.m3u8&#10;VLC Direct Stream | rtmp://example.com/live/stream" style="font-family: var(--pixel-font); font-size: 13px; line-height: 1.6; resize: vertical;" oninput="onVaultTextareaInput()"></textarea>
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
         <div id="vault-save-msg" class="save-msg" style="margin-top: 0;"></div>
@@ -1658,9 +1653,8 @@ tr:last-child td{border-bottom:none;}
         <input type="text" id="vault-search-filter" placeholder="🔍 Search links by title or URL..." oninput="renderParsedVaultLinks()" style="flex: 1; min-width: 220px; font-size: 14px;" />
         <div style="display: flex; gap: 6px;">
           <button class="btn-gold-sm vault-filter-btn active" id="filter-btn-all" onclick="setVaultTypeFilter('all')" style="padding: 6px 12px; font-size: 12px;">All</button>
-          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-hls" onclick="setVaultTypeFilter('hls')" style="padding: 6px 12px; font-size: 12px;">HLS (.m3u8)</button>
-          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-youtube" onclick="setVaultTypeFilter('youtube')" style="padding: 6px 12px; font-size: 12px;">YouTube</button>
-          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-video" onclick="setVaultTypeFilter('video')" style="padding: 6px 12px; font-size: 12px;">Direct Video</button>
+          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-hls" onclick="setVaultTypeFilter('hls')" style="padding: 6px 12px; font-size: 12px;">HLS (.m3u8 Only)</button>
+          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-other" onclick="setVaultTypeFilter('other')" style="padding: 6px 12px; font-size: 12px;">Other Streams</button>
         </div>
       </div>
 
@@ -5158,8 +5152,6 @@ window.testVaultDirectUrl = function() {
 
 window.stopVaultPreviewPlayer = function() {
   const vid = $('vault-video-player');
-  const ytWrap = $('vault-youtube-wrap');
-  const ytIframe = $('vault-youtube-iframe');
   const overlay = $('vault-player-idle-overlay');
   const titleEl = $('vault-now-playing-title');
   const formatBadge = $('vault-stream-format-badge');
@@ -5167,10 +5159,6 @@ window.stopVaultPreviewPlayer = function() {
   if (vaultHls) {
     vaultHls.destroy();
     vaultHls = null;
-  }
-  if (vaultMpegts) {
-    vaultMpegts.destroy();
-    vaultMpegts = null;
   }
 
   if (vid) {
@@ -5180,8 +5168,6 @@ window.stopVaultPreviewPlayer = function() {
     vid.style.display = 'block';
   }
 
-  if (ytIframe) ytIframe.src = '';
-  if (ytWrap) ytWrap.style.display = 'none';
   if (overlay) overlay.style.display = 'flex';
   if (titleEl) titleEl.textContent = 'None';
   if (formatBadge) formatBadge.style.display = 'none';
@@ -5191,9 +5177,15 @@ window.stopVaultPreviewPlayer = function() {
 
 window.previewVaultUrl = function(url, title) {
   if (!url) return;
+  const uLower = url.toLowerCase().trim();
+  const isHls = uLower.includes('.m3u8') || uLower.includes('mpegurl') || uLower.includes('format=m3u8');
+
+  if (!isHls) {
+    alert("ℹ️ HLS Only Preview:\n\nIn-browser live preview is only available for HLS (.m3u8) streams.\n\nFor MPD/DASH, RTMP, and TS streams:\n1. Copy the link to preview directly in VLC Media Player.\n2. Or use '⚡ Quick Assign' to route this stream to any feed.");
+    return;
+  }
+
   const vid = $('vault-video-player');
-  const ytWrap = $('vault-youtube-wrap');
-  const ytIframe = $('vault-youtube-iframe');
   const overlay = $('vault-player-idle-overlay');
   const titleEl = $('vault-now-playing-title');
   const formatBadge = $('vault-stream-format-badge');
@@ -5207,121 +5199,53 @@ window.previewVaultUrl = function(url, title) {
     playerCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  // Detect stream type
-  const type = detectType(url);
-  const uLower = url.toLowerCase();
-  const isTs = uLower.includes('.ts') || uLower.includes('/ts') || uLower.includes('format=ts');
-  const isRtmp = url.startsWith('rtmp://') || type === 'rtmp';
-
   if (formatBadge) {
     formatBadge.style.display = 'inline-block';
-    formatBadge.textContent = isRtmp ? 'RTMP' : (isTs ? 'MPEG-TS' : type.toUpperCase());
-    formatBadge.className = `vault-link-type-tag tag-${isRtmp ? 'other' : (isTs ? 'video' : type)}`;
+    formatBadge.textContent = 'HLS (.M3U8)';
+    formatBadge.className = 'vault-link-type-tag tag-hls';
   }
 
-  updateVaultPlayerBadge('loading', '⏳ CONNECTING');
+  updateVaultPlayerBadge('loading', '⏳ CONNECTING TO HLS STREAM');
 
-  // Stop previous player instances
+  // Stop previous HLS instance
   if (vaultHls) {
     vaultHls.destroy();
     vaultHls = null;
   }
-  if (vaultMpegts) {
-    vaultMpegts.destroy();
-    vaultMpegts = null;
-  }
 
-  // Handle RTMP (Inform user of browser TCP sandbox limits)
-  if (isRtmp) {
-    if (vid) {
-      vid.pause();
-      vid.removeAttribute('src');
-      vid.load();
-      vid.style.display = 'none';
-    }
-    if (ytWrap) ytWrap.style.display = 'none';
-    updateVaultPlayerBadge('error', '🔴 RTMP REQUIRES VLC (BROWSER CANNOT OPEN RAW TCP)');
-    alert("ℹ️ RTMP Protocol Notice:\n\nWeb browsers cannot open raw 'rtmp://' TCP connections directly due to browser security restrictions.\n\nTo play this stream:\n1. Open VLC Media Player -> Media -> Open Network Stream -> Paste this RTMP link.\n2. Or restream it through MediaMTX / OBS to output an HLS (.m3u8) or WebRTC stream.");
-    return;
-  }
+  if (vid) {
+    vid.style.display = 'block';
 
-  if (type === 'youtube') {
-    const ytId = extractYouTubeId(url);
-    if (vid) {
-      vid.pause();
-      vid.removeAttribute('src');
-      vid.load();
-      vid.style.display = 'none';
-    }
-    if (ytWrap && ytIframe) {
-      ytWrap.style.display = 'block';
-      if (ytId) {
-        ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
-      } else {
-        ytIframe.src = url;
-      }
-      updateVaultPlayerBadge('playing', '🟢 PLAYING (YOUTUBE)');
-    }
-  } else {
-    if (ytWrap && ytIframe) {
-      ytIframe.src = '';
-      ytWrap.style.display = 'none';
-    }
-    if (vid) {
-      vid.style.display = 'block';
-      const isHls = uLower.includes('.m3u8') || uLower.includes('mpegurl') || type === 'hls';
-
-      if (isHls && window.Hls && Hls.isSupported()) {
-        vaultHls = new Hls({ enableWorker: true, lowLatencyMode: true });
-        vaultHls.loadSource(url);
-        vaultHls.attachMedia(vid);
-        vaultHls.on(Hls.Events.MANIFEST_PARSED, function() {
-          vid.play().catch(e => console.log('Autoplay prevented:', e));
-        });
-        vaultHls.on(Hls.Events.ERROR, function(event, data) {
-          if (data.fatal) {
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                console.error("fatal network error encountered, try to recover", data);
-                updateVaultPlayerBadge('error', '🔴 NETWORK / MIXED-CONTENT ERROR');
-                vaultHls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                console.error("fatal media error encountered, try to recover", data);
-                updateVaultPlayerBadge('error', '🔴 MEDIA ERROR');
-                vaultHls.recoverMediaError();
-                break;
-              default:
-                updateVaultPlayerBadge('error', '🔴 STREAM OFFLINE');
-                vaultHls.destroy();
-                break;
-            }
+    if (window.Hls && Hls.isSupported()) {
+      vaultHls = new Hls({ enableWorker: true, lowLatencyMode: true });
+      vaultHls.loadSource(url);
+      vaultHls.attachMedia(vid);
+      vaultHls.on(Hls.Events.MANIFEST_PARSED, function() {
+        vid.play().catch(e => console.log('Autoplay prevented:', e));
+      });
+      vaultHls.on(Hls.Events.ERROR, function(event, data) {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.error("fatal network error encountered, try to recover", data);
+              updateVaultPlayerBadge('error', '🔴 NETWORK / MIXED-CONTENT ERROR');
+              vaultHls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error("fatal media error encountered, try to recover", data);
+              updateVaultPlayerBadge('error', '🔴 MEDIA ERROR');
+              vaultHls.recoverMediaError();
+              break;
+            default:
+              updateVaultPlayerBadge('error', '🔴 STREAM OFFLINE');
+              vaultHls.destroy();
+              break;
           }
-        });
-      } else if (isTs && window.mpegts && mpegts.isSupported()) {
-        try {
-          vaultMpegts = mpegts.createPlayer({
-            type: 'mse',
-            isLive: true,
-            url: url
-          }, {
-            enableWorker: true,
-            lazyLoad: false
-          });
-          vaultMpegts.attachMediaElement(vid);
-          vaultMpegts.load();
-          vaultMpegts.play().catch(e => console.log('mpegts play error:', e));
-          vaultMpegts.on(mpegts.Events.ERROR, function(type, detail, data) {
-            updateVaultPlayerBadge('error', '🔴 MPEG-TS PLAYBACK ERROR');
-          });
-        } catch (e) {
-          vid.src = url;
-          vid.play().catch(err => console.log('HTML5 TS fallback prevented:', err));
         }
-      } else {
-        vid.src = url;
-        vid.play().catch(e => console.log('Video play prevented:', e));
-      }
+      });
+    } else {
+      vid.src = url;
+      vid.play().catch(e => console.log('Video play prevented:', e));
     }
   }
 };
@@ -5368,11 +5292,14 @@ function parseAndCountVaultLinks(text) {
     }
 
     if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('rtmp://') || url.startsWith('srt://'))) {
+      const uLower = url.toLowerCase();
+      const isHls = uLower.includes('.m3u8') || uLower.includes('mpegurl') || uLower.includes('format=m3u8');
       links.push({
         id: `link-${index}-${Date.now()}`,
         title: title || `Stream ${links.length + 1}`,
         url: url,
-        type: detectType(url)
+        isHls: isHls,
+        type: isHls ? 'hls' : (uLower.includes('.mpd') ? 'dash' : (url.startsWith('rtmp://') ? 'rtmp' : (uLower.includes('.ts') ? 'ts' : detectType(url))))
       });
     }
   });
@@ -5386,7 +5313,7 @@ function parseAndCountVaultLinks(text) {
 window.setVaultTypeFilter = function(filter) {
   currentVaultTypeFilter = filter;
   document.querySelectorAll('.vault-filter-btn').forEach(btn => {
-    if (btn.dataset.filter === filter) btn.classList.add('active');
+    if (btn.dataset.filter === filter || btn.id === `filter-btn-${filter}`) btn.classList.add('active');
     else btn.classList.remove('active');
   });
   renderParsedVaultLinks();
@@ -5399,9 +5326,12 @@ window.renderParsedVaultLinks = function() {
   const searchQuery = ($('vault-search-filter') ? $('vault-search-filter').value : '').toLowerCase().trim();
 
   let filtered = parsedVaultLinks;
-  if (currentVaultTypeFilter !== 'all') {
-    filtered = filtered.filter(item => item.type === currentVaultTypeFilter);
+  if (currentVaultTypeFilter === 'hls') {
+    filtered = filtered.filter(item => item.isHls);
+  } else if (currentVaultTypeFilter === 'other') {
+    filtered = filtered.filter(item => !item.isHls);
   }
+
   if (searchQuery) {
     filtered = filtered.filter(item => item.title.toLowerCase().includes(searchQuery) || item.url.toLowerCase().includes(searchQuery));
   }
@@ -5416,18 +5346,26 @@ window.renderParsedVaultLinks = function() {
     const escapedTitle = escapeHtml(item.title);
     const escapedUrl = escapeHtml(item.url);
     const safeUrlForAttr = encodeURIComponent(item.url);
+    const badgeClass = item.isHls ? 'tag-hls' : 'tag-other';
+    const badgeLabel = item.isHls ? 'HLS (.M3U8)' : (item.type.toUpperCase() || 'OTHER');
 
     html += `
       <div class="vault-link-card">
         <div class="vault-link-header">
           <div class="vault-link-title">${escapedTitle}</div>
-          <span class="vault-link-type-tag tag-${item.type}">${item.type.toUpperCase()}</span>
+          <span class="vault-link-type-tag ${badgeClass}">${badgeLabel}</span>
         </div>
         <div class="vault-link-url" title="${escapedUrl}">${escapedUrl}</div>
         <div class="vault-link-actions">
-          <button class="btn btn-primary btn-sm" onclick="previewVaultUrl(decodeURIComponent('${safeUrlForAttr}'), '${escapeHtml(escapedTitle)}')" style="width:auto; padding:6px 14px; font-size:12px;">
-            ▶ Preview
-          </button>
+          ${item.isHls ? `
+            <button class="btn btn-primary btn-sm" onclick="previewVaultUrl(decodeURIComponent('${safeUrlForAttr}'), '${escapeHtml(escapedTitle)}')" style="width:auto; padding:6px 14px; font-size:12px;">
+              ▶ Preview HLS
+            </button>
+          ` : `
+            <span style="font-size:11px; color:#94a3b8; padding:5px 10px; background:rgba(255,255,255,0.06); border-radius:4px; border:1px solid rgba(255,255,255,0.1); font-family:var(--classic-title-font);">
+              📺 VLC / IPTV Stream
+            </span>
+          `}
           <button class="btn-gold-sm" onclick="copyVaultLinkText(decodeURIComponent('${safeUrlForAttr}'), this)" style="padding:6px 12px; font-size:12px;">
             📋 Copy Link
           </button>
