@@ -2015,55 +2015,71 @@ function flash(id,err){const e=$(id);e.classList.remove('err');if(err)e.classLis
 function detectType(url){if(!url)return'';const u=url.toLowerCase();if(u.includes('youtube.com')||u.includes('youtu.be'))return'youtube';if(u.includes('facebook.com'))return'facebook';if(u.includes('.m3u8') || u.includes('/m3u8') || u.includes('m3u8?') || u.includes('format=m3u8') || u.includes('stream.m3u8'))return'hls';if(u.includes('.mpd') || u.includes('/mpd') || u.includes('mpd?') || u.includes('format=mpd'))return'dash';if(u.startsWith('rtmp://') || u.includes('/rtmp') || u.includes('rtmp?') || u.includes('format=rtmp'))return'rtmp';if(u.includes('.mp4') || u.includes('/mp4') || u.includes('mp4?') || u.includes('format=mp4') || u.includes('.webm') || u.includes('/webm') || u.includes('webm?') || u.includes('.ogg') || u.includes('/ogg') || u.includes('ogg?') || u.includes('.mkv') || u.includes('/mkv') || u.includes('mkv?') || u.includes('format=mkv') || u.includes('.avi') || u.includes('/avi') || u.includes('avi?') || u.includes('.mov') || u.includes('/mov') || u.includes('mov?') || u.includes('.ts') || u.includes('/ts') || u.includes('ts?'))return'video';return'iframe';}
 function isLiveStreamUrl(url) {if(!url)return false;const u=url.toLowerCase();return u.includes('/live/') || u.includes('/live?') || u.endsWith('/live');}
 
+// Ensure local persistence for persistent instant logins
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+
 // ── AUTH ──────────────────────────────────────────────────────
 auth.onAuthStateChanged(async user=>{
-  if(!user){$('dashboard-page').style.display='none';$('login-page').style.display='flex';return;}
-  let role=null;
-  const isGodfatherEmail = (user.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com';
+  if(!user){
+    $('dashboard-page').style.display='none';
+    $('login-page').style.display='flex';
+    const btn = $('login-btn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
+    return;
+  }
   
-  if (isGodfatherEmail) {
-    role = 'godfather';
-    // Ensure Firestore document exists with role: 'godfather'
-    try {
-      db.doc(`admins/${user.uid}`).set({
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName || 'Joel Sohan Gomes',
-        role: 'godfather'
-      }, { merge: true }).catch(()=>{});
-    } catch(e){}
+  const isGodfatherEmail = (user.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com';
+  let role = isGodfatherEmail ? 'godfather' : null;
+
+  // Fast-path: Switch to dashboard immediately for 0 delay
+  $('login-page').style.display='none';
+  $('dashboard-page').style.display='block';
+
+  if (role === 'godfather') {
+    $('admin-email-display').innerHTML = `${esc(user.email||'')} <span class="role-badge godfather" style="margin-left:6px;">👑 GODFATHER</span>`;
+  } else {
+    $('admin-email-display').textContent = user.email || '';
   }
 
+  // Check cached token claims (false = no slow forced server refresh)
   if(!role){
     try{
-      const token=await user.getIdTokenResult(true);
+      const token = await user.getIdTokenResult(false);
       if(token.claims.role && ['admin','superadmin','godfather'].includes(token.claims.role)){
-        role=token.claims.role;
+        role = token.claims.role;
       }
     }catch(e){console.warn('Claims check failed', e);}
   }
   
+  // Fallback to Firestore doc check only if needed
   if(!role){
     try{
-      const doc=await db.doc(`admins/${user.uid}`).get();
+      const doc = await db.doc(`admins/${user.uid}`).get();
       if(doc.exists){
-        const u=doc.data();
+        const u = doc.data();
         if(u && ['admin','superadmin','godfather'].includes(u.role)){
-          role=u.role;
+          role = u.role;
         }
       }
     }catch(e){console.warn('Firestore admin fallback check failed', e);}
   }
   
   if(!role){
-    await auth.signOut();showLoginErr('Your account does not have admin access.');return;
+    await auth.signOut();
+    $('dashboard-page').style.display='none';
+    $('login-page').style.display='flex';
+    showLoginErr('Your account does not have admin access.');
+    return;
   }
-  $('login-page').style.display='none';$('dashboard-page').style.display='block';
-  
-  if (role === 'godfather') {
-    $('admin-email-display').innerHTML = `${esc(user.email||'')} <span class="role-badge godfather" style="margin-left:6px;">👑 GODFATHER</span>`;
-  } else {
-    $('admin-email-display').textContent=user.email||'';
+
+  // Non-blocking firestore sync for Godfather
+  if (isGodfatherEmail) {
+    db.doc(`admins/${user.uid}`).set({
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || 'Joel Sohan Gomes',
+      role: 'godfather'
+    }, { merge: true }).catch(()=>{});
   }
   
   // Realtime check for google link in topbar
@@ -2097,10 +2113,18 @@ $('login-btn').addEventListener('click',async()=>{
   hideLoginErr();
   const e=$('login-email').value.trim(),p=$('login-pass').value;
   if(!e||!p){showLoginErr('Enter email and password.');return;}
-  $('login-btn').disabled=true;
-  try{await auth.signInWithEmailAndPassword(e,p);}
-  catch{showLoginErr('Login failed — check your credentials.');}
-  finally{$('login-btn').disabled=false;}
+  const btn = $('login-btn');
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  try{
+    await auth.signInWithEmailAndPassword(e,p);
+  }
+  catch(err){
+    console.error('Login error:', err);
+    showLoginErr(err.message || 'Login failed — check your credentials.');
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
 });
 $('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')$('login-btn').click();});
 $('google-btn').addEventListener('click',async()=>{
