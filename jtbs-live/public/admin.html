@@ -977,9 +977,6 @@ tr:last-child td{border-bottom:none;}
     <button class="tab-btn" data-tab="epg">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M19 4H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-7 6H7v2h5v-2zm5 4H7v2h10v-2zm0-8H7v2h10V6z"/></svg>EPG Guide
     </button>
-    <button class="tab-btn" data-tab="announce">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8 4a2 2 0 0 1-4 0"/></svg>Announce
-    </button>
     <button class="tab-btn" data-tab="branding">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M12 21a9 9 0 1 1 0-18c4.97 0 9 3.58 9 8 0 2.5-1.5 3.5-3 3.5h-2.5a2 2 0 0 0-2 2v.5c0 2-1 4-1.5 4s-1 0-1-1z"/><circle cx="7.5" cy="10.5" r="1.5"/><circle cx="12" cy="7.5" r="1.5"/><circle cx="16.5" cy="10.5" r="1.5"/></svg>Branding
     </button>
@@ -1371,31 +1368,6 @@ tr:last-child td{border-bottom:none;}
 
   </div>
 
-  <!-- ANNOUNCE -->
-  <div class="tab-panel" id="tab-announce">
-    <div class="card">
-      <div class="card-title">Push Announcement Banner</div>
-      <div class="field"><label>Announcement text</label><input type="text" id="announce-text" placeholder="Tonight: Special Prayer Service at 7PM IST"/></div>
-      
-      <div class="field" style="margin-bottom:16px;">
-        <label>Banner Theme Color</label>
-        <select id="announce-color" style="width:100%; padding:10px; border-radius:8px; background:var(--bg2); border:1px solid var(--border); color:var(--text); cursor:pointer;">
-          <option value="gold" selected>Gold / Yellow</option>
-          <option value="red">Red</option>
-          <option value="blue">Blue</option>
-          <option value="green">Green</option>
-          <option value="purple">Purple</option>
-        </select>
-      </div>
-
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-primary btn-sm" id="announce-push-btn" style="width:auto;padding:10px 24px;">Push Live</button>
-        <button class="btn btn-secondary btn-sm" id="announce-clear-btn">Clear Banner</button>
-      </div>
-      <div class="save-msg" id="announce-save-msg">Announcement pushed</div>
-    </div>
-  </div>
-
   <!-- BRANDING -->
   <div class="tab-panel" id="tab-branding">
     <div class="card">
@@ -1419,6 +1391,30 @@ tr:last-child td{border-bottom:none;}
       </div>
       <button class="btn btn-primary" id="save-branding-btn">Save branding</button>
       <div class="save-msg" id="branding-save-msg">Branding saved</div>
+    </div>
+
+    <!-- PUSH ANNOUNCEMENT BANNER CARD (UNDER BRANDING) -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">📢 Viewer Announcement Banner</div>
+      <div class="hint" style="margin-top:-8px; margin-bottom:14px;">Displays a high-visibility text notification overlay at the bottom of the public player.</div>
+      <div class="field"><label>Announcement text</label><input type="text" id="announce-text" placeholder="Tonight: Special Prayer Service at 7PM IST"/></div>
+      
+      <div class="field" style="margin-bottom:16px;">
+        <label>Banner Theme Color</label>
+        <select id="announce-color" style="width:100%; padding:10px; border-radius:8px; background:var(--bg2); border:1px solid var(--border); color:var(--text); cursor:pointer;">
+          <option value="gold" selected>Gold / Yellow</option>
+          <option value="red">Red</option>
+          <option value="blue">Blue</option>
+          <option value="green">Green</option>
+          <option value="purple">Purple</option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" id="announce-push-btn" style="width:auto;padding:10px 24px;">Push Live</button>
+        <button class="btn btn-secondary btn-sm" id="announce-clear-btn">Clear Banner</button>
+      </div>
+      <div class="save-msg" id="announce-save-msg">Announcement pushed</div>
     </div>
   </div>
 
