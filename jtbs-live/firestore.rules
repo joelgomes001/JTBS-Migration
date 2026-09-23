@@ -21,9 +21,25 @@ service cloud.firestore {
                 && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role in ['superadmin','godfather']));
     }
 
+    function canManageFeed(doc) {
+      return isGodfather() || (
+        isAdmin() && (doc != 'srinjana') && (
+          resource == null ||
+          !('assignedTo' in resource.data) ||
+          resource.data.assignedTo == null ||
+          resource.data.assignedTo == '' ||
+          resource.data.assignedTo == request.auth.uid ||
+          resource.data.assignedTo == request.auth.token.email
+        ) && (
+          !('assignedTo' in request.resource.data) ||
+          (resource != null && request.resource.data.assignedTo == resource.data.assignedTo)
+        )
+      );
+    }
+
     match /streamState/{doc}  {
       allow read: if true;
-      allow write: if (doc == 'srinjana') ? isGodfather() : isAdmin();
+      allow write: if canManageFeed(doc);
     }
     match /epg/{id}           {
       allow read: if true;
