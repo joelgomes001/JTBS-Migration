@@ -2,26 +2,73 @@ const functions = require('firebase-functions');
 const admin     = require('firebase-admin');
 admin.initializeApp();
 
+// ── Helpers ──────────────────────────────────────────────────
+async function checkIsGodfatherOrSuperadmin(context) {
+  if (!context.auth) return { isGodfather: false, isSuperadmin: false };
+  const callerUid = context.auth.uid;
+  const callerEmail = (context.auth.token.email || '').toLowerCase();
+  if (callerEmail === 'joel.s.gomes001@gmail.com' || context.auth.token.role === 'godfather') {
+    return { isGodfather: true, isSuperadmin: true };
+  }
+  const callerDoc = await admin.firestore().doc(`admins/${callerUid}`).get();
+  if (callerDoc.exists) {
+    const role = callerDoc.data().role;
+    if (role === 'godfather') return { isGodfather: true, isSuperadmin: true };
+    if (role === 'superadmin') return { isGodfather: false, isSuperadmin: true };
+  }
+  if (context.auth.token.role === 'superadmin') return { isGodfather: false, isSuperadmin: true };
+  return { isGodfather: false, isSuperadmin: false };
+}
+
 // ── setAdminClaim ─────────────────────────────────────────────
 exports.setAdminClaim = functions.https.onCall(async (data, context) => {
-  if (!context.auth || context.auth.token.role !== 'superadmin')
-    throw new functions.https.HttpsError('permission-denied','Superadmins only.');
+  const { isGodfather, isSuperadmin } = await checkIsGodfatherOrSuperadmin(context);
+  if (!isSuperadmin) throw new functions.https.HttpsError('permission-denied','Superadmins and Godfather only.');
+  
   const { uid, role } = data;
   if (!uid || !role) throw new functions.https.HttpsError('invalid-argument','uid and role required.');
-  if (!['admin','superadmin'].includes(role)) throw new functions.https.HttpsError('invalid-argument','Invalid role.');
+  if (!['admin','superadmin','godfather'].includes(role)) throw new functions.https.HttpsError('invalid-argument','Invalid role.');
+  if (role === 'godfather' && !isGodfather) throw new functions.https.HttpsError('permission-denied','Only Godfather can grant Godfather role.');
+  
   await admin.auth().setCustomUserClaims(uid, { role });
   return { success: true };
 });
 
+// ── updateAdminPassword (Godfather / Superadmin Direct Password Change) ─
+exports.updateAdminPassword = functions.https.onCall(async (data, context) => {
+  const { isGodfather, isSuperadmin } = await checkIsGodfatherOrSuperadmin(context);
+  if (!isSuperadmin) throw new functions.https.HttpsError('permission-denied','Superadmins and Godfather only.');
+  
+  const { uid, newPassword } = data;
+  if (!uid || !newPassword) throw new functions.https.HttpsError('invalid-argument','User ID and new password required.');
+  if (newPassword.length < 8) throw new functions.https.HttpsError('invalid-argument','Password must be at least 8 characters.');
+
+  const targetDoc = await admin.firestore().doc(`admins/${uid}`).get();
+  if (targetDoc.exists && targetDoc.data().role === 'godfather' && !isGodfather) {
+    throw new functions.https.HttpsError('permission-denied','Only Godfather can change another Godfather account password.');
+  }
+
+  try {
+    await admin.auth().updateUser(uid, { password: newPassword });
+    return { success: true, message: 'Password updated successfully.' };
+  } catch (err) {
+    console.error('Error updating user password:', err);
+    throw new functions.https.HttpsError('internal', err.message || 'Failed to update password.');
+  }
+});
+
 // ── createAdminUser ───────────────────────────────────────────
 exports.createAdminUser = functions.https.onCall(async (data, context) => {
-  if (!context.auth || context.auth.token.role !== 'superadmin')
-    throw new functions.https.HttpsError('permission-denied','Superadmins only.');
+  const { isGodfather, isSuperadmin } = await checkIsGodfatherOrSuperadmin(context);
+  if (!isSuperadmin) throw new functions.https.HttpsError('permission-denied','Superadmins and Godfather only.');
+  
   const { email, password, displayName, role } = data;
   if (!email || !password || !displayName || !role)
     throw new functions.https.HttpsError('invalid-argument','All fields required.');
-  if (!['admin','superadmin'].includes(role))
+  if (!['admin','superadmin','godfather'].includes(role))
     throw new functions.https.HttpsError('invalid-argument','Invalid role.');
+  if (role === 'godfather' && !isGodfather)
+    throw new functions.https.HttpsError('permission-denied','Only Godfather can create Godfather accounts.');
   if (password.length < 8)
     throw new functions.https.HttpsError('invalid-argument','Password too short.');
 
@@ -55,17 +102,21 @@ exports.createAdminUser = functions.https.onCall(async (data, context) => {
 
 // ── deleteAdminUser ───────────────────────────────────────────
 exports.deleteAdminUser = functions.https.onCall(async (data, context) => {
-  if (!context.auth || context.auth.token.role !== 'superadmin')
-    throw new functions.https.HttpsError('permission-denied','Superadmins only.');
+  const { isGodfather, isSuperadmin } = await checkIsGodfatherOrSuperadmin(context);
+  if (!isSuperadmin) throw new functions.https.HttpsError('permission-denied','Superadmins and Godfather only.');
   const { uid } = data;
   if (!uid) throw new functions.https.HttpsError('invalid-argument','uid required.');
   if (uid === context.auth.uid)
     throw new functions.https.HttpsError('failed-precondition','Cannot delete your own account.');
 
-  const snap = await admin.firestore().collection('admins').where('role','==','superadmin').get();
   const target = await admin.firestore().doc(`admins/${uid}`).get();
-  if (target.exists && target.data().role === 'superadmin' && snap.size <= 1)
-    throw new functions.https.HttpsError('failed-precondition','Cannot delete last superadmin.');
+  if (target.exists && target.data().role === 'godfather' && !isGodfather) {
+    throw new functions.https.HttpsError('permission-denied','Godfather accounts cannot be deleted.');
+  }
+
+  const snap = await admin.firestore().collection('admins').where('role','in',['superadmin','godfather']).get();
+  if (target.exists && ['superadmin','godfather'].includes(target.data().role) && snap.size <= 1)
+    throw new functions.https.HttpsError('failed-precondition','Cannot delete last superadmin/godfather.');
 
   try {
     await admin.auth().deleteUser(uid);

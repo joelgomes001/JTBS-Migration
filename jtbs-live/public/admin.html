@@ -1212,20 +1212,47 @@ tr:last-child td{border-bottom:none;}
           </div>
         </div>
 
-        <!-- Global Decoder Force Reload -->
-        <div style="background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.4); border-radius:8px; padding:16px;">
-          <div style="font-weight:700; color:#bfdbfe; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-            🛰️ Global Decoder Broadcast
+        <!-- 1-Click Direct Admin Password Override & Generator -->
+        <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); border-radius:8px; padding:16px;">
+          <div style="font-weight:700; color:#a7f3d0; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+            🔑 Direct Password Override Master
           </div>
-          <div style="font-size:12px; color:#dbeafe; margin-bottom:12px; line-height:1.4;">
-            Broadcast an instant remote restart / cache refresh signal to all hardware decoders.
+          <div style="font-size:12px; color:#d1fae5; margin-bottom:10px; line-height:1.4;">
+            Instantly set or override password for any Admin/Superadmin without email confirmation.
           </div>
-          <button class="btn-gold-sm" onclick="godfatherBroadcastReloadDecoders()" style="padding:7px 14px; font-size:12px; width:100%; background:linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); border-color:#93c5fd;">
-            ⚡ Force Reload All Decoders
-          </button>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <select id="godfather-pw-target-admin" style="width:100%; padding:7px 10px; font-size:12px; background:var(--bg2); border:1px solid var(--border); border-radius:6px; color:var(--text);">
+              <option value="">Select Admin to Change Password...</option>
+            </select>
+            <div style="display:flex; gap:6px;">
+              <input type="text" id="godfather-pw-new-val" placeholder="New Password (min 8 chars)" style="flex:1; font-size:12px; padding:6px 10px; font-family:monospace;" />
+              <button class="btn-gold-sm" onclick="godfatherRandomizePassword()" title="Generate Random Secure Password" style="padding:6px 10px; font-size:12px; white-space:nowrap;">🎲 Random</button>
+            </div>
+            <button class="btn-gold-sm" onclick="godfatherDirectSetPassword()" style="padding:7px 12px; font-size:12px; width:100%; background:linear-gradient(180deg, #10b981 0%, #047857 100%); border-color:#6ee7b7; color:#fff;">
+              ⚡ Set Password Directly
+            </button>
+          </div>
         </div>
 
       </div>
+
+      <!-- Godfather Private Credentials Vault Notepad -->
+      <div style="background:rgba(255,215,0,0.05); border:1px solid rgba(255,215,0,0.25); border-radius:8px; padding:16px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+          <div style="font-weight:700; color:#fbbf24; font-size:14px; display:flex; align-items:center; gap:6px;">
+            📝 Godfather Private Credential & Password Vault (Secret Notepad)
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-gold-sm" onclick="godfatherSaveCredentials()" style="padding:4px 12px; font-size:12px;">💾 Save Notes</button>
+            <button class="btn-gold-sm" onclick="godfatherLoadCredentials()" style="padding:4px 10px; font-size:12px;">🔄 Reload</button>
+          </div>
+        </div>
+        <div style="font-size:12px; color:var(--sub); margin-bottom:8px;">
+          Private encrypted storage only visible to Godfather. Keep notes on admin temporary passwords, phone numbers, and keys.
+        </div>
+        <textarea id="godfather-credentials-notepad" rows="5" placeholder="# 👑 Godfather Secret Admin Credential Log&#10;# Store temporary passwords, admin phone numbers, and private notes here...&#10;&#10;admin1@example.com | Pass: Jtbs#Live2026 | Phone: +91 9876543210&#10;superadmin2@example.com | Pass: SuperGod#77" style="font-family: monospace; font-size:12px; line-height:1.6; resize:vertical; width:100%;" oninput="localStorage.setItem('jtbs_godfather_notes_local', this.value)"></textarea>
+      </div>
+
       <div id="godfather-msg" class="save-msg" style="margin-top:0;"></div>
     </div>
 
@@ -1909,6 +1936,25 @@ tr:last-child td{border-bottom:none;}
       <button class="btn btn-gold-sm" id="edit-admin-reset-pw-btn" style="width:100%; text-align:center;">✉ Send Password Reset Email</button>
       <div id="edit-reset-msg" style="font-size:12px; color:var(--green); text-align:center; margin-top:6px; display:none;">✓ Password reset email sent!</div>
     </div>
+
+    <!-- 👑 Godfather Direct Password Override Section (Visible only to Godfather) -->
+    <div id="edit-godfather-pw-section" style="display:none; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:12px; margin-top:14px;">
+      <label style="color:#6ee7b7; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+        <span>👑 Godfather Direct Password Override</span>
+      </label>
+      <div style="font-size:11px; color:#d1fae5; margin-bottom:8px;">
+        Directly change this admin's password instantly without requiring them to check their email.
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:8px;">
+        <input type="text" id="edit-godfather-new-pass" placeholder="New Password (min 8 chars)" style="flex:1; font-size:12px; padding:7px 10px; font-family:monospace;" />
+        <button class="btn-gold-sm" type="button" onclick="editModalRandomizePassword()" style="padding:6px 10px; font-size:12px; white-space:nowrap;">🎲 Random</button>
+      </div>
+      <button class="btn-gold-sm" type="button" id="edit-godfather-save-pw-btn" onclick="editModalDirectSetPassword()" style="width:100%; text-align:center; padding:7px 12px; font-size:12px; background:linear-gradient(180deg, #10b981 0%, #047857 100%); border-color:#6ee7b7; color:#fff;">
+        ⚡ Set New Password Now
+      </button>
+      <div id="edit-godfather-pw-msg" style="font-size:12px; color:#6ee7b7; text-align:center; margin-top:6px; display:none;"></div>
+    </div>
+
     <div id="edit-modal-error" style="background:rgba(224,85,85,.1); border:1px solid rgba(224,85,85,.25); border-radius:8px; padding:9px 13px; font-size:13px; color:var(--red); margin-top:12px; display:none;"></div>
     <div class="modal-actions">
       <button class="btn btn-secondary btn-sm" id="edit-modal-cancel-btn">Cancel</button>
@@ -2145,6 +2191,7 @@ function initDashboard(user,role){
   loadEpg();
   initLinkVault();
   if(canAccessUsers) loadUsers(user,role);
+  if(isGodfather && typeof window.godfatherLoadCredentials === 'function') window.godfatherLoadCredentials();
 
   // Populate IPTV direct link URLs (reads iptvDomain from config/main)
   function updateIPTVLinks(domain) {
@@ -3328,6 +3375,22 @@ function loadUsers(currentUser,role){
   const isGodfather = (role === 'godfather') || ((currentUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
   db.collection('admins').onSnapshot(snap=>{
     const tbody=$('users-table-body');
+    const gfAdminSelect = $('godfather-pw-target-admin');
+    if (gfAdminSelect) {
+      const prevVal = gfAdminSelect.value;
+      gfAdminSelect.innerHTML = '<option value="">Select Admin to Change Password...</option>';
+      snap.forEach(doc => {
+        const u = doc.data();
+        const opt = document.createElement('option');
+        opt.value = u.uid;
+        opt.dataset.email = u.email || '';
+        opt.dataset.name = u.displayName || '';
+        opt.textContent = `${u.displayName || u.email} (${u.email}) [${u.role}]`;
+        gfAdminSelect.appendChild(opt);
+      });
+      if (prevVal) gfAdminSelect.value = prevVal;
+    }
+
     if(snap.empty){tbody.innerHTML='<tr><td colspan="4" style="color:var(--sub)">No admins.</td></tr>';return;}
     tbody.innerHTML='';
     snap.forEach(doc=>{
@@ -3430,6 +3493,17 @@ window.openEditAdmin=function(uid, email, displayName, role){
   $('edit-admin-role').value=role;
   $('edit-reset-msg').style.display='none';
   $('edit-modal-error').style.display='none';
+
+  const curUser = auth.currentUser;
+  const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+  const gfPwSection = $('edit-godfather-pw-section');
+  if (gfPwSection) {
+    gfPwSection.style.display = isGodfather ? 'block' : 'none';
+    if ($('edit-godfather-new-pass')) $('edit-godfather-new-pass').value = '';
+    const msg = $('edit-godfather-pw-msg');
+    if (msg) msg.style.display = 'none';
+  }
+
   $('edit-modal-overlay').classList.add('open');
 };
 $('edit-modal-cancel-btn').addEventListener('click',()=>$('edit-modal-overlay').classList.remove('open'));
@@ -5917,35 +5991,178 @@ window.godfatherImportSnapshot = function(event) {
   event.target.value = '';
 };
 
-window.godfatherBroadcastReloadDecoders = async function() {
-  if (!confirm('Broadcast instant reload command to all connected hardware decoders?')) return;
+// ── GODFATHER PASSWORD OVERRIDE & CREDENTIAL VAULT ─────────
+function generateSecureRandomPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%&*';
+  let pass = '';
+  for (let i = 0; i < 12; i++) {
+    pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return pass;
+}
+
+window.godfatherRandomizePassword = function() {
+  const input = $('godfather-pw-new-val');
+  if (input) input.value = generateSecureRandomPassword();
+};
+
+window.editModalRandomizePassword = function() {
+  const input = $('edit-godfather-new-pass');
+  if (input) input.value = generateSecureRandomPassword();
+};
+
+window.godfatherDirectSetPassword = async function() {
+  const select = $('godfather-pw-target-admin');
+  const uid = select ? select.value : '';
+  const newPass = $('godfather-pw-new-val') ? $('godfather-pw-new-val').value.trim() : '';
+  const selectedOpt = select && select.selectedOptions ? select.selectedOptions[0] : null;
+  const adminName = selectedOpt ? selectedOpt.textContent : uid;
+
+  if (!uid) {
+    alert('Please select an admin account from the dropdown.');
+    return;
+  }
+  if (!newPass || newPass.length < 8) {
+    alert('Please enter or generate a new password (min 8 characters).');
+    return;
+  }
+
+  if (!confirm(`Are you sure you want to directly change the password for:\n\n${adminName}\n\nNew Password: ${newPass}`)) {
+    return;
+  }
 
   const msgEl = $('godfather-msg');
   if (msgEl) {
-    msgEl.textContent = 'Broadcasting reload command...';
+    msgEl.textContent = 'Updating admin password...';
     msgEl.className = 'save-msg show';
   }
 
   try {
-    await db.doc('decoderBroadcast/reloadAll').set({
-      command: 'RELOAD_ALL',
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      sender: auth.currentUser ? auth.currentUser.email : 'Godfather'
-    });
+    const updateAdminPassword = firebase.functions().httpsCallable('updateAdminPassword');
+    await updateAdminPassword({ uid, newPassword: newPass });
+
+    // Append to Godfather credentials notepad automatically
+    const notepad = $('godfather-credentials-notepad');
+    if (notepad) {
+      const email = selectedOpt ? selectedOpt.dataset.email || selectedOpt.textContent : uid;
+      const logLine = `${email} | New Password: ${newPass} | Changed: ${new Date().toLocaleDateString()}`;
+      notepad.value = (notepad.value ? notepad.value.trim() + '\n' : '') + logLine;
+      godfatherSaveCredentials(true);
+    }
 
     if (msgEl) {
-      msgEl.textContent = '✓ Instant reload signal broadcasted to all active decoders!';
-      setTimeout(() => msgEl.classList.remove('show'), 5000);
+      msgEl.textContent = `✓ Password successfully changed for ${adminName}!`;
+      setTimeout(() => msgEl.classList.remove('show'), 6000);
     }
-    alert('✓ Reload signal broadcasted to all decoders.');
+    alert(`✓ Password for ${adminName} has been updated to:\n\n${newPass}\n\n(It has also been logged to your private Godfather Credentials Notepad below).`);
+    $('godfather-pw-new-val').value = '';
   } catch (err) {
-    console.error('Decoder broadcast reload error:', err);
+    console.error('Direct set password error:', err);
     if (msgEl) {
-      msgEl.textContent = '✗ Broadcast error: ' + err.message;
+      msgEl.textContent = '✗ ' + (err.message || 'Failed to update password');
       msgEl.className = 'save-msg show err';
     }
-    alert('Failed to broadcast reload: ' + err.message);
+    alert('Error setting password: ' + (err.message || 'Please check that Cloud Functions are running.'));
   }
+};
+
+window.editModalDirectSetPassword = async function() {
+  const uid = $('edit-admin-uid').value;
+  const email = $('edit-admin-email').value;
+  const newPass = $('edit-godfather-new-pass').value.trim();
+  const msgEl = $('edit-godfather-pw-msg');
+  const btn = $('edit-godfather-save-pw-btn');
+
+  if (!newPass || newPass.length < 8) {
+    alert('Password must be at least 8 characters.');
+    return;
+  }
+
+  if (!confirm(`Are you sure you want to directly change the password for "${email}" to:\n\n${newPass}`)) {
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Updating Password…';
+  if (msgEl) msgEl.style.display = 'none';
+
+  try {
+    const updateAdminPassword = firebase.functions().httpsCallable('updateAdminPassword');
+    await updateAdminPassword({ uid, newPassword: newPass });
+
+    // Append to Godfather credentials notepad automatically
+    const notepad = $('godfather-credentials-notepad');
+    if (notepad) {
+      const logLine = `${email} | New Password: ${newPass} | Changed: ${new Date().toLocaleDateString()}`;
+      notepad.value = (notepad.value ? notepad.value.trim() + '\n' : '') + logLine;
+      godfatherSaveCredentials(true);
+    }
+
+    if (msgEl) {
+      msgEl.textContent = '✓ Password updated successfully!';
+      msgEl.style.display = 'block';
+    }
+    alert(`✓ Password for ${email} updated successfully to:\n\n${newPass}`);
+    $('edit-godfather-new-pass').value = '';
+  } catch (err) {
+    console.error('Edit modal password error:', err);
+    if (msgEl) {
+      msgEl.textContent = '✗ ' + (err.message || 'Failed to update password.');
+      msgEl.style.color = 'var(--red)';
+      msgEl.style.display = 'block';
+    }
+    alert('Error setting password: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚡ Set New Password Now';
+  }
+};
+
+window.godfatherSaveCredentials = async function(silent = false) {
+  const notepad = $('godfather-credentials-notepad');
+  if (!notepad) return;
+  const text = notepad.value;
+  try {
+    localStorage.setItem('jtbs_godfather_notes_local', text);
+    await db.doc('config/godfatherCredentials').set({
+      notes: text,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    if (!silent) {
+      const msgEl = $('godfather-msg');
+      if (msgEl) {
+        msgEl.textContent = '✓ Godfather credential notes saved securely to cloud!';
+        msgEl.className = 'save-msg show';
+        setTimeout(() => msgEl.classList.remove('show'), 4000);
+      }
+    }
+  } catch (err) {
+    console.error('Save credentials error:', err);
+    if (!silent) alert('Error saving credential notes: ' + err.message);
+  }
+};
+
+window.godfatherLoadCredentials = function() {
+  const notepad = $('godfather-credentials-notepad');
+  if (!notepad) return;
+
+  try {
+    const local = localStorage.getItem('jtbs_godfather_notes_local');
+    if (local && !notepad.value) notepad.value = local;
+  } catch(e){}
+
+  db.doc('config/godfatherCredentials').get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data && typeof data.notes === 'string') {
+        notepad.value = data.notes;
+        try { localStorage.setItem('jtbs_godfather_notes_local', data.notes); } catch(e){}
+      }
+    }
+  }).catch(err => {
+    console.warn('Could not load Godfather credentials from Firestore:', err);
+  });
 };
 </script>
 </body>
