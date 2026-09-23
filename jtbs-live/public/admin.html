@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>JTBS Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -119,6 +120,97 @@ textarea{resize:vertical;min-height:90px;}
 .tab-btn[data-tab="decoders"].active { background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important; border-color: #bfdbfe !important; color: #fff !important; }
 .tab-btn[data-tab="otherstreams"].active { background: linear-gradient(180deg, #ec4899 0%, #be185d 100%) !important; border-color: #fbcfe8 !important; color: #fff !important; }
 .tab-btn[data-tab="epg"].active { background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important; border-color: #a7f3d0 !important; color: #fff !important; }
+.tab-btn[data-tab="linkvault"].active { background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%) !important; border-color: #c7d2fe !important; color: #fff !important; }
+
+/* LINK VAULT STYLING */
+.vault-player-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  margin-bottom: 16px;
+}
+.vault-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--classic-title-font);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.vault-badge-playing { background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #34d399; }
+.vault-badge-error { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; }
+.vault-badge-loading { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fbbf24; }
+.vault-badge-idle { background: rgba(107, 114, 128, 0.2); border: 1px solid #6b7280; color: #9ca3af; }
+
+.vault-link-card {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+.vault-link-card:hover {
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+}
+.vault-link-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.vault-link-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fbbf24;
+  font-family: var(--classic-title-font);
+}
+.vault-link-type-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tag-hls { background: #0284c7; color: #fff; }
+.tag-youtube { background: #dc2626; color: #fff; }
+.tag-video { background: #059669; color: #fff; }
+.tag-dash { background: #7c3aed; color: #fff; }
+.tag-other { background: #4b5563; color: #fff; }
+
+.vault-link-url {
+  font-family: var(--pixel-font);
+  font-size: 12px;
+  color: #93c5fd;
+  word-break: break-all;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.vault-link-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
 
 .tab-panel{display:none;padding:24px 20px;max-width:760px;}
 .tab-panel.active{display:block;}
@@ -637,6 +729,9 @@ tr:last-child td{border-bottom:none;}
     </button>
     <button class="tab-btn" data-tab="otherstreams">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M4.9 19.1C1.7 15.9 1.7 10.7 4.9 7.5M7.7 16.3C5.7 14.3 5.7 11.1 7.7 9.1M19.1 4.9C22.3 8.1 22.3 13.3 19.1 16.5M16.3 7.7C18.3 9.7 18.3 12.9 16.3 14.9M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/></svg>Other Streams
+    </button>
+    <button class="tab-btn" data-tab="linkvault">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link Vault
     </button>
   </div>
 
@@ -1477,6 +1572,105 @@ tr:last-child td{border-bottom:none;}
     </div>
   </div>
 
+  <!-- LINK VAULT & STREAM PREVIEWER -->
+  <div class="tab-panel" id="tab-linkvault" style="max-width: 960px;">
+    
+    <!-- CARD 1: LIVE STREAM PREVIEW PLAYER -->
+    <div class="card" id="vault-player-card">
+      <div class="card-title">
+        <span>Live Stream Preview & Tester</span>
+        <div id="vault-player-status-badge" class="vault-status-badge vault-badge-idle">
+          <span style="font-size:10px;">●</span> IDLE
+        </div>
+      </div>
+      <div class="hint" style="margin-top:-10px; margin-bottom:16px;">
+        Preview and test any stream URL in real time. Works with HLS (<code style="color:var(--text)">.m3u8</code>), YouTube, and direct video files (<code style="color:var(--text)">.mp4, .ts</code>).
+      </div>
+
+      <!-- Player Frame -->
+      <div class="vault-player-wrap" style="aspect-ratio: 16/9; max-height: 420px; display: flex; align-items: center; justify-content: center; background: #050b14; position: relative;">
+        <!-- Video element for HLS / MP4 / Direct streams -->
+        <video id="vault-video-player" controls playsinline style="width: 100%; height: 100%; object-fit: contain; display: block;"></video>
+        <!-- YouTube iframe wrapper -->
+        <div id="vault-youtube-wrap" style="display: none; width: 100%; height: 100%;">
+          <iframe id="vault-youtube-iframe" style="width: 100%; height: 100%; border: none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <!-- Placeholder overlay when idle -->
+        <div id="vault-player-idle-overlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5, 11, 20, 0.95); color: var(--sub); pointer-events: none;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.6;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <div style="font-size: 14px; font-weight: 700; color: #fff; font-family: var(--classic-title-font);">Stream Preview Player</div>
+          <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">Click "Preview" on any link below or paste a test URL</div>
+        </div>
+      </div>
+
+      <!-- Currently Playing Info & Direct Test Input -->
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px;">
+          <span style="color: var(--sub);">Currently Playing: <strong id="vault-now-playing-title" style="color: var(--gold);">None</strong></span>
+          <span id="vault-stream-format-badge" class="vault-link-type-tag tag-other" style="display: none;">HLS</span>
+        </div>
+        
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <input type="text" id="vault-direct-test-url" placeholder="Paste any test URL here (e.g. https://.../playlist.m3u8 or YouTube)..." style="flex: 1; min-width: 260px; font-family: var(--pixel-font); font-size: 13px;" />
+          <button class="btn btn-primary btn-sm" onclick="testVaultDirectUrl()" style="width: auto; padding: 9px 18px; white-space: nowrap;">▶ Play / Test</button>
+          <button class="btn btn-secondary btn-sm" onclick="stopVaultPreviewPlayer()" style="width: auto; padding: 9px 14px; white-space: nowrap;">⏹ Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2: STREAM LINK VAULT (TXT NOTEPAD) -->
+    <div class="card">
+      <div class="card-title">
+        <span>Stream Link Vault (TXT Notepad)</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn-gold-sm" onclick="saveVaultToCloud()" style="padding: 6px 14px; font-size: 13px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); border-color: #a7f3d0; color: #fff;">💾 Save to Cloud</button>
+          <label class="btn-gold-sm" style="padding: 6px 14px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; margin: 0;">
+            📁 Import .txt / .m3u
+            <input type="file" id="vault-file-import" accept=".txt,.m3u,.m3u8" style="display: none;" onchange="importVaultFile(event)" />
+          </label>
+          <button class="btn-gold-sm" onclick="exportVaultFile()" style="padding: 6px 14px; font-size: 13px;">📥 Export .txt</button>
+          <button class="btn-gold-sm" onclick="loadVaultFromCloud()" style="padding: 6px 12px; font-size: 13px;">🔄 Reload</button>
+          <button class="btn-gold-sm" onclick="clearVaultText()" style="padding: 6px 12px; font-size: 13px; background: rgba(220, 38, 38, 0.4); border-color: #ef4444; color: #fff;">🧹 Clear</button>
+        </div>
+      </div>
+      
+      <div class="hint" style="margin-top: -10px; margin-bottom: 12px;">
+        Store all your stream links in plain text. Format: <code>Title | URL</code> or raw URL per line. Saved permanently to Firestore cloud.
+      </div>
+
+      <textarea id="vault-raw-textarea" rows="10" placeholder="# JTBS Stream Link Vault&#10;# Paste one stream per line, or format as: Channel Title | Stream URL&#10;&#10;Mayapur TV HD | https://video4.mayapur.tv/allTemples/MayapurTV/MayapurTVHD/playlist.m3u8&#10;Srinjana Feed Backup | https://example.com/live/srinjana.m3u8&#10;Daily Devotional Live | https://www.youtube.com/watch?v=live_stream_id" style="font-family: var(--pixel-font); font-size: 13px; line-height: 1.6; resize: vertical;" oninput="onVaultTextareaInput()"></textarea>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
+        <div id="vault-save-msg" class="save-msg" style="margin-top: 0;"></div>
+        <div id="vault-links-count" style="font-size: 13px; color: var(--sub); font-family: var(--classic-title-font);">0 links detected</div>
+      </div>
+    </div>
+
+    <!-- CARD 3: STORED LINKS & QUICK ASSIGN -->
+    <div class="card">
+      <div class="card-title">
+        <span>Stored Stream Links & 1-Click Feed Assign</span>
+      </div>
+      
+      <!-- Search & Filter Controls -->
+      <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+        <input type="text" id="vault-search-filter" placeholder="🔍 Search links by title or URL..." oninput="renderParsedVaultLinks()" style="flex: 1; min-width: 220px; font-size: 14px;" />
+        <div style="display: flex; gap: 6px;">
+          <button class="btn-gold-sm vault-filter-btn active" id="filter-btn-all" onclick="setVaultTypeFilter('all')" style="padding: 6px 12px; font-size: 12px;">All</button>
+          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-hls" onclick="setVaultTypeFilter('hls')" style="padding: 6px 12px; font-size: 12px;">HLS (.m3u8)</button>
+          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-youtube" onclick="setVaultTypeFilter('youtube')" style="padding: 6px 12px; font-size: 12px;">YouTube</button>
+          <button class="btn-gold-sm vault-filter-btn" id="filter-btn-video" onclick="setVaultTypeFilter('video')" style="padding: 6px 12px; font-size: 12px;">Direct Video</button>
+        </div>
+      </div>
+
+      <!-- Links List Container -->
+      <div id="vault-parsed-links-container" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="text-align: center; padding: 24px; color: var(--sub); font-size: 14px;">No stream links entered yet. Add links in the text box above and click "Save to Cloud".</div>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 
 <!-- COPY SCHEDULE MODAL -->
@@ -1823,6 +2017,7 @@ function initDashboard(user,role){
   loadLiveCount();
   loadDecoders();
   loadEpg();
+  initLinkVault();
   if(role==='superadmin') loadUsers(user,role);
 
   // Populate IPTV direct link URLs (reads iptvDomain from config/main)
@@ -4901,6 +5096,467 @@ function copyEpgUrl(url, btn) {
     prompt('Copy EPG URL:', url);
   }
 }
+
+// ── LINK VAULT & STREAM PREVIEWER LOGIC ─────────────────────────────
+let vaultHls = null;
+let currentVaultTypeFilter = 'all';
+let parsedVaultLinks = [];
+
+function initLinkVault() {
+  loadVaultFromCloud();
+  setupVaultPlayerEvents();
+}
+
+function setupVaultPlayerEvents() {
+  const vid = $('vault-video-player');
+  if (!vid) return;
+
+  vid.addEventListener('playing', () => {
+    updateVaultPlayerBadge('playing', '🟢 PLAYING');
+  });
+
+  vid.addEventListener('waiting', () => {
+    updateVaultPlayerBadge('loading', '⏳ BUFFERING');
+  });
+
+  vid.addEventListener('error', () => {
+    updateVaultPlayerBadge('error', '🔴 STREAM ERROR / OFFLINE');
+  });
+
+  vid.addEventListener('pause', () => {
+    if (!vid.ended && vid.currentTime > 0) {
+      updateVaultPlayerBadge('idle', '⏸ PAUSED');
+    }
+  });
+}
+
+function updateVaultPlayerBadge(state, text) {
+  const badge = $('vault-player-status-badge');
+  if (!badge) return;
+  badge.className = `vault-status-badge vault-badge-${state}`;
+  badge.innerHTML = `<span style="font-size:10px;">●</span> ${text}`;
+}
+
+function extractYouTubeId(url) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
+window.testVaultDirectUrl = function() {
+  const input = $('vault-direct-test-url');
+  const url = input ? input.value.trim() : '';
+  if (!url) {
+    alert('Please enter a stream URL to test.');
+    return;
+  }
+  previewVaultUrl(url, 'Direct Test Stream');
+};
+
+window.stopVaultPreviewPlayer = function() {
+  const vid = $('vault-video-player');
+  const ytWrap = $('vault-youtube-wrap');
+  const ytIframe = $('vault-youtube-iframe');
+  const overlay = $('vault-player-idle-overlay');
+  const titleEl = $('vault-now-playing-title');
+  const formatBadge = $('vault-stream-format-badge');
+
+  if (vaultHls) {
+    vaultHls.destroy();
+    vaultHls = null;
+  }
+
+  if (vid) {
+    vid.pause();
+    vid.removeAttribute('src');
+    vid.load();
+    vid.style.display = 'block';
+  }
+
+  if (ytIframe) ytIframe.src = '';
+  if (ytWrap) ytWrap.style.display = 'none';
+  if (overlay) overlay.style.display = 'flex';
+  if (titleEl) titleEl.textContent = 'None';
+  if (formatBadge) formatBadge.style.display = 'none';
+
+  updateVaultPlayerBadge('idle', 'IDLE');
+};
+
+window.previewVaultUrl = function(url, title) {
+  if (!url) return;
+  const vid = $('vault-video-player');
+  const ytWrap = $('vault-youtube-wrap');
+  const ytIframe = $('vault-youtube-iframe');
+  const overlay = $('vault-player-idle-overlay');
+  const titleEl = $('vault-now-playing-title');
+  const formatBadge = $('vault-stream-format-badge');
+
+  if (overlay) overlay.style.display = 'none';
+  if (titleEl) titleEl.textContent = title || url;
+
+  // Scroll smoothly to player card
+  const playerCard = $('vault-player-card');
+  if (playerCard) {
+    playerCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Detect stream type
+  const type = detectType(url);
+  if (formatBadge) {
+    formatBadge.style.display = 'inline-block';
+    formatBadge.textContent = type.toUpperCase();
+    formatBadge.className = `vault-link-type-tag tag-${type}`;
+  }
+
+  updateVaultPlayerBadge('loading', '⏳ CONNECTING');
+
+  // Stop previous HLS instance
+  if (vaultHls) {
+    vaultHls.destroy();
+    vaultHls = null;
+  }
+
+  if (type === 'youtube') {
+    const ytId = extractYouTubeId(url);
+    if (vid) {
+      vid.pause();
+      vid.removeAttribute('src');
+      vid.load();
+      vid.style.display = 'none';
+    }
+    if (ytWrap && ytIframe) {
+      ytWrap.style.display = 'block';
+      if (ytId) {
+        ytIframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
+      } else {
+        ytIframe.src = url;
+      }
+      updateVaultPlayerBadge('playing', '🟢 PLAYING (YOUTUBE)');
+    }
+  } else {
+    if (ytWrap && ytIframe) {
+      ytIframe.src = '';
+      ytWrap.style.display = 'none';
+    }
+    if (vid) {
+      vid.style.display = 'block';
+      const isHls = url.toLowerCase().includes('.m3u8') || url.toLowerCase().includes('mpegurl') || type === 'hls';
+
+      if (isHls && window.Hls && Hls.isSupported()) {
+        vaultHls = new Hls({ enableWorker: true, lowLatencyMode: true });
+        vaultHls.loadSource(url);
+        vaultHls.attachMedia(vid);
+        vaultHls.on(Hls.Events.MANIFEST_PARSED, function() {
+          vid.play().catch(e => console.log('Autoplay prevented:', e));
+        });
+        vaultHls.on(Hls.Events.ERROR, function(event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.error("fatal network error encountered, try to recover", data);
+                updateVaultPlayerBadge('error', '🔴 NETWORK / CORS ERROR');
+                vaultHls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.error("fatal media error encountered, try to recover", data);
+                updateVaultPlayerBadge('error', '🔴 MEDIA ERROR');
+                vaultHls.recoverMediaError();
+                break;
+              default:
+                updateVaultPlayerBadge('error', '🔴 STREAM OFFLINE');
+                vaultHls.destroy();
+                break;
+            }
+          }
+        });
+      } else {
+        vid.src = url;
+        vid.play().catch(e => console.log('Video play prevented:', e));
+      }
+    }
+  }
+};
+
+window.onVaultTextareaInput = function() {
+  const text = $('vault-raw-textarea') ? $('vault-raw-textarea').value : '';
+  parseAndCountVaultLinks(text);
+  renderParsedVaultLinks();
+};
+
+function parseAndCountVaultLinks(text) {
+  if (!text) {
+    parsedVaultLinks = [];
+    if ($('vault-links-count')) $('vault-links-count').textContent = '0 links detected';
+    return;
+  }
+
+  const lines = text.split('\n');
+  const links = [];
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('//')) return;
+
+    let title = '';
+    let url = '';
+
+    if (trimmed.includes('|')) {
+      const parts = trimmed.split('|');
+      title = parts[0].trim();
+      url = parts.slice(1).join('|').trim();
+    } else if (trimmed.includes(' - ') && (trimmed.includes('http://') || trimmed.includes('https://'))) {
+      const parts = trimmed.split(' - ');
+      title = parts[0].trim();
+      url = parts.slice(1).join(' - ').trim();
+    } else {
+      url = trimmed;
+      try {
+        const uObj = new URL(url);
+        title = uObj.pathname.split('/').filter(Boolean).pop() || uObj.hostname;
+      } catch (e) {
+        title = `Link ${links.length + 1}`;
+      }
+    }
+
+    if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('rtmp://') || url.startsWith('srt://'))) {
+      links.push({
+        id: `link-${index}-${Date.now()}`,
+        title: title || `Stream ${links.length + 1}`,
+        url: url,
+        type: detectType(url)
+      });
+    }
+  });
+
+  parsedVaultLinks = links;
+  if ($('vault-links-count')) {
+    $('vault-links-count').textContent = `${links.length} link${links.length === 1 ? '' : 's'} detected`;
+  }
+}
+
+window.setVaultTypeFilter = function(filter) {
+  currentVaultTypeFilter = filter;
+  document.querySelectorAll('.vault-filter-btn').forEach(btn => {
+    if (btn.dataset.filter === filter) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  renderParsedVaultLinks();
+};
+
+window.renderParsedVaultLinks = function() {
+  const container = $('vault-parsed-links-container');
+  if (!container) return;
+
+  const searchQuery = ($('vault-search-filter') ? $('vault-search-filter').value : '').toLowerCase().trim();
+
+  let filtered = parsedVaultLinks;
+  if (currentVaultTypeFilter !== 'all') {
+    filtered = filtered.filter(item => item.type === currentVaultTypeFilter);
+  }
+  if (searchQuery) {
+    filtered = filtered.filter(item => item.title.toLowerCase().includes(searchQuery) || item.url.toLowerCase().includes(searchQuery));
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--sub); font-size: 14px;">No stream links match the current filter.</div>`;
+    return;
+  }
+
+  let html = '';
+  filtered.forEach((item, idx) => {
+    const escapedTitle = escapeHtml(item.title);
+    const escapedUrl = escapeHtml(item.url);
+    const safeUrlForAttr = encodeURIComponent(item.url);
+
+    html += `
+      <div class="vault-link-card">
+        <div class="vault-link-header">
+          <div class="vault-link-title">${escapedTitle}</div>
+          <span class="vault-link-type-tag tag-${item.type}">${item.type.toUpperCase()}</span>
+        </div>
+        <div class="vault-link-url" title="${escapedUrl}">${escapedUrl}</div>
+        <div class="vault-link-actions">
+          <button class="btn btn-primary btn-sm" onclick="previewVaultUrl(decodeURIComponent('${safeUrlForAttr}'), '${escapeHtml(escapedTitle)}')" style="width:auto; padding:6px 14px; font-size:12px;">
+            ▶ Preview
+          </button>
+          <button class="btn-gold-sm" onclick="copyVaultLinkText(decodeURIComponent('${safeUrlForAttr}'), this)" style="padding:6px 12px; font-size:12px;">
+            📋 Copy Link
+          </button>
+          <div style="display:inline-flex; align-items:center; gap:6px; margin-left:auto;">
+            <span style="font-size:12px; color:var(--sub); font-weight:700;">⚡ Quick Assign:</span>
+            <select onchange="assignVaultLinkFromSelect(this, decodeURIComponent('${safeUrlForAttr}'))" style="width:auto; padding:5px 10px; font-size:12px; background:#fff; border:1px solid #7a9cb9; border-radius:3px; color:#111;">
+              <option value="" selected disabled>Select Feed...</option>
+              <option value="main">Main Channel (Public)</option>
+              <option value="decoder">Decoder Channel (Box)</option>
+              <option value="feed1">Feed 1 (live1)</option>
+              <option value="feed2">Feed 2 (live2)</option>
+              <option value="feed3">Feed 3 (live3)</option>
+              <option value="feed4">Feed 4 (live4)</option>
+              <option value="feed5">Feed 5 (live5)</option>
+              <option value="feed6">Feed 6 (live6)</option>
+              <option value="feed7">Feed 7 (live7)</option>
+              <option value="feed8">Feed 8 (live8)</option>
+              <option value="feed9">Feed 9 (live9)</option>
+              <option value="feed10">Feed 10 (live10)</option>
+              <option value="feed11">Feed 11 (live11)</option>
+              <option value="feed12">Feed 12 (live12)</option>
+              <option value="feed13">Feed 13 (live13)</option>
+              <option value="feed14">Feed 14 (live14)</option>
+              <option value="feed15">Feed 15 (live15)</option>
+              <option value="feed16">Feed 16 (live16)</option>
+              <option value="feed17">Feed 17 (live17)</option>
+              <option value="feed18">Feed 18 (live18)</option>
+              <option value="feed19">Feed 19 (live19)</option>
+              <option value="feed20">Feed 20 (live20)</option>
+              <option value="srinjana">Srinjana (Srinjana.m3u8)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+};
+
+window.copyVaultLinkText = function(url, btn) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    }).catch(() => {
+      prompt('Copy Stream URL:', url);
+    });
+  } else {
+    prompt('Copy Stream URL:', url);
+  }
+};
+
+window.assignVaultLinkFromSelect = async function(selectEl, url) {
+  const target = selectEl.value;
+  if (!target) return;
+
+  const targetName = selectEl.options[selectEl.selectedIndex].text;
+  if (!confirm(`Are you sure you want to assign this stream link to "${targetName}" and turn it ON?`)) {
+    selectEl.value = '';
+    return;
+  }
+
+  try {
+    const isMain = target === 'main';
+    const isDecoder = target === 'decoder';
+
+    if (isMain) {
+      await db.collection('streamState').doc('main').set({
+        streamUrl: url,
+        isLive: true,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } else if (isDecoder) {
+      await db.collection('streamState').doc('decoder').set({
+        streamUrl: url,
+        isLive: true,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } else {
+      await db.collection('streamState').doc(target).set({
+        streamUrl: url,
+        isLive: true,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+
+    alert(`✓ Stream URL successfully assigned to ${targetName} and set LIVE!`);
+  } catch (err) {
+    alert(`Error assigning stream: ${err.message}`);
+  } finally {
+    selectEl.value = '';
+  }
+};
+
+window.saveVaultToCloud = async function() {
+  const textarea = $('vault-raw-textarea');
+  const text = textarea ? textarea.value : '';
+  const msg = $('vault-save-msg');
+
+  try {
+    await db.collection('config').doc('linkVault').set({
+      rawText: text,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: auth.currentUser ? auth.currentUser.email : 'admin'
+    }, { merge: true });
+
+    if (msg) {
+      msg.textContent = '✓ Stored & Synced to Cloud in Firestore!';
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 3500);
+    }
+  } catch (err) {
+    alert(`Failed to save to cloud: ${err.message}`);
+  }
+};
+
+window.loadVaultFromCloud = function() {
+  db.collection('config').doc('linkVault').get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data && typeof data.rawText === 'string') {
+        const textarea = $('vault-raw-textarea');
+        if (textarea) textarea.value = data.rawText;
+        parseAndCountVaultLinks(data.rawText);
+        renderParsedVaultLinks();
+      }
+    }
+  }).catch(err => {
+    console.warn('Could not load Link Vault from cloud:', err);
+  });
+};
+
+window.clearVaultText = function() {
+  if (!confirm('Are you sure you want to clear all text in the Link Vault notepad?')) return;
+  const textarea = $('vault-raw-textarea');
+  if (textarea) textarea.value = '';
+  parseAndCountVaultLinks('');
+  renderParsedVaultLinks();
+};
+
+window.exportVaultFile = function() {
+  const text = $('vault-raw-textarea') ? $('vault-raw-textarea').value : '';
+  if (!text) {
+    alert('No links to export.');
+    return;
+  }
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `jtbs_stream_links_${new Date().toISOString().slice(0, 10)}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+window.importVaultFile = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const content = e.target.result;
+    const textarea = $('vault-raw-textarea');
+    if (textarea) {
+      textarea.value = (textarea.value ? textarea.value.trim() + '\n\n' : '') + content;
+      onVaultTextareaInput();
+      alert(`Imported "${file.name}" successfully! Click "Save to Cloud" to sync.`);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+};
 </script>
 </body>
 </html>
+
