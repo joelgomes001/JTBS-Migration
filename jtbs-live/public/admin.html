@@ -5481,12 +5481,24 @@ window.saveVaultToCloud = async function() {
   const text = textarea ? textarea.value : '';
   const msg = $('vault-save-msg');
 
+  // Save to localStorage immediately as local backup
+  try { localStorage.setItem('jtbs_link_vault_backup', text); } catch(e){}
+
   try {
-    await db.collection('config').doc('linkVault').set({
-      rawText: text,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedBy: auth.currentUser ? auth.currentUser.email : 'admin'
+    // Save to config/main (which always has write permission for admins)
+    await db.collection('config').doc('main').set({
+      linkVaultText: text,
+      linkVaultUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      linkVaultUpdatedBy: auth.currentUser ? auth.currentUser.email : 'admin'
     }, { merge: true });
+
+    // Also attempt config/linkVault
+    try {
+      await db.collection('config').doc('linkVault').set({
+        rawText: text,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch(e){}
 
     if (msg) {
       msg.textContent = '✓ Stored & Synced to Cloud in Firestore!';
@@ -5499,16 +5511,45 @@ window.saveVaultToCloud = async function() {
 };
 
 window.loadVaultFromCloud = function() {
-  db.collection('config').doc('linkVault').get().then(doc => {
-    if (doc.exists) {
-      const data = doc.data();
-      if (data && typeof data.rawText === 'string') {
-        const textarea = $('vault-raw-textarea');
-        if (textarea) textarea.value = data.rawText;
-        parseAndCountVaultLinks(data.rawText);
+  // Check local cache first for instant populate
+  try {
+    const cached = localStorage.getItem('jtbs_link_vault_backup');
+    if (cached) {
+      const textarea = $('vault-raw-textarea');
+      if (textarea && !textarea.value) {
+        textarea.value = cached;
+        parseAndCountVaultLinks(cached);
         renderParsedVaultLinks();
       }
     }
+  } catch(e){}
+
+  // Load from config/main
+  db.collection('config').doc('main').get().then(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data && typeof data.linkVaultText === 'string' && data.linkVaultText) {
+        const textarea = $('vault-raw-textarea');
+        if (textarea) textarea.value = data.linkVaultText;
+        try { localStorage.setItem('jtbs_link_vault_backup', data.linkVaultText); } catch(e){}
+        parseAndCountVaultLinks(data.linkVaultText);
+        renderParsedVaultLinks();
+        return;
+      }
+    }
+    // Fallback check config/linkVault
+    return db.collection('config').doc('linkVault').get().then(doc2 => {
+      if (doc2.exists) {
+        const data2 = doc2.data();
+        if (data2 && typeof data2.rawText === 'string') {
+          const textarea = $('vault-raw-textarea');
+          if (textarea) textarea.value = data2.rawText;
+          try { localStorage.setItem('jtbs_link_vault_backup', data2.rawText); } catch(e){}
+          parseAndCountVaultLinks(data2.rawText);
+          renderParsedVaultLinks();
+        }
+      }
+    });
   }).catch(err => {
     console.warn('Could not load Link Vault from cloud:', err);
   });

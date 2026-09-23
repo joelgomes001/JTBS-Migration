@@ -21,7 +21,7 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
-    match /config/main        { allow read: if true; allow write: if isAdmin(); }
+    match /config/{doc}       { allow read: if true; allow write: if isAdmin(); }
     match /announcement/current{ allow read: if true; allow write: if isAdmin(); }
     match /blessCount/main    { allow read: if true; allow write: if true; }
     match /decoderStatus/{id} {
