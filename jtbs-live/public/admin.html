@@ -3310,25 +3310,74 @@ window.godfatherJumpToFeed = function(feedId) {
 // ── 📜 SUPERADMIN AUDIT LOGGING & 1-CLICK REVERT ──────────────
 let auditLogsUnsub = null;
 
-function logAdminAction(action, targetFeed, details, previousState, newState) {
-  const curUser = auth.currentUser;
-  const uid = curUser ? curUser.uid : 'anon';
-  const email = curUser ? (curUser.email || 'anonymous') : 'anonymous';
-  const name = curUser ? (curUser.displayName || email) : 'anonymous';
-  const role = window.currentUserRole || 'admin';
+function sanitizeAuditState(obj) {
+  if (obj === null || obj === undefined) return null;
+  if (typeof obj !== 'object') return obj;
 
-  db.collection('adminAuditLogs').add({
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    userUid: uid,
-    userEmail: email,
-    userName: name,
-    userRole: role,
-    action: action,
-    targetFeed: targetFeed || 'global',
-    details: details || '',
-    previousState: previousState || null,
-    newState: newState || null
-  }).catch(e => console.error("Audit log write error:", e));
+  if (obj.constructor && (
+    obj.constructor.name === 'DeleteTransform' || 
+    obj.constructor.name === 'ServerTimestampTransform' ||
+    obj.constructor.name === 'FieldValue' ||
+    obj._methodName === 'delete' ||
+    obj._methodName === 'serverTimestamp'
+  )) {
+    return undefined;
+  }
+
+  if (obj instanceof Date) {
+    return obj.toISOString();
+  }
+
+  if (typeof obj.toDate === 'function') {
+    try { return obj.toDate().toISOString(); } catch(e) {}
+  }
+
+  if (Array.isArray(obj)) {
+    return obj
+      .map(item => sanitizeAuditState(item))
+      .filter(item => item !== undefined);
+  }
+
+  try {
+    const clean = {};
+    for (const [k, v] of Object.entries(obj)) {
+      const val = sanitizeAuditState(v);
+      if (val !== undefined) {
+        clean[k] = val;
+      }
+    }
+    return clean;
+  } catch(e) {
+    return null;
+  }
+}
+
+function logAdminAction(action, targetFeed, details, previousState, newState) {
+  try {
+    const curUser = auth.currentUser;
+    const uid = curUser ? curUser.uid : 'anon';
+    const email = curUser ? (curUser.email || 'anonymous') : 'anonymous';
+    const name = curUser ? (curUser.displayName || email) : 'anonymous';
+    const role = window.currentUserRole || 'admin';
+
+    const cleanPrev = previousState ? sanitizeAuditState(previousState) : null;
+    const cleanNew = newState ? sanitizeAuditState(newState) : null;
+
+    db.collection('adminAuditLogs').add({
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      userUid: uid,
+      userEmail: email,
+      userName: name,
+      userRole: role,
+      action: action,
+      targetFeed: targetFeed || 'global',
+      details: details || '',
+      previousState: cleanPrev || null,
+      newState: cleanNew || null
+    }).catch(e => console.error("Audit log write error:", e));
+  } catch (err) {
+    console.error("Audit logging failed:", err);
+  }
 }
 
 window.godfatherInitAuditLogs = function() {
