@@ -388,6 +388,23 @@ th{font-size:11px;font-weight:700;color:#79c0ff;text-align:left;padding:8px 10px
 td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:middle;color:#fff;}
 tr:last-child td{border-bottom:none;}
 .role-badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;}
+.role-badge.godfather{
+  background: linear-gradient(135deg, #ffe066 0%, #f59e0b 50%, #b45309 100%) !important;
+  color: #000 !important;
+  font-weight: 900 !important;
+  border: 1px solid #fffbeb !important;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.8), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+  animation: godfatherGlow 2.5s infinite ease-in-out;
+}
+@keyframes godfatherGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.6); transform: scale(1); }
+  50% { box-shadow: 0 0 20px rgba(245, 158, 11, 1), 0 0 8px #ffd700; transform: scale(1.04); }
+}
 .role-badge.superadmin{background:rgba(255,215,0,.25);color:#fff;border:1px solid rgba(255,215,0,0.4);}
 .role-badge.admin{background:rgba(100,180,255,.2);color:#70bfff;border:1px solid rgba(100,180,255,0.3);}
 .google-badge{font-size:11px;color:var(--sub);display:inline-flex;align-items:center;gap:4px;}
@@ -1142,6 +1159,77 @@ tr:last-child td{border-bottom:none;}
 
   <!-- USERS -->
   <div class="tab-panel" id="tab-users">
+    
+    <!-- 👑 GODFATHER MASTER CONTROL SUITE (Visible only to Godfather) -->
+    <div class="card" id="godfather-suite-card" style="display:none; border: 1.5px solid #f59e0b; background: linear-gradient(180deg, rgba(38, 28, 14, 0.95) 0%, rgba(20, 15, 8, 0.98) 100%); box-shadow: 0 0 24px rgba(245, 158, 11, 0.3);">
+      <div class="card-title" style="color: #fbbf24; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <span style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:22px;">👑</span> GODFATHER MASTER SUITE
+        </span>
+        <span class="role-badge godfather" style="font-size:11px; padding:4px 12px;">SUPREME AUTHORITY</span>
+      </div>
+      <div class="hint" style="margin-top:-10px; margin-bottom:18px; color:#fde68a;">
+        Exclusive master control suite for <strong>Joel Sohan Gomes</strong>. Full network override and emergency governance.
+      </div>
+
+      <!-- Emergency Master Killswitch & Network Actions Grid -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:16px;">
+        
+        <!-- Emergency Master Kill-Switch -->
+        <div style="background:rgba(220,38,38,0.12); border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:16px;">
+          <div style="font-weight:700; color:#fca5a5; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+            🚨 Master Emergency Kill-Switch
+          </div>
+          <div style="font-size:12px; color:#fecaca; margin-bottom:12px; line-height:1.4;">
+            Instantly turn OFF or turn ON all 20 feeds, Public stream, Decoder stream, and Srinjana simultaneously.
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-danger btn-sm" onclick="godfatherEmergencyBlackout(true)" style="padding:7px 14px; font-size:12px; flex:1; white-space:nowrap;">
+              🛑 Blackout All Feeds
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="godfatherEmergencyBlackout(false)" style="padding:7px 14px; font-size:12px; flex:1; white-space:nowrap;">
+              🟢 Set All Live
+            </button>
+          </div>
+        </div>
+
+        <!-- 1-Click Master Network Snapshot & Backup -->
+        <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.4); border-radius:8px; padding:16px;">
+          <div style="font-weight:700; color:#fde68a; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+            📦 Network Snapshot & Recovery
+          </div>
+          <div style="font-size:12px; color:#fef3c7; margin-bottom:12px; line-height:1.4;">
+            Download complete network snapshot (20 Feeds, EPG schedules, Branding, Link Vault, Admins) or restore from JSON.
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-gold-sm" onclick="godfatherExportSnapshot()" style="padding:7px 14px; font-size:12px; flex:1; white-space:nowrap;">
+              📥 Export Backup
+            </button>
+            <label class="btn-gold-sm" style="padding:7px 14px; font-size:12px; flex:1; text-align:center; cursor:pointer; margin:0; white-space:nowrap;">
+              📤 Restore Backup
+              <input type="file" id="godfather-restore-file" accept=".json" style="display:none;" onchange="godfatherImportSnapshot(event)" />
+            </label>
+          </div>
+        </div>
+
+        <!-- Global Decoder Force Reload -->
+        <div style="background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.4); border-radius:8px; padding:16px;">
+          <div style="font-weight:700; color:#bfdbfe; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+            🛰️ Global Decoder Broadcast
+          </div>
+          <div style="font-size:12px; color:#dbeafe; margin-bottom:12px; line-height:1.4;">
+            Broadcast an instant remote restart / cache refresh signal to all hardware decoders.
+          </div>
+          <button class="btn-gold-sm" onclick="godfatherBroadcastReloadDecoders()" style="padding:7px 14px; font-size:12px; width:100%; background:linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); border-color:#93c5fd;">
+            ⚡ Force Reload All Decoders
+          </button>
+        </div>
+
+      </div>
+      <div id="godfather-msg" class="save-msg" style="margin-top:0;"></div>
+    </div>
+
+    <!-- STANDARD ADMIN ACCOUNTS CARD -->
     <div class="card">
       <div class="card-title">Admin Accounts <button class="btn-gold-sm" id="add-admin-btn">+ Add admin</button></div>
       <div class="users-table-wrap">
@@ -1792,6 +1880,7 @@ tr:last-child td{border-bottom:none;}
       <select id="new-admin-role">
         <option value="admin">Admin — can control stream</option>
         <option value="superadmin">Superadmin — full access</option>
+        <option value="godfather" id="new-role-godfather-option" style="display:none;">👑 Godfather — Supreme Owner</option>
       </select>
     </div>
     <div id="modal-error"></div>
@@ -1813,6 +1902,7 @@ tr:last-child td{border-bottom:none;}
       <select id="edit-admin-role">
         <option value="admin">Admin — can control stream</option>
         <option value="superadmin">Superadmin — full access</option>
+        <option value="godfather" id="edit-role-godfather-option" style="display:none;">👑 Godfather — Supreme Owner</option>
       </select>
     </div>
     <div style="margin: 18px 0 10px 0;">
@@ -1883,19 +1973,36 @@ function isLiveStreamUrl(url) {if(!url)return false;const u=url.toLowerCase();re
 auth.onAuthStateChanged(async user=>{
   if(!user){$('dashboard-page').style.display='none';$('login-page').style.display='flex';return;}
   let role=null;
-  try{
-    const token=await user.getIdTokenResult(true);
-    if(token.claims.role && ['admin','superadmin'].includes(token.claims.role)){
-      role=token.claims.role;
-    }
-  }catch(e){console.warn('Claims check failed', e);}
+  const isGodfatherEmail = (user.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com';
+  
+  if (isGodfatherEmail) {
+    role = 'godfather';
+    // Ensure Firestore document exists with role: 'godfather'
+    try {
+      db.doc(`admins/${user.uid}`).set({
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName || 'Joel Sohan Gomes',
+        role: 'godfather'
+      }, { merge: true }).catch(()=>{});
+    } catch(e){}
+  }
+
+  if(!role){
+    try{
+      const token=await user.getIdTokenResult(true);
+      if(token.claims.role && ['admin','superadmin','godfather'].includes(token.claims.role)){
+        role=token.claims.role;
+      }
+    }catch(e){console.warn('Claims check failed', e);}
+  }
   
   if(!role){
     try{
       const doc=await db.doc(`admins/${user.uid}`).get();
       if(doc.exists){
         const u=doc.data();
-        if(u && ['admin','superadmin'].includes(u.role)){
+        if(u && ['admin','superadmin','godfather'].includes(u.role)){
           role=u.role;
         }
       }
@@ -1906,7 +2013,12 @@ auth.onAuthStateChanged(async user=>{
     await auth.signOut();showLoginErr('Your account does not have admin access.');return;
   }
   $('login-page').style.display='none';$('dashboard-page').style.display='block';
-  $('admin-email-display').textContent=user.email||'';
+  
+  if (role === 'godfather') {
+    $('admin-email-display').innerHTML = `${esc(user.email||'')} <span class="role-badge godfather" style="margin-left:6px;">👑 GODFATHER</span>`;
+  } else {
+    $('admin-email-display').textContent=user.email||'';
+  }
   
   // Realtime check for google link in topbar
   db.doc(`admins/${user.uid}`).onSnapshot(snap=>{
@@ -2002,9 +2114,28 @@ function initDashboard(user,role){
       $('tab-'+btn.dataset.tab).classList.add('active');
     });
   });
-  if(role!=='superadmin'){
+  
+  const isGodfather = (role === 'godfather') || ((user.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+  const canAccessUsers = role === 'superadmin' || isGodfather;
+  
+  if(!canAccessUsers){
     document.querySelector('[data-tab="users"]').style.display='none';
+  } else {
+    document.querySelector('[data-tab="users"]').style.display='inline-flex';
   }
+  
+  // Unhide Godfather Suite Card if Godfather
+  const gfCard = $('godfather-suite-card');
+  if (gfCard) {
+    gfCard.style.display = isGodfather ? 'block' : 'none';
+  }
+  
+  // Modal role options for Godfather
+  const newGfOpt = $('new-role-godfather-option');
+  if (newGfOpt) newGfOpt.style.display = isGodfather ? 'block' : 'none';
+  const editGfOpt = $('edit-role-godfather-option');
+  if (editGfOpt) editGfOpt.style.display = isGodfather ? 'block' : 'none';
+
   loadBranding();
   loadStreamState();
   loadOtherStreams();
@@ -2013,7 +2144,7 @@ function initDashboard(user,role){
   loadDecoders();
   loadEpg();
   initLinkVault();
-  if(role==='superadmin') loadUsers(user,role);
+  if(canAccessUsers) loadUsers(user,role);
 
   // Populate IPTV direct link URLs (reads iptvDomain from config/main)
   function updateIPTVLinks(domain) {
@@ -3194,20 +3325,29 @@ $('announce-clear-btn').addEventListener('click',async()=>{
 
 // ── USERS ────────────────────────────────────────────────────
 function loadUsers(currentUser,role){
+  const isGodfather = (role === 'godfather') || ((currentUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
   db.collection('admins').onSnapshot(snap=>{
     const tbody=$('users-table-body');
     if(snap.empty){tbody.innerHTML='<tr><td colspan="4" style="color:var(--sub)">No admins.</td></tr>';return;}
     tbody.innerHTML='';
     snap.forEach(doc=>{
       const u=doc.data(),isMe=u.uid===currentUser.uid;
+      const targetIsGodfather = (u.role === 'godfather') || ((u.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
+      const canEdit = isGodfather || (!targetIsGodfather && (role === 'superadmin'));
+      const canDelete = !isMe && (isGodfather || (!targetIsGodfather && (role === 'superadmin')));
+      
+      const roleBadge = targetIsGodfather
+        ? `<span class="role-badge godfather">👑 GODFATHER</span>`
+        : `<span class="role-badge ${esc(u.role)}">${esc(u.role)}</span>`;
+
       const tr=document.createElement('tr');
       tr.innerHTML=`
         <td style="font-size:13px;">${esc(u.email||'—')}<br><span style="font-size:11px;color:var(--sub)">${esc(u.displayName||'')}</span></td>
-        <td><span class="role-badge ${esc(u.role)}">${esc(u.role)}</span></td>
+        <td>${roleBadge}</td>
         <td>${u.linkedGoogle?'<span class="google-badge linked">✓ Linked</span>':isMe?'<button class="btn-gold-sm link-google-btn">Link Google</button>':'<span class="google-badge">—</span>'}</td>
         <td>
-          <button class="btn btn-gold-sm btn-sm edit-btn" style="margin-right:5px;">Edit</button>
-          ${!isMe?`<button class="btn btn-danger btn-sm delete-btn">Remove</button>`:''}
+          ${canEdit ? `<button class="btn btn-gold-sm btn-sm edit-btn" style="margin-right:5px;">Edit</button>` : `<span style="color:var(--sub); font-size:11px; padding:4px 6px; user-select:none;">🔒 Protected</span>`}
+          ${canDelete ? `<button class="btn btn-danger btn-sm delete-btn">Remove</button>` : ''}
         </td>`;
         
       const editBtn = tr.querySelector('.edit-btn');
@@ -5582,6 +5722,230 @@ window.importVaultFile = function(event) {
   };
   reader.readAsText(file);
   event.target.value = '';
+};
+
+// ── 👑 GODFATHER MASTER CONTROL SUITE ACTIONS ────────────────
+window.godfatherEmergencyBlackout = async function(turnOff) {
+  const actionText = turnOff ? '🚨 BLACKOUT ALL FEEDS (Turn OFF)' : '🟢 SET ALL FEEDS LIVE (Turn ON)';
+  const confirmMsg = turnOff 
+    ? '⚠️ MASTER EMERGENCY ACTION:\n\nAre you sure you want to turn OFF all 20 feeds, Public stream, Decoder stream, and Srinjana simultaneously?' 
+    : 'Are you sure you want to turn ON and set LIVE all 20 feeds, Public stream, Decoder stream, and Srinjana?';
+  
+  if (!confirm(confirmMsg)) return;
+
+  const msgEl = $('godfather-msg');
+  if (msgEl) {
+    msgEl.textContent = `Applying ${actionText}...`;
+    msgEl.className = 'save-msg show';
+  }
+
+  try {
+    const batch = db.batch();
+    const isLiveVal = !turnOff;
+
+    // Main stream
+    batch.set(db.doc('streamState/main'), { isLive: isLiveVal, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    // Decoder stream
+    batch.set(db.doc('streamState/decoder'), { isLive: isLiveVal, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    // Srinjana stream
+    batch.set(db.doc('streamState/srinjana'), { isLive: isLiveVal, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+
+    // Feeds 1 through 20
+    for (let i = 1; i <= 20; i++) {
+      batch.set(db.doc(`streamState/feed${i}`), { isLive: isLiveVal, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    }
+
+    await batch.commit();
+
+    if (msgEl) {
+      msgEl.textContent = `✓ ${turnOff ? 'All 20 feeds and main channels are now OFFLINE (Blackout).' : 'All 20 feeds and main channels are now LIVE!'}`;
+      msgEl.className = 'save-msg show';
+      setTimeout(() => msgEl.classList.remove('show'), 5000);
+    }
+  } catch (err) {
+    console.error('Godfather emergency blackout error:', err);
+    if (msgEl) {
+      msgEl.textContent = '✗ Error: ' + err.message;
+      msgEl.className = 'save-msg show err';
+    }
+    alert('Error executing emergency command: ' + err.message);
+  }
+};
+
+window.godfatherExportSnapshot = async function() {
+  const msgEl = $('godfather-msg');
+  if (msgEl) {
+    msgEl.textContent = 'Generating network snapshot backup...';
+    msgEl.className = 'save-msg show';
+  }
+
+  try {
+    const snapshotData = {
+      exportedAt: new Date().toISOString(),
+      exportedBy: auth.currentUser ? auth.currentUser.email : 'Godfather',
+      system: 'JTBS Classic Live Network',
+      collections: {
+        streamState: {},
+        config: {},
+        announcement: {},
+        epg: [],
+        admins: []
+      }
+    };
+
+    // 1. Fetch streamState
+    const streamDocs = ['main', 'decoder', 'srinjana'];
+    for (let i = 1; i <= 20; i++) streamDocs.push(`feed${i}`);
+    for (const id of streamDocs) {
+      const snap = await db.doc(`streamState/${id}`).get();
+      if (snap.exists) snapshotData.collections.streamState[id] = snap.data();
+    }
+
+    // 2. Fetch config
+    const configDocs = ['main', 'linkVault'];
+    for (const id of configDocs) {
+      const snap = await db.doc(`config/${id}`).get();
+      if (snap.exists) snapshotData.collections.config[id] = snap.data();
+    }
+
+    // 3. Fetch announcement
+    const announceSnap = await db.doc('announcement/current').get();
+    if (announceSnap.exists) snapshotData.collections.announcement['current'] = announceSnap.data();
+
+    // 4. Fetch EPG schedules
+    const epgSnap = await db.collection('epg').get();
+    epgSnap.forEach(doc => {
+      snapshotData.collections.epg.push({ id: doc.id, ...doc.data() });
+    });
+
+    // 5. Fetch admins list (metadata only)
+    const adminsSnap = await db.collection('admins').get();
+    adminsSnap.forEach(doc => {
+      snapshotData.collections.admins.push({ id: doc.id, ...doc.data() });
+    });
+
+    const jsonStr = JSON.stringify(snapshotData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `jtbs_network_snapshot_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    if (msgEl) {
+      msgEl.textContent = '✓ Master network snapshot exported and downloaded successfully!';
+      setTimeout(() => msgEl.classList.remove('show'), 5000);
+    }
+  } catch (err) {
+    console.error('Export snapshot error:', err);
+    if (msgEl) {
+      msgEl.textContent = '✗ Export failed: ' + err.message;
+      msgEl.className = 'save-msg show err';
+    }
+  }
+};
+
+window.godfatherImportSnapshot = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || !data.collections) {
+        throw new Error('Invalid snapshot file format. Missing collections node.');
+      }
+
+      if (!confirm(`⚠️ RESTORE NETWORK SNAPSHOT:\n\nFile: ${file.name}\nExported: ${data.exportedAt || 'Unknown'}\nExported By: ${data.exportedBy || 'Unknown'}\n\nThis will restore stream states, channel configs, Link Vault, and EPG items. Proceed?`)) {
+        event.target.value = '';
+        return;
+      }
+
+      const msgEl = $('godfather-msg');
+      if (msgEl) {
+        msgEl.textContent = 'Restoring snapshot data to Firestore...';
+        msgEl.className = 'save-msg show';
+      }
+
+      // 1. Restore streamState
+      if (data.collections.streamState) {
+        for (const [id, val] of Object.entries(data.collections.streamState)) {
+          await db.doc(`streamState/${id}`).set(val, { merge: true });
+        }
+      }
+
+      // 2. Restore config
+      if (data.collections.config) {
+        for (const [id, val] of Object.entries(data.collections.config)) {
+          await db.doc(`config/${id}`).set(val, { merge: true });
+        }
+      }
+
+      // 3. Restore announcement
+      if (data.collections.announcement && data.collections.announcement.current) {
+        await db.doc('announcement/current').set(data.collections.announcement.current, { merge: true });
+      }
+
+      // 4. Restore EPG
+      if (Array.isArray(data.collections.epg) && data.collections.epg.length > 0) {
+        const batch = db.batch();
+        data.collections.epg.forEach(item => {
+          const { id, ...itemData } = item;
+          if (id) {
+            batch.set(db.collection('epg').doc(id), itemData, { merge: true });
+          }
+        });
+        await batch.commit();
+      }
+
+      if (msgEl) {
+        msgEl.textContent = '✓ Master network snapshot restored successfully!';
+        setTimeout(() => msgEl.classList.remove('show'), 5000);
+      }
+      alert('✓ Master snapshot restored successfully! Page will refresh.');
+      window.location.reload();
+    } catch (err) {
+      console.error('Snapshot restore error:', err);
+      alert('Error restoring snapshot: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+};
+
+window.godfatherBroadcastReloadDecoders = async function() {
+  if (!confirm('Broadcast instant reload command to all connected hardware decoders?')) return;
+
+  const msgEl = $('godfather-msg');
+  if (msgEl) {
+    msgEl.textContent = 'Broadcasting reload command...';
+    msgEl.className = 'save-msg show';
+  }
+
+  try {
+    await db.doc('decoderBroadcast/reloadAll').set({
+      command: 'RELOAD_ALL',
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      sender: auth.currentUser ? auth.currentUser.email : 'Godfather'
+    });
+
+    if (msgEl) {
+      msgEl.textContent = '✓ Instant reload signal broadcasted to all active decoders!';
+      setTimeout(() => msgEl.classList.remove('show'), 5000);
+    }
+    alert('✓ Reload signal broadcasted to all decoders.');
+  } catch (err) {
+    console.error('Decoder broadcast reload error:', err);
+    if (msgEl) {
+      msgEl.textContent = '✗ Broadcast error: ' + err.message;
+      msgEl.className = 'save-msg show err';
+    }
+    alert('Failed to broadcast reload: ' + err.message);
+  }
 };
 </script>
 </body>

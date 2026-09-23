@@ -2,15 +2,23 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isGodfather() {
+      return request.auth != null
+        && ((request.auth.token.email == 'joel.s.gomes001@gmail.com')
+            || (exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+                && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'godfather'));
+    }
     function isAdmin() {
       return request.auth != null
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role in ['admin','superadmin'];
+        && (isGodfather()
+            || (exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+                && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role in ['admin','superadmin','godfather']));
     }
     function isSuperAdmin() {
       return request.auth != null
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'superadmin';
+        && (isGodfather()
+            || (exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+                && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role in ['superadmin','godfather']));
     }
 
     match /streamState/{doc}  {
@@ -31,6 +39,10 @@ service cloud.firestore {
     match /decoderControl/{id} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+    match /decoderBroadcast/{doc} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
     }
     match /activeViewers/{id} {
       allow read: if isAdmin();
@@ -57,8 +69,8 @@ service cloud.firestore {
     match /admins/{uid}       {
       allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
       allow create: if isSuperAdmin();
-      allow update: if isSuperAdmin() || (request.auth.uid == uid && request.resource.data.role == resource.data.role);
-      allow delete: if isSuperAdmin();
+      allow update: if isGodfather() || (isSuperAdmin() && resource.data.role != 'godfather' && request.resource.data.role != 'godfather');
+      allow delete: if isGodfather() || (isSuperAdmin() && resource.data.role != 'godfather');
     }
   }
 }
