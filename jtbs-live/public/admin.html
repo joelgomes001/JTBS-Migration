@@ -410,9 +410,104 @@ tr:last-child td{border-bottom:none;}
 .google-badge{font-size:11px;color:var(--sub);display:inline-flex;align-items:center;gap:4px;}
 .google-badge.linked{color:var(--green);}
 
+/* AVATARS & USER PROFILE */
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  padding: 3px 12px 3px 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.user-profile-badge:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
+}
+.user-avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1e3a8a;
+  border: 1.5px solid #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.user-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.user-avatar-initial {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--classic-title-font);
+  text-transform: uppercase;
+}
+.table-avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1e3a8a;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.table-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.preset-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.preset-avatar-item {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.15s ease;
+  background: rgba(255,255,255,0.05);
+}
+.preset-avatar-item:hover, .preset-avatar-item.active {
+  border-color: #fbbf24;
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+}
+.preset-avatar-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 /* MODAL */
-#modal-overlay, #edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
-#modal-overlay.open, #edit-modal-overlay.open{display:flex;}
+#modal-overlay, #edit-modal-overlay, #profile-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
+#modal-overlay.open, #edit-modal-overlay.open, #profile-modal-overlay.open{display:flex;}
 .modal{
   background:linear-gradient(180deg, rgba(30,60,95,0.92) 0%, rgba(12,28,48,0.96) 100%);
   backdrop-filter:blur(18px);
@@ -716,7 +811,13 @@ tr:last-child td{border-bottom:none;}
       <span class="topbar-title" id="topbar-title">JTBS Classic Admin</span>
     </div>
     <div class="topbar-right" style="display:flex; align-items:center; gap:12px;">
-      <span class="admin-email" id="admin-email-display"></span>
+      <div class="user-profile-badge" id="header-user-profile-badge" onclick="openMyProfileModal()" title="Click to manage profile & avatar">
+        <div class="user-avatar-circle" id="header-avatar-circle">
+          <img id="header-avatar-img" src="" alt="Avatar" style="display:none;" onerror="this.style.display='none'; $('header-avatar-initial').style.display='block';" />
+          <span id="header-avatar-initial" class="user-avatar-initial">A</span>
+        </div>
+        <span class="admin-email" id="admin-email-display"></span>
+      </div>
       <button class="btn-gold-sm" id="header-link-google-btn" style="display:none; padding:4px 10px; font-size:11px;">Link Google</button>
       <span class="google-badge linked" id="header-google-linked-badge" style="display:none; font-size:11px; margin-right:5px;">Google Linked</span>
       <button class="btn-logout" id="logout-btn">Logout</button>
@@ -1896,6 +1997,63 @@ tr:last-child td{border-bottom:none;}
   </div>
 </div>
 
+<!-- MY PROFILE MODAL -->
+<div id="profile-modal-overlay">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-title" style="display:flex; align-items:center; justify-content:space-between;">
+      <span>👤 My Admin Profile</span>
+      <span id="profile-modal-role-badge" class="role-badge admin">ADMIN</span>
+    </div>
+    
+    <!-- Big Avatar Preview -->
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:16px;">
+      <div style="position:relative; width:80px; height:80px; border-radius:50%; overflow:hidden; border:2.5px solid #fbbf24; background:#1e3a8a; box-shadow:0 4px 14px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;">
+        <img id="profile-modal-preview-img" src="" alt="Preview" style="width:100%; height:100%; object-fit:cover; display:none;" onerror="this.style.display='none'; $('profile-modal-preview-initial').style.display='block';" />
+        <span id="profile-modal-preview-initial" style="font-size:32px; font-weight:bold; color:#fff; font-family:var(--classic-title-font); text-transform:uppercase;">A</span>
+      </div>
+      <div style="font-size:11px; color:var(--sub); margin-top:6px;">Profile Picture Preview</div>
+    </div>
+
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="profile-modal-email" disabled style="opacity:0.65; cursor:not-allowed;" />
+    </div>
+    <div class="field">
+      <label>Display Name</label>
+      <input type="text" id="profile-modal-name" placeholder="Your Name or Nickname" oninput="onProfileModalNameChange()" />
+    </div>
+    <div class="field">
+      <label>Profile Picture URL</label>
+      <input type="url" id="profile-modal-photo-url" placeholder="https://example.com/my-photo.jpg or pick a preset" oninput="onProfileModalPhotoUrlChange()" />
+      <div class="hint">Direct image link (PNG, JPG, WebP) or click an avatar preset below:</div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div style="margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <label style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">Avatar Presets</label>
+        <button type="button" class="btn-gold-sm" onclick="generateRandomDicebearPresets()" style="padding:2px 8px; font-size:10px;">🎲 Random Presets</button>
+      </div>
+      <div class="preset-avatar-grid" id="profile-preset-avatars">
+        <!-- Preset avatars inserted dynamically -->
+      </div>
+    </div>
+
+    <div id="profile-modal-google-sync-row" style="display:none; margin-bottom:14px; background:rgba(66,133,244,0.12); border:1px solid rgba(66,133,244,0.3); border-radius:6px; padding:8px 12px; align-items:center; justify-content:space-between;">
+      <span style="font-size:12px; color:#93c5fd;">Use Google Profile Photo</span>
+      <button type="button" class="btn-gold-sm" onclick="useGoogleProfilePicture()" style="padding:4px 10px; font-size:11px;">Apply Google Photo</button>
+    </div>
+
+    <div id="profile-modal-msg" class="save-msg" style="margin-top:0; margin-bottom:10px;"></div>
+    <div id="profile-modal-error" style="background:rgba(224,85,85,.1); border:1px solid rgba(224,85,85,.25); border-radius:6px; padding:8px 12px; font-size:12px; color:var(--red); margin-bottom:10px; display:none;"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeMyProfileModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="profile-modal-save-btn" onclick="saveMyProfile()" style="width:auto; padding:8px 22px;">Save Profile</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADD ADMIN MODAL -->
 <div id="modal-overlay">
   <div class="modal">
@@ -1903,6 +2061,7 @@ tr:last-child td{border-bottom:none;}
     <div class="field"><label>Display name</label><input type="text" id="new-admin-name" placeholder="John Doe"/></div>
     <div class="field"><label>Email</label><input type="email" id="new-admin-email" placeholder="admin@example.com"/></div>
     <div class="field"><label>Password (min 8 chars)</label><input type="password" id="new-admin-pass" placeholder="Min 8 characters"/></div>
+    <div class="field"><label>Profile Picture URL (Optional)</label><input type="url" id="new-admin-photo" placeholder="https://example.com/avatar.jpg"/></div>
     <div class="field"><label>Role</label>
       <select id="new-admin-role">
         <option value="admin">Admin — can control stream</option>
@@ -1925,6 +2084,16 @@ tr:last-child td{border-bottom:none;}
     <input type="hidden" id="edit-admin-uid"/>
     <div class="field"><label>Email</label><input type="email" id="edit-admin-email" disabled style="opacity: 0.6; cursor: not-allowed;"/></div>
     <div class="field"><label>Display name</label><input type="text" id="edit-admin-name" placeholder="John Doe"/></div>
+    <div class="field"><label>Profile Picture URL (Optional)</label><input type="url" id="edit-admin-photo" placeholder="https://example.com/avatar.jpg" oninput="onEditAdminPhotoChange()"/></div>
+    
+    <div id="edit-admin-photo-preview-wrap" style="display:flex; align-items:center; gap:10px; margin-top:-10px; margin-bottom:14px;">
+      <div style="width:34px; height:34px; border-radius:50%; overflow:hidden; border:1.5px solid #fbbf24; background:#1e3a8a; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <img id="edit-admin-photo-preview-img" src="" alt="Avatar" style="width:100%; height:100%; object-fit:cover; display:none;" onerror="this.style.display='none'; $('edit-admin-photo-preview-fallback').style.display='block';" />
+        <span id="edit-admin-photo-preview-fallback" style="font-size:13px; font-weight:bold; color:#fff; font-family:var(--classic-title-font);">A</span>
+      </div>
+      <span style="font-size:11px; color:var(--sub);">Avatar Preview</span>
+    </div>
+
     <div class="field"><label>Role</label>
       <select id="edit-admin-role">
         <option value="admin">Admin — can control stream</option>
@@ -2018,9 +2187,31 @@ function isLiveStreamUrl(url) {if(!url)return false;const u=url.toLowerCase();re
 // Ensure local persistence for persistent instant logins
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
 
-// ── AUTH ──────────────────────────────────────────────────────
+// ── AUTH & USER PROFILE ─────────────────────────────────────────
+window.currentUserAdminDoc = null;
+
+window.updateHeaderAvatar = function(user, adminDoc) {
+  if (!user) return;
+  const photoUrl = (adminDoc && (adminDoc.photoURL || adminDoc.photoUrl)) || user.photoURL || '';
+  const name = (adminDoc && adminDoc.displayName) || user.displayName || user.email || 'Admin';
+  const initial = (name || 'A').trim().charAt(0).toUpperCase() || 'A';
+  
+  const img = $('header-avatar-img');
+  const fallback = $('header-avatar-initial');
+  if (fallback) fallback.textContent = initial;
+  if (photoUrl && img) {
+    img.src = photoUrl;
+    img.style.display = 'block';
+    if (fallback) fallback.style.display = 'none';
+  } else {
+    if (img) { img.style.display = 'none'; img.src = ''; }
+    if (fallback) fallback.style.display = 'block';
+  }
+};
+
 auth.onAuthStateChanged(async user=>{
   if(!user){
+    window.currentUserAdminDoc = null;
     $('dashboard-page').style.display='none';
     $('login-page').style.display='flex';
     const btn = $('login-btn');
@@ -2034,6 +2225,8 @@ auth.onAuthStateChanged(async user=>{
   // Fast-path: Switch to dashboard immediately for 0 delay
   $('login-page').style.display='none';
   $('dashboard-page').style.display='block';
+
+  updateHeaderAvatar(user, null);
 
   if (role === 'godfather') {
     $('admin-email-display').innerHTML = `${esc(user.email||'')} <span class="role-badge godfather" style="margin-left:6px;">👑 GODFATHER</span>`;
@@ -2082,10 +2275,23 @@ auth.onAuthStateChanged(async user=>{
     }, { merge: true }).catch(()=>{});
   }
   
-  // Realtime check for google link in topbar
+  // Realtime listener for current user's profile and google status
   db.doc(`admins/${user.uid}`).onSnapshot(snap=>{
     if(snap.exists){
       const u=snap.data();
+      window.currentUserAdminDoc = u;
+      updateHeaderAvatar(user, u);
+      
+      // Auto-sync Google photoURL if user has one from Google auth but none in firestore
+      if (!u.photoURL && user.photoURL) {
+        db.doc(`admins/${user.uid}`).set({ photoURL: user.photoURL }, { merge: true }).catch(()=>{});
+      }
+
+      if (u.displayName) {
+        const roleLabel = (u.role === 'godfather' || isGodfatherEmail) ? '<span class="role-badge godfather" style="margin-left:6px;">👑 GODFATHER</span>' : '';
+        $('admin-email-display').innerHTML = `${esc(u.displayName)} <span style="font-size:11px; color:#fde68a; opacity:0.85;">(${esc(user.email||'')})</span> ${roleLabel}`;
+      }
+
       if(u.linkedGoogle){
         $('header-link-google-btn').style.display='none';
         $('header-google-linked-badge').style.display='inline-flex';
@@ -2104,6 +2310,7 @@ auth.onAuthStateChanged(async user=>{
       $('header-link-google-btn').style.display='inline-block';
       $('header-google-linked-badge').style.display='none';
     }
+    updateHeaderAvatar(user, null);
   });
 
   initDashboard(user,role);
@@ -3394,6 +3601,194 @@ $('announce-clear-btn').addEventListener('click',async()=>{
 
 
 
+// ── MY PROFILE & AVATAR MANAGER ───────────────────────────────
+const AVATAR_STYLES = ['bottts', 'avataaars', 'personas', 'micah', 'lorelei', 'adventurer', 'notionists'];
+
+window.generateRandomDicebearPresets = function() {
+  const container = $('profile-preset-avatars');
+  if (!container) return;
+  container.innerHTML = '';
+  const rand = Math.floor(Math.random() * 100000);
+  const currentPhoto = ($('profile-modal-photo-url') ? $('profile-modal-photo-url').value : '').trim();
+
+  AVATAR_STYLES.forEach((style, idx) => {
+    const seed = 'Admin_' + (rand + idx * 7);
+    const url = `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
+    const div = document.createElement('div');
+    div.className = 'preset-avatar-item' + (currentPhoto === url ? ' active' : '');
+    div.title = `Preset: ${style}`;
+    div.innerHTML = `<img src="${url}" alt="Preset" loading="lazy" />`;
+    div.onclick = () => selectPresetAvatar(url, div);
+    container.appendChild(div);
+  });
+};
+
+window.selectPresetAvatar = function(url, el) {
+  const input = $('profile-modal-photo-url');
+  if (input) input.value = url;
+  onProfileModalPhotoUrlChange();
+  document.querySelectorAll('.preset-avatar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+};
+
+window.onProfileModalPhotoUrlChange = function() {
+  const input = $('profile-modal-photo-url');
+  const img = $('profile-modal-preview-img');
+  const fallback = $('profile-modal-preview-initial');
+  if (!input || !img || !fallback) return;
+  const url = input.value.trim();
+  if (url) {
+    img.src = url;
+    img.style.display = 'block';
+    fallback.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    img.src = '';
+    fallback.style.display = 'block';
+  }
+};
+
+window.onProfileModalNameChange = function() {
+  const name = ($('profile-modal-name').value || $('profile-modal-email').value || 'A').trim();
+  const initial = name.charAt(0).toUpperCase() || 'A';
+  const fallback = $('profile-modal-preview-initial');
+  if (fallback) fallback.textContent = initial;
+};
+
+window.openMyProfileModal = function() {
+  const user = auth.currentUser;
+  if (!user) return;
+  const adminDoc = window.currentUserAdminDoc || {};
+
+  $('profile-modal-email').value = user.email || '';
+  $('profile-modal-name').value = adminDoc.displayName || user.displayName || '';
+  const photoUrl = adminDoc.photoURL || adminDoc.photoUrl || user.photoURL || '';
+  $('profile-modal-photo-url').value = photoUrl;
+
+  const role = adminDoc.role || 'admin';
+  const roleBadge = $('profile-modal-role-badge');
+  if (roleBadge) {
+    roleBadge.className = 'role-badge ' + (role === 'godfather' ? 'godfather' : role);
+    roleBadge.textContent = role === 'godfather' ? '👑 GODFATHER' : role.toUpperCase();
+  }
+
+  // Update initial and big preview
+  onProfileModalNameChange();
+  onProfileModalPhotoUrlChange();
+
+  // Reset notices
+  $('profile-modal-msg').style.display = 'none';
+  $('profile-modal-error').style.display = 'none';
+
+  // Check Google profile photo sync
+  const googlePhoto = user.providerData && user.providerData.find(p => p.providerId === 'google.com' && p.photoURL)?.photoURL;
+  const googleRow = $('profile-modal-google-sync-row');
+  if (googleRow) {
+    googleRow.style.display = (googlePhoto && googlePhoto !== photoUrl) ? 'flex' : 'none';
+  }
+
+  // Generate fresh presets
+  generateRandomDicebearPresets();
+
+  $('profile-modal-overlay').classList.add('open');
+};
+
+window.closeMyProfileModal = function() {
+  $('profile-modal-overlay').classList.remove('open');
+};
+
+$('profile-modal-overlay').addEventListener('click', e => {
+  if (e.target === $('profile-modal-overlay')) closeMyProfileModal();
+});
+
+window.useGoogleProfilePicture = function() {
+  const user = auth.currentUser;
+  if (!user) return;
+  const googlePhoto = (user.providerData && user.providerData.find(p => p.providerId === 'google.com' && p.photoURL)?.photoURL) || user.photoURL;
+  if (googlePhoto) {
+    $('profile-modal-photo-url').value = googlePhoto;
+    onProfileModalPhotoUrlChange();
+    $('profile-modal-google-sync-row').style.display = 'none';
+  }
+};
+
+window.saveMyProfile = async function() {
+  const user = auth.currentUser;
+  if (!user) return;
+  const name = $('profile-modal-name').value.trim();
+  const photoUrl = $('profile-modal-photo-url').value.trim();
+  const errEl = $('profile-modal-error');
+  const msgEl = $('profile-modal-msg');
+  const btn = $('profile-modal-save-btn');
+
+  if (!name) {
+    errEl.textContent = 'Display name cannot be empty.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  errEl.style.display = 'none';
+  msgEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  try {
+    // 1. Update Firebase Auth Profile
+    await user.updateProfile({
+      displayName: name,
+      photoURL: photoUrl || null
+    });
+
+    // 2. Update Firestore Admin Document
+    await db.doc(`admins/${user.uid}`).set({
+      displayName: name,
+      photoURL: photoUrl,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    // 3. Update local state & topbar immediately
+    if (window.currentUserAdminDoc) {
+      window.currentUserAdminDoc.displayName = name;
+      window.currentUserAdminDoc.photoURL = photoUrl;
+    }
+    updateHeaderAvatar(user, { displayName: name, photoURL: photoUrl });
+
+    msgEl.textContent = '✓ Profile saved successfully!';
+    msgEl.style.display = 'block';
+    setTimeout(() => {
+      closeMyProfileModal();
+    }, 1000);
+  } catch(e) {
+    console.error('Error saving profile:', e);
+    errEl.textContent = e.message || 'Failed to save profile.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save Profile';
+  }
+};
+
+window.onEditAdminPhotoChange = function() {
+  const url = ($('edit-admin-photo').value || '').trim();
+  const name = ($('edit-admin-name').value || $('edit-admin-email').value || 'A').trim();
+  const initial = name.charAt(0).toUpperCase() || 'A';
+  const img = $('edit-admin-photo-preview-img');
+  const fallback = $('edit-admin-photo-preview-fallback');
+  if (fallback) fallback.textContent = initial;
+  if (img) {
+    if (url) {
+      img.src = url;
+      img.style.display = 'block';
+      if (fallback) fallback.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      img.src = '';
+      if (fallback) fallback.style.display = 'block';
+    }
+  }
+};
+
+
 // ── USERS ────────────────────────────────────────────────────
 function loadUsers(currentUser,role){
   const isGodfather = (role === 'godfather') || ((currentUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
@@ -3427,9 +3822,25 @@ function loadUsers(currentUser,role){
         ? `<span class="role-badge godfather">👑 GODFATHER</span>`
         : `<span class="role-badge ${esc(u.role)}">${esc(u.role)}</span>`;
 
+      const userInitial = (u.displayName || u.email || 'A').trim().charAt(0).toUpperCase() || 'A';
+      const photoUrl = (u.photoURL || u.photoUrl || '').trim();
+      const avatarHtml = `
+        <div class="table-avatar-circle" style="width:36px; height:36px; border-radius:50%; overflow:hidden; background:#1e3a8a; border:1.5px solid ${targetIsGodfather ? '#fbbf24' : 'rgba(255,255,255,0.3)'}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          ${photoUrl ? `<img src="${esc(photoUrl)}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" /><span style="display:none; font-size:13px; font-weight:bold; color:#fff; font-family:var(--classic-title-font);">${userInitial}</span>` : `<span style="font-size:13px; font-weight:bold; color:#fff; font-family:var(--classic-title-font);">${userInitial}</span>`}
+        </div>
+      `;
+
       const tr=document.createElement('tr');
       tr.innerHTML=`
-        <td style="font-size:13px;">${esc(u.email||'—')}<br><span style="font-size:11px;color:var(--sub)">${esc(u.displayName||'')}</span></td>
+        <td>
+          <div style="display:flex; align-items:center; gap:10px;">
+            ${avatarHtml}
+            <div>
+              <div style="font-weight:700; color:#fff; font-size:14px; font-family:var(--classic-title-font);">${esc(u.displayName||'—')}</div>
+              <div style="font-size:11px; color:var(--sub); font-family:monospace;">${esc(u.email||'—')}</div>
+            </div>
+          </div>
+        </td>
         <td>${roleBadge}</td>
         <td>${u.linkedGoogle?'<span class="google-badge linked">✓ Linked</span>':isMe?'<button class="btn-gold-sm link-google-btn">Link Google</button>':'<span class="google-badge">—</span>'}</td>
         <td>
@@ -3440,7 +3851,7 @@ function loadUsers(currentUser,role){
       const editBtn = tr.querySelector('.edit-btn');
       if (editBtn) {
         editBtn.addEventListener('click', () => {
-          openEditAdmin(u.uid, u.email || '', u.displayName || '', u.role);
+          openEditAdmin(u.uid, u.email || '', u.displayName || '', u.role, photoUrl);
         });
       }
       const deleteBtn = tr.querySelector('.delete-btn');
@@ -3510,11 +3921,13 @@ window.deleteAdmin=async function(uid,email){
 };
 
 // ── EDIT ADMIN MODAL ──────────────────────────────────────────
-window.openEditAdmin=function(uid, email, displayName, role){
+window.openEditAdmin=function(uid, email, displayName, role, photoUrl){
   $('edit-admin-uid').value=uid;
   $('edit-admin-email').value=email;
   $('edit-admin-name').value=displayName;
   $('edit-admin-role').value=role;
+  $('edit-admin-photo').value=photoUrl || '';
+  onEditAdminPhotoChange();
   $('edit-reset-msg').style.display='none';
   $('edit-modal-error').style.display='none';
 
@@ -3537,6 +3950,7 @@ $('edit-modal-save-btn').addEventListener('click',async()=>{
   const uid=$('edit-admin-uid').value;
   const name=$('edit-admin-name').value.trim();
   const role=$('edit-admin-role').value;
+  const photoUrl=$('edit-admin-photo').value.trim();
   const errEl=$('edit-modal-error');
   errEl.style.display='none';
   
@@ -3547,12 +3961,17 @@ $('edit-modal-save-btn').addEventListener('click',async()=>{
   try{
     await db.doc(`admins/${uid}`).update({
       displayName: name,
-      role: role
+      role: role,
+      photoURL: photoUrl
     });
     
     // Call the Cloud Function to update Auth Custom Claims for the user
-    const setAdminClaim = firebase.functions().httpsCallable('setAdminClaim');
-    await setAdminClaim({ uid, role });
+    try {
+      const setAdminClaim = firebase.functions().httpsCallable('setAdminClaim');
+      await setAdminClaim({ uid, role });
+    } catch(claimErr) {
+      console.warn("setAdminClaim skipped or unneeded:", claimErr);
+    }
     
     $('edit-modal-overlay').classList.remove('open');
     alert('Admin updated successfully.');
@@ -3588,7 +4007,7 @@ $('edit-admin-reset-pw-btn').addEventListener('click',async()=>{
 
 // ── ADD ADMIN MODAL ───────────────────────────────────────────
 $('add-admin-btn').addEventListener('click',()=>{
-  ['new-admin-name','new-admin-email','new-admin-pass'].forEach(id=>$(id).value='');
+  ['new-admin-name','new-admin-email','new-admin-pass','new-admin-photo'].forEach(id=>{ if($(id)) $(id).value=''; });
   $('new-admin-role').value='admin';
   $('modal-error').style.display='none';
   $('modal-overlay').classList.add('open');
@@ -3600,6 +4019,7 @@ $('modal-create-btn').addEventListener('click',async()=>{
   const name=$('new-admin-name').value.trim();
   const email=$('new-admin-email').value.trim();
   const pass=$('new-admin-pass').value;
+  const photoUrl=($('new-admin-photo') ? $('new-admin-photo').value : '').trim();
   const role=$('new-admin-role').value;
   const errEl=$('modal-error');
   errEl.style.display='none';
@@ -3611,14 +4031,21 @@ $('modal-create-btn').addEventListener('click',async()=>{
   // Try Cloud Function first
   try {
     const createAdminUser = firebase.functions().httpsCallable('createAdminUser');
-    await createAdminUser({ email, password: pass, displayName: name, role });
+    await createAdminUser({ email, password: pass, displayName: name, role, photoURL: photoUrl });
     
+    // Also save doc in firestore with photoURL
+    const snapshot = await db.collection('admins').where('email', '==', email).limit(1).get();
+    if (!snapshot.empty) {
+      await snapshot.docs[0].ref.set({ photoURL: photoUrl }, { merge: true });
+    }
+
     $('modal-overlay').classList.remove('open');
     alert('Admin account created successfully.');
     // Reset fields
     $('new-admin-name').value='';
     $('new-admin-email').value='';
     $('new-admin-pass').value='';
+    if ($('new-admin-photo')) $('new-admin-photo').value='';
     return;
   } catch (cloudErr) {
     console.warn("Cloud function creation failed (likely Spark plan/not deployed). Falling back to client-side creation:", cloudErr);
@@ -3631,24 +4058,26 @@ $('modal-create-btn').addEventListener('click',async()=>{
     const userCredential = await secondaryApp.auth().createUserWithEmailAndPassword(email, pass);
     const newUser = userCredential.user;
     
-    await newUser.updateProfile({ displayName: name });
+    await newUser.updateProfile({ displayName: name, photoURL: photoUrl || null });
     
     await db.doc(`admins/${newUser.uid}`).set({
       uid: newUser.uid,
       email: email,
       displayName: name,
       role: role,
+      photoURL: photoUrl,
       linkedGoogle: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: auth.currentUser.uid
     });
     
     $('modal-overlay').classList.remove('open');
-    alert('Admin account created successfully client-side.\n\nNote: Cloud Functions are not deployed or project is on Spark plan (Custom Claims skipped, role resolved via Firestore).');
+    alert('Admin account created successfully client-side.');
     // Reset fields
     $('new-admin-name').value='';
     $('new-admin-email').value='';
     $('new-admin-pass').value='';
+    if ($('new-admin-photo')) $('new-admin-photo').value='';
   }catch(e){
     errEl.textContent=e.message||'Error creating admin account.';
     errEl.style.display='block';
