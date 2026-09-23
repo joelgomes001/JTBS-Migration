@@ -2283,12 +2283,20 @@ tr:last-child td{border-bottom:none;}
     </div>
     
     <!-- Big Avatar Preview -->
-    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:16px;">
-      <div style="position:relative; width:80px; height:80px; border-radius:50%; overflow:hidden; border:2.5px solid #fbbf24; background:#1e3a8a; box-shadow:0 4px 14px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;">
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:14px;">
+      <div style="position:relative; width:84px; height:84px; border-radius:50%; overflow:hidden; border:2.5px solid #fbbf24; background:#1e3a8a; box-shadow:0 4px 14px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;">
         <img id="profile-modal-preview-img" src="" alt="Preview" style="width:100%; height:100%; object-fit:cover; display:none;" onerror="this.style.display='none'; $('profile-modal-preview-initial').style.display='block';" />
         <span id="profile-modal-preview-initial" style="font-size:32px; font-weight:bold; color:#fff; font-family:var(--classic-title-font); text-transform:uppercase;">A</span>
       </div>
-      <div style="font-size:11px; color:var(--sub); margin-top:6px;">Profile Picture Preview</div>
+      
+      <!-- Direct Upload from Device / Gallery -->
+      <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; justify-content:center;">
+        <label class="btn-gold-sm" style="padding:6px 14px; font-size:12px; cursor:pointer; margin:0; display:inline-flex; align-items:center; gap:6px;">
+          📁 Choose Photo / Gallery
+          <input type="file" id="profile-modal-file-input" accept="image/*" style="display:none;" onchange="onProfileModalFileSelected(event)" />
+        </label>
+        <button type="button" class="btn-gold-sm" onclick="$('profile-modal-photo-url').value=''; onProfileModalPhotoUrlChange();" style="padding:6px 10px; font-size:12px; background:transparent; border-color:var(--border2); color:var(--sub);">Reset</button>
+      </div>
     </div>
 
     <div class="field">
@@ -2300,9 +2308,9 @@ tr:last-child td{border-bottom:none;}
       <input type="text" id="profile-modal-name" placeholder="Your Name or Nickname" oninput="onProfileModalNameChange()" />
     </div>
     <div class="field">
-      <label>Profile Picture URL</label>
-      <input type="url" id="profile-modal-photo-url" placeholder="https://example.com/my-photo.jpg or pick a preset" oninput="onProfileModalPhotoUrlChange()" />
-      <div class="hint">Direct image link (PNG, JPG, WebP) or click an avatar preset below:</div>
+      <label>Or Image Link / Custom URL</label>
+      <input type="url" id="profile-modal-photo-url" placeholder="https://example.com/photo.jpg or uploaded data" oninput="onProfileModalPhotoUrlChange()" />
+      <div class="hint">Upload a picture above, paste an image link, or pick a preset:</div>
     </div>
 
     <!-- Quick Presets -->
@@ -2338,7 +2346,16 @@ tr:last-child td{border-bottom:none;}
     <div class="field"><label>Display name</label><input type="text" id="new-admin-name" placeholder="John Doe"/></div>
     <div class="field"><label>Email</label><input type="email" id="new-admin-email" placeholder="admin@example.com"/></div>
     <div class="field"><label>Password (min 8 chars)</label><input type="password" id="new-admin-pass" placeholder="Min 8 characters"/></div>
-    <div class="field"><label>Profile Picture URL (Optional)</label><input type="url" id="new-admin-photo" placeholder="https://example.com/avatar.jpg"/></div>
+    <div class="field">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="margin:0;">Profile Picture</label>
+        <label class="btn-gold-sm" style="padding:3px 8px; font-size:11px; cursor:pointer; margin:0;">
+          📁 Choose Photo
+          <input type="file" accept="image/*" style="display:none;" onchange="onNewAdminFileSelected(event)" />
+        </label>
+      </div>
+      <input type="url" id="new-admin-photo" placeholder="https://example.com/avatar.jpg or select file"/>
+    </div>
     <div class="field"><label>Role</label>
       <select id="new-admin-role">
         <option value="admin">Admin — can control stream</option>
@@ -2361,7 +2378,16 @@ tr:last-child td{border-bottom:none;}
     <input type="hidden" id="edit-admin-uid"/>
     <div class="field"><label>Email</label><input type="email" id="edit-admin-email" disabled style="opacity: 0.6; cursor: not-allowed;"/></div>
     <div class="field"><label>Display name</label><input type="text" id="edit-admin-name" placeholder="John Doe"/></div>
-    <div class="field"><label>Profile Picture URL (Optional)</label><input type="url" id="edit-admin-photo" placeholder="https://example.com/avatar.jpg" oninput="onEditAdminPhotoChange()"/></div>
+    <div class="field">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="margin:0;">Profile Picture</label>
+        <label class="btn-gold-sm" style="padding:3px 8px; font-size:11px; cursor:pointer; margin:0;">
+          📁 Choose Photo
+          <input type="file" accept="image/*" style="display:none;" onchange="onEditAdminFileSelected(event)" />
+        </label>
+      </div>
+      <input type="url" id="edit-admin-photo" placeholder="https://example.com/avatar.jpg or select file" oninput="onEditAdminPhotoChange()"/>
+    </div>
     
     <div id="edit-admin-photo-preview-wrap" style="display:flex; align-items:center; gap:10px; margin-top:-10px; margin-bottom:14px;">
       <div style="width:34px; height:34px; border-radius:50%; overflow:hidden; border:1.5px solid #fbbf24; background:#1e3a8a; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -4546,6 +4572,99 @@ $('announce-clear-btn').addEventListener('click',async()=>{
 
 
 // ── MY PROFILE & AVATAR MANAGER ───────────────────────────────
+// Helper: Square crop and compress image into data URL for fast direct storage
+function resizeImageToDataUrl(file, maxDimension = 256, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith('image/')) {
+      return reject(new Error('Please select a valid image file.'));
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Center square crop
+        const minDim = Math.min(width, height);
+        const startX = (width - minDim) / 2;
+        const startY = (height - minDim) / 2;
+
+        const targetDim = Math.min(maxDimension, minDim);
+        canvas.width = targetDim;
+        canvas.height = targetDim;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, targetDim, targetDim);
+
+        let dataUrl = canvas.toDataURL('image/webp', quality);
+        if (!dataUrl.startsWith('data:image/webp')) {
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+        resolve(dataUrl);
+      };
+      img.onerror = () => reject(new Error('Failed to process selected image.'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Failed to read image file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+window.onProfileModalFileSelected = async function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const msgEl = $('profile-modal-msg');
+  const errEl = $('profile-modal-error');
+  if (msgEl) msgEl.style.display = 'none';
+  if (errEl) errEl.style.display = 'none';
+
+  try {
+    const dataUrl = await resizeImageToDataUrl(file, 256, 0.85);
+    const input = $('profile-modal-photo-url');
+    if (input) input.value = dataUrl;
+    onProfileModalPhotoUrlChange();
+    document.querySelectorAll('.preset-avatar-item').forEach(i => i.classList.remove('active'));
+    if (msgEl) {
+      msgEl.textContent = '✓ Photo loaded! Click "Save Profile" below to apply.';
+      msgEl.style.display = 'block';
+    }
+  } catch(err) {
+    if (errEl) {
+      errEl.textContent = err.message || 'Error processing photo.';
+      errEl.style.display = 'block';
+    }
+  }
+};
+
+window.onNewAdminFileSelected = async function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  try {
+    const dataUrl = await resizeImageToDataUrl(file, 256, 0.85);
+    const input = $('new-admin-photo');
+    if (input) input.value = dataUrl;
+  } catch(err) {
+    alert(err.message || 'Error loading image');
+  }
+};
+
+window.onEditAdminFileSelected = async function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  try {
+    const dataUrl = await resizeImageToDataUrl(file, 256, 0.85);
+    const input = $('edit-admin-photo');
+    if (input) {
+      input.value = dataUrl;
+      onEditAdminPhotoChange();
+    }
+  } catch(err) {
+    alert(err.message || 'Error loading image');
+  }
+};
+
 const AVATAR_STYLES = ['bottts', 'avataaars', 'personas', 'micah', 'lorelei', 'adventurer', 'notionists'];
 
 window.generateRandomDicebearPresets = function() {
