@@ -6050,9 +6050,77 @@ function loadOtherStreams() {
             <div style="display:flex; align-items:center; gap:8px;">
               <span id="feed-token-badge-${i}" class="role-badge" style="font-size:10px; background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid #10b981;">🌐 FTA OPEN</span>
               <label class="toggle-switch">
-                <input type="checkbox" id="feed-token-toggle-${i}" />
+                <input type="checkbox" id="feed-token-toggle-${i}" onchange="onFeedTokenToggleChange('${i}')" />
                 <span class="toggle-track"></span>
               </label>
+            </div>
+          </div>
+
+          <!-- EXPANDED TOKEN MANAGER FOR THIS FEED (Visible ONLY when Tokenized is ON) -->
+          <div id="feed-token-expanded-box-${i}" style="display:none; margin-top:10px; background:rgba(245,158,11,0.06); border:1.5px solid rgba(245,158,11,0.35); border-radius:8px; padding:14px;">
+            <div style="font-weight:700; color:#fde68a; font-size:13px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+              <span>🔑 VIP Access Tokens for ${feed.name}</span>
+              <span class="role-badge godfather" style="font-size:9px;">TOKEN REQUIRED</span>
+            </div>
+            <div style="font-size:11px; color:#fef3c7; margin-bottom:10px;">
+              Generate and copy VIP tokenized streaming links for <strong>${feed.name} (<code>${feed.endpoint}</code>)</strong>. Viewers must have a valid token to watch.
+            </div>
+
+            <!-- Quick Generator Form for this feed -->
+            <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(245,158,11,0.2); border-radius:6px; padding:10px; margin-bottom:10px;">
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:8px; margin-bottom:8px;">
+                <div>
+                  <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:2px;">Client / Operator Name</label>
+                  <input type="text" id="feed-inline-client-name-${i}" placeholder="e.g. Cable Operator 1" style="font-size:12px; padding:5px 8px; width:100%;" />
+                </div>
+                <div>
+                  <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:2px;">Expiration Duration</label>
+                  <select id="feed-inline-expiry-select-${i}" style="font-size:12px; padding:5px 8px; width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
+                    <option value="1h">1 Hour (Demo)</option>
+                    <option value="6h">6 Hours</option>
+                    <option value="24h" selected>24 Hours (1 Day)</option>
+                    <option value="7d">7 Days (1 Week)</option>
+                    <option value="30d">30 Days (1 Month)</option>
+                    <option value="365d">1 Year (Annual)</option>
+                    <option value="never">Permanent (Never Expires)</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:flex-end;">
+                <button type="button" class="btn-gold-sm" onclick="feedGenerateInlineToken('${i}', '${feed.id}', '${feed.endpoint}')" style="padding:5px 14px; font-size:11px;">
+                  ⚡ Generate VIP Link for ${feed.name}
+                </button>
+              </div>
+            </div>
+
+            <!-- Inline Generated Link Output Box for this feed -->
+            <div id="feed-inline-output-card-${i}" style="display:none; background:rgba(16,185,129,0.12); border:1.5px solid #10b981; border-radius:6px; padding:10px; margin-bottom:10px;">
+              <div style="font-weight:700; color:#6ee7b7; font-size:11px; margin-bottom:4px; display:flex; justify-content:space-between;">
+                <span>✓ Token Generated for ${feed.name}</span>
+                <span style="cursor:pointer; color:var(--sub);" onclick="$('feed-inline-output-card-${i}').style.display='none'">✕</span>
+              </div>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <input type="text" id="feed-inline-generated-url-${i}" readonly style="flex:1; font-family:monospace; font-size:11px; padding:5px 8px; background:rgba(0,0,0,0.5); color:#a7f3d0; border:1px solid #10b981;" />
+                <button type="button" class="btn-gold-sm" onclick="copyIPTV('feed-inline-generated-url-${i}')" style="white-space:nowrap; padding:5px 10px; font-size:11px;">📋 Copy Link</button>
+              </div>
+            </div>
+
+            <!-- Active Tokens for this feed -->
+            <div style="font-weight:700; color:#fde68a; font-size:11px; margin-bottom:4px;">Active VIP Tokens for ${feed.name}:</div>
+            <div style="max-height: 160px; overflow-y: auto; background: rgba(0,0,0,0.25); border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+              <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                <thead>
+                  <tr style="background:rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.08);">
+                    <th style="padding:6px 8px; color:#fde68a; text-align:left;">Client</th>
+                    <th style="padding:6px 8px; color:#fde68a; text-align:left;">Token</th>
+                    <th style="padding:6px 8px; color:#fde68a; text-align:left;">Expires</th>
+                    <th style="padding:6px 8px; color:#fde68a; text-align:center;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="feed-inline-tokens-tbody-${i}">
+                  <tr><td colspan="4" style="color:var(--sub); padding:10px; text-align:center;">Loading active tokens…</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -6313,6 +6381,10 @@ function loadOtherStreams() {
       if (feedTokenToggle) {
         feedTokenToggle.checked = !!data.isTokenized;
       }
+      const feedExpandedBox = $(`feed-token-expanded-box-${i}`);
+      if (feedExpandedBox) {
+        feedExpandedBox.style.display = data.isTokenized ? 'block' : 'none';
+      }
       if (feedTokenBadge) {
         if (data.isTokenized) {
           feedTokenBadge.className = 'role-badge godfather';
@@ -6330,7 +6402,7 @@ function loadOtherStreams() {
       }
       if (feedTokenDesc) {
         feedTokenDesc.innerHTML = data.isTokenized 
-          ? '🔒 <strong>Tokenized Mode:</strong> Requests without a valid Godfather VIP <code>?token=XYZ</code> are blocked.' 
+          ? '🔒 <strong>Tokenized Mode:</strong> Requests without a valid VIP <code>?token=XYZ</code> are blocked.' 
           : '🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely without tokens.';
       }
       if (iptvUrlInput) {
@@ -6506,7 +6578,140 @@ function loadOtherStreams() {
       }
     });
   }
+
+  // Real-time listener for VIP tokens to populate inline feed token tables
+  db.collection('tokens').orderBy('createdAt', 'desc').limit(50).onSnapshot(snap => {
+    const allTokens = [];
+    snap.forEach(doc => allTokens.push({ id: doc.id, ...doc.data() }));
+
+    ALL_FEED_DEFINITIONS.forEach(feed => {
+      const i = feed.key;
+      const scope = feed.id;
+      const tbody = $(`feed-inline-tokens-tbody-${i}`);
+      if (!tbody) return;
+
+      const matching = allTokens.filter(t => t.allowedFeeds === 'all' || (t.allowedFeeds && t.allowedFeeds.includes(scope)));
+      if (matching.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:var(--sub); padding:8px; text-align:center;">No VIP tokens generated for ${feed.name} yet.</td></tr>`;
+        return;
+      }
+
+      const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
+      tbody.innerHTML = '';
+      matching.forEach(t => {
+        const token = t.token || t.id;
+        const client = t.clientName || 'VIP Client';
+        const isRevoked = t.revoked === true;
+        let isExpired = false;
+        let expiryLabel = 'Permanent';
+        if (t.expiresAt) {
+          const expDate = t.expiresAt.toDate ? t.expiresAt.toDate() : new Date(t.expiresAt);
+          isExpired = expDate.getTime() < Date.now();
+          expiryLabel = expDate.toLocaleDateString();
+        }
+
+        const tokenUrl = `https://${iptvDomain}/${feed.endpoint}?token=${token}`;
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+        tr.innerHTML = `
+          <td style="padding:6px 8px; font-weight:600; color:#fde68a;">${esc(client)}</td>
+          <td style="padding:6px 8px; font-family:monospace; color:#93c5fd; font-size:10px;">${esc(token)}</td>
+          <td style="padding:6px 8px; color:${isExpired ? '#f87171' : 'var(--sub)'};">${esc(expiryLabel)}</td>
+          <td style="padding:6px 8px; text-align:center;">
+            <button type="button" class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('✓ Copied tokenized URL for ${feed.name}:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px;">📋 Copy Link</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  }, err => console.warn('Inline feed tokens listener error:', err));
 }
+
+window.onFeedTokenToggleChange = function(i) {
+  const toggle = $(`feed-token-toggle-${i}`);
+  const expandedBox = $(`feed-token-expanded-box-${i}`);
+  const badge = $(`feed-token-badge-${i}`);
+  const desc = $(`feed-token-desc-${i}`);
+  const iptvIn = $(`feed-iptv-url-${i}`);
+  const feed = ALL_FEED_DEFINITIONS.find(f => String(f.key) === String(i));
+  const endpoint = feed ? feed.endpoint : `live${i}.m3u8`;
+
+  if (!toggle) return;
+  const isTokenized = toggle.checked;
+
+  if (expandedBox) expandedBox.style.display = isTokenized ? 'block' : 'none';
+  if (badge) {
+    badge.textContent = isTokenized ? '🔒 TOKENIZED' : '🌐 FTA OPEN';
+    badge.className = isTokenized ? 'role-badge godfather' : 'role-badge superadmin';
+    badge.style.background = isTokenized ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16,185,129,0.2)';
+    badge.style.color = isTokenized ? '#fde68a' : '#6ee7b7';
+    badge.style.borderColor = isTokenized ? '#f59e0b' : '#10b981';
+  }
+  if (desc) {
+    desc.innerHTML = isTokenized
+      ? '🔒 <strong>Tokenized Mode:</strong> Requests without a valid VIP <code>?token=XYZ</code> are blocked.'
+      : '🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely without a token.';
+  }
+  if (iptvIn) {
+    const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
+    iptvIn.value = isTokenized
+      ? `https://${iptvDomain}/${endpoint}?token=YOUR_TOKEN`
+      : `https://${iptvDomain}/${endpoint}`;
+  }
+};
+
+window.feedGenerateInlineToken = async function(feedKey, feedScope, endpoint) {
+  const nameIn = $(`feed-inline-client-name-${feedKey}`);
+  const expIn = $(`feed-inline-expiry-select-${feedKey}`);
+  const clientName = nameIn ? nameIn.value.trim() : '';
+
+  if (!clientName) {
+    alert(`Please enter a Client / Operator Name to generate a VIP Token for this feed.`);
+    return;
+  }
+
+  const expiryCode = expIn ? expIn.value : '24h';
+  let expiresAt = null;
+  const now = Date.now();
+  if (expiryCode === '1h') expiresAt = now + (3600 * 1000);
+  else if (expiryCode === '6h') expiresAt = now + (6 * 3600 * 1000);
+  else if (expiryCode === '24h') expiresAt = now + (24 * 3600 * 1000);
+  else if (expiryCode === '7d') expiresAt = now + (7 * 24 * 3600 * 1000);
+  else if (expiryCode === '30d') expiresAt = now + (30 * 24 * 3600 * 1000);
+  else if (expiryCode === '365d') expiresAt = now + (365 * 24 * 3600 * 1000);
+  else expiresAt = null;
+
+  const token = 'vip_' + Math.random().toString(36).substring(2, 9) + '_' + Math.random().toString(36).substring(2, 9);
+
+  try {
+    await db.collection('tokens').doc(token).set({
+      token,
+      clientName,
+      allowedFeeds: feedScope,
+      expiryCode,
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Admin',
+      revoked: false
+    });
+
+    logAdminAuditAction('VIP_TOKEN_GENERATE', `Generated VIP token for ${feedScope} for "${clientName}"`, { token, clientName, allowedFeeds: feedScope });
+
+    const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
+    const linkUrl = `https://${iptvDomain}/${endpoint}?token=${token}`;
+
+    const outCard = $(`feed-inline-output-card-${feedKey}`);
+    const outUrl = $(`feed-inline-generated-url-${feedKey}`);
+    if (outUrl) outUrl.value = linkUrl;
+    if (outCard) outCard.style.display = 'block';
+
+    if (nameIn) nameIn.value = '';
+    alert(`✓ VIP Token generated for ${endpoint}:\n\n${linkUrl}`);
+  } catch (err) {
+    console.error('Generate inline token error:', err);
+    alert('Error generating VIP token: ' + err.message);
+  }
+};
 
 // ── EPG GUIDE MANAGEMENT ─────────────────────────────────────
 function loadEpg() {
