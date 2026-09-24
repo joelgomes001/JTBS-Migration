@@ -210,7 +210,7 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    if (injectDiscontinuity && !insertedDiscontinuity && (trimmed.startsWith('#EXTINF:') || trimmed.startsWith('#EXT-X-STREAM-INF'))) {
+    if (injectDiscontinuity && !insertedDiscontinuity && trimmed.startsWith('#EXTINF:')) {
       rewrittenLines.push('#EXT-X-DISCONTINUITY');
       insertedDiscontinuity = true;
     }
@@ -370,6 +370,8 @@ ${proxiedVideoUrl}`;
         }
       });
     }
+
+
     if (path === '/api/test-cache') {
       const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
       if (!cache) return new Response('No Cache API');
@@ -1096,8 +1098,20 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         const isWebPage = cleanCandidate.includes('youtube.com') || cleanCandidate.includes('youtu.be') || cleanCandidate.includes('facebook.com') || cleanCandidate.includes('fb.watch');
         if (isWebPage) return null;
 
-        // If candidate is a direct video file (MP4/TS/WebM), return 302 redirect
-        if (!cleanCandidate.includes('.m3u8') && !cleanCandidate.includes('mpegurl')) {
+        // Helper to detect direct raw IP addresses (e.g. http://178.63.100.6:8080/...)
+        // Cloudflare Workers strictly blocks outbound fetch() to raw IPs with Error 1003,
+        // so we cleanly 302-redirect client IPTV players directly to the stream source.
+        const isDirectIP = (uStr) => {
+          try {
+            const u = new URL(uStr);
+            return /^(\d{1,3}\.){3}\d{1,3}$/.test(u.hostname) || u.hostname.startsWith('[') || (u.hostname.includes(':') && !u.hostname.includes('.'));
+          } catch (e) {
+            return false;
+          }
+        };
+
+        // If candidate is a direct IP stream or non-HLS video file (MP4/TS/WebM), return 302 redirect
+        if (isDirectIP(cleanCandidate) || (!cleanCandidate.includes('.m3u8') && !cleanCandidate.includes('mpegurl'))) {
           return new Response(null, {
             status: 302,
             headers: {
