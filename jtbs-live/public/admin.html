@@ -1634,6 +1634,32 @@ tr:last-child td{border-bottom:none;}
             <span>✓ VIP Token Generated Successfully</span>
             <span style="cursor:pointer; color:var(--sub);" onclick="$('keymaker-output-card').style.display='none'">✕ Close</span>
           </div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+            <label style="font-size:11px; color:#a7f3d0; font-weight:700;">Target Channel Link:</label>
+            <select id="keymaker-output-channel-picker" onchange="godfatherUpdateGeneratedUrlChannel(this.value)" style="padding:4px 8px; font-size:12px; background:var(--bg2); border:1px solid #10b981; border-radius:4px; color:#fff;">
+              <option value="live1.m3u8">Feed 1 (live1.m3u8)</option>
+              <option value="live2.m3u8">Feed 2 (live2.m3u8)</option>
+              <option value="live3.m3u8">Feed 3 (live3.m3u8)</option>
+              <option value="live4.m3u8">Feed 4 (live4.m3u8)</option>
+              <option value="live5.m3u8">Feed 5 (live5.m3u8)</option>
+              <option value="live6.m3u8">Feed 6 (live6.m3u8)</option>
+              <option value="live7.m3u8">Feed 7 (live7.m3u8)</option>
+              <option value="live8.m3u8">Feed 8 (live8.m3u8)</option>
+              <option value="live9.m3u8">Feed 9 (live9.m3u8)</option>
+              <option value="live10.m3u8">Feed 10 (live10.m3u8)</option>
+              <option value="live11.m3u8">Feed 11 (live11.m3u8)</option>
+              <option value="live12.m3u8">Feed 12 (live12.m3u8)</option>
+              <option value="live13.m3u8">Feed 13 (live13.m3u8)</option>
+              <option value="live14.m3u8">Feed 14 (live14.m3u8)</option>
+              <option value="live15.m3u8">Feed 15 (live15.m3u8)</option>
+              <option value="live16.m3u8">Feed 16 (live16.m3u8)</option>
+              <option value="live17.m3u8">Feed 17 (live17.m3u8)</option>
+              <option value="live18.m3u8">Feed 18 (live18.m3u8)</option>
+              <option value="live19.m3u8">Feed 19 (live19.m3u8)</option>
+              <option value="live20.m3u8">Feed 20 (live20.m3u8)</option>
+              <option value="Srinjana.m3u8">Srinjana (Srinjana.m3u8)</option>
+            </select>
+          </div>
           <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
             <input type="text" id="keymaker-generated-url" readonly style="flex:1; font-family:monospace; font-size:12px; padding:6px 8px; background:rgba(0,0,0,0.5); color:#a7f3d0; border:1px solid #10b981;" />
             <button class="btn-gold-sm" onclick="copyIPTV('keymaker-generated-url')" style="white-space:nowrap; padding:6px 12px; font-size:12px;">📋 Copy Link</button>
@@ -6016,10 +6042,9 @@ function loadOtherStreams() {
             <div>
               <div style="font-weight:700; font-size:12px; color:var(--gold); display:flex; align-items:center; gap:6px;">
                 <span>🔒 Stream Access Mode</span>
-                <span class="hint-pill" title="FTA (Free-To-Air) links play openly without tokens. Tokenized links strictly require a Godfather-generated ?token=XYZ access parameter." style="cursor:help; font-size:10px; background:rgba(255,255,255,0.1); padding:1px 6px; border-radius:4px; color:var(--gold); border:1px solid rgba(255,215,0,0.3);">ℹ️ HOVER FOR INFO</span>
               </div>
               <div style="font-size:11px; color:var(--sub); margin-top:2px;" id="feed-token-desc-${i}">
-                🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely.
+                🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely without a token.
               </div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -8615,12 +8640,14 @@ window.godfatherGenerateVipToken = async function() {
     logAdminAuditAction('VIP_TOKEN_GENERATE', `Generated VIP token for client "${clientName}" (Expires: ${expiryCode}, Scope: ${allowedFeeds})`, { token, clientName, allowedFeeds });
 
     // Show output card
+    window.lastGeneratedToken = token;
     const outCard = $('keymaker-output-card');
     const outUrl = $('keymaker-generated-url');
     const outDetails = $('keymaker-generated-details');
+    const chanPicker = $('keymaker-output-channel-picker');
 
     const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
-    const sampleChannel = (allowedFeeds && allowedFeeds !== 'all' && allowedFeeds.includes('srinjana')) ? 'Srinjana.m3u8' : 'live1.m3u8';
+    const sampleChannel = (chanPicker ? chanPicker.value : ((allowedFeeds && allowedFeeds !== 'all' && allowedFeeds.includes('srinjana')) ? 'Srinjana.m3u8' : 'live1.m3u8'));
     const linkUrl = `https://${iptvDomain}/${sampleChannel}?token=${token}`;
 
     if (outUrl) outUrl.value = linkUrl;
@@ -8635,6 +8662,14 @@ window.godfatherGenerateVipToken = async function() {
     console.error('Generate VIP token error:', err);
     alert('Error generating VIP token: ' + err.message);
   }
+};
+
+window.godfatherUpdateGeneratedUrlChannel = function(endpoint) {
+  const token = window.lastGeneratedToken;
+  if (!token) return;
+  const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
+  const outUrl = $('keymaker-generated-url');
+  if (outUrl) outUrl.value = `https://${iptvDomain}/${endpoint}?token=${token}`;
 };
 
 window.godfatherLoadTokens = function() {
@@ -8905,10 +8940,10 @@ window.godfatherRefreshFeedMatrix = async function() {
   if (!tbody) return;
 
   try {
-    // Fetch users to populate admin list
-    const usersSnap = await db.collection('users').get();
+    // Fetch admins to populate admin list
+    const adminsSnap = await db.collection('admins').get();
     const adminEmails = [];
-    usersSnap.forEach(doc => {
+    adminsSnap.forEach(doc => {
       const u = doc.data();
       if (u.email) adminEmails.push(u.email);
     });
@@ -8986,9 +9021,9 @@ window.godfatherRefreshVaultAccessMatrix = async function() {
   if (!tbody) return;
 
   try {
-    const snap = await db.collection('users').get();
+    const snap = await db.collection('admins').get();
     if (snap.empty) {
-      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">No users registered yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">No admin users registered yet.</td></tr>`;
       return;
     }
 
@@ -9030,7 +9065,7 @@ window.godfatherRefreshVaultAccessMatrix = async function() {
 window.godfatherToggleVaultAccess = async function(uid, currentAllowed) {
   const newAllowed = !currentAllowed;
   try {
-    await db.collection('users').doc(uid).set({ vaultAllowed: newAllowed }, { merge: true });
+    await db.collection('admins').doc(uid).set({ vaultAllowed: newAllowed }, { merge: true });
     godfatherRefreshVaultAccessMatrix();
   } catch (err) {
     console.error('Toggle vault access error:', err);
@@ -9038,21 +9073,96 @@ window.godfatherToggleVaultAccess = async function(uid, currentAllowed) {
   }
 };
 
-// ── 🦅 GODFATHER WATCHTOWER (22-CHANNEL SURVEILLANCE COCKPIT) ──────
-let watchtowerWallActive = false;
+// ── 🦅 GODFATHER WATCHTOWER (ONE-BY-ONE & MULTI-STREAM WALL) ───────
+let activeWatchtowerPlayers = {}; // channelKey -> hlsInstance or true
 
 window.godfatherInitWatchtower = function() {
   godfatherRefreshWatchtower();
 };
 
-window.godfatherToggleWatchtowerWall = function() {
-  watchtowerWallActive = !watchtowerWallActive;
-  const btn = $('godfather-watchtower-toggle-btn');
-  if (btn) {
-    btn.textContent = watchtowerWallActive ? '⏹️ Stop All Live Video Feeds' : '▶️ Activate All Video Feeds';
-    btn.style.background = watchtowerWallActive ? 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)' : '';
+window.godfatherToggleSingleVideo = function(channelKey, endpoint) {
+  const vidContainer = $(`watchtower-container-${channelKey}`);
+  const btn = $(`watchtower-play-btn-${channelKey}`);
+  if (!vidContainer || !btn) return;
+
+  const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
+  const streamUrl = `https://${iptvDomain}/${endpoint}`;
+
+  if (activeWatchtowerPlayers[channelKey]) {
+    // Stop this player
+    if (activeWatchtowerPlayers[channelKey] && typeof activeWatchtowerPlayers[channelKey].destroy === 'function') {
+      activeWatchtowerPlayers[channelKey].destroy();
+    }
+    delete activeWatchtowerPlayers[channelKey];
+    vidContainer.innerHTML = `
+      <div style="color:var(--sub); font-size:11px; text-align:center; padding:20px 10px;">
+        <span>🦅 Stealth Standby</span><br>
+        <span style="font-size:9px; color:rgba(255,255,255,0.3);">Click '▶️ Play Preview' to inspect</span>
+      </div>
+    `;
+    btn.textContent = '▶️ Play Preview';
+    btn.style.background = '';
+    btn.style.borderColor = 'var(--gold)';
+    btn.style.color = 'var(--gold)';
+  } else {
+    // Start this player
+    vidContainer.innerHTML = `<video id="watchtower-video-${channelKey}" autoplay muted playsinline controls style="width:100%; height:100%; object-fit:contain; background:#000;"></video>`;
+    const vid = $(`watchtower-video-${channelKey}`);
+    
+    if (Hls.isSupported()) {
+      const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+      hls.loadSource(streamUrl);
+      hls.attachMedia(vid);
+      activeWatchtowerPlayers[channelKey] = hls;
+    } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+      vid.src = streamUrl;
+      activeWatchtowerPlayers[channelKey] = true;
+    }
+
+    btn.textContent = '⏹️ Stop Preview';
+    btn.style.background = 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)';
+    btn.style.borderColor = '#fca5a5';
+    btn.style.color = '#fff';
   }
-  godfatherRefreshWatchtower();
+};
+
+window.godfatherToggleWatchtowerWall = function() {
+  const channels = [
+    { key: 'main', endpoint: 'live.m3u8' },
+    { key: 'decoder', endpoint: 'decoder.m3u8' },
+    ...Array.from({ length: 20 }, (_, idx) => {
+      const num = idx + 1;
+      return { key: `feed${num}`, endpoint: `live${num}.m3u8` };
+    }),
+    { key: 'srinjana', endpoint: 'Srinjana.m3u8' }
+  ];
+
+  const hasAnyActive = Object.keys(activeWatchtowerPlayers).length > 0;
+  const masterBtn = $('godfather-watchtower-toggle-btn');
+
+  if (hasAnyActive) {
+    // Stop all
+    channels.forEach(ch => {
+      if (activeWatchtowerPlayers[ch.key]) {
+        godfatherToggleSingleVideo(ch.key, ch.endpoint);
+      }
+    });
+    if (masterBtn) {
+      masterBtn.textContent = '▶️ Play All Video Feeds';
+      masterBtn.style.background = '';
+    }
+  } else {
+    // Start all
+    channels.forEach(ch => {
+      if (!activeWatchtowerPlayers[ch.key]) {
+        godfatherToggleSingleVideo(ch.key, ch.endpoint);
+      }
+    });
+    if (masterBtn) {
+      masterBtn.textContent = '⏹️ Stop All Video Feeds';
+      masterBtn.style.background = 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)';
+    }
+  }
 };
 
 window.godfatherRefreshWatchtower = function() {
@@ -9073,6 +9183,7 @@ window.godfatherRefreshWatchtower = function() {
   grid.innerHTML = '';
 
   channels.forEach(ch => {
+    const isPlaying = Boolean(activeWatchtowerPlayers[ch.key]);
     const card = document.createElement('div');
     card.style.cssText = 'background:rgba(0,0,0,0.5); border:1px solid rgba(56,189,248,0.25); border-radius:6px; padding:10px; display:flex; flex-direction:column; gap:6px;';
     
@@ -9083,41 +9194,28 @@ window.godfatherRefreshWatchtower = function() {
         <span style="font-weight:700; color:#7dd3fc; font-size:12px;">${esc(ch.name)}</span>
         <span style="font-family:monospace; color:var(--gold); font-size:10px;">/${esc(ch.endpoint)}</span>
       </div>
-      <div style="background:#000; height:120px; border-radius:4px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;">
-        ${watchtowerWallActive ? `
-          <video id="watchtower-video-${ch.key}" autoplay muted playsinline controls style="width:100%; height:100%; object-fit:contain;"></video>
-        ` : `
-          <div style="color:var(--sub); font-size:11px; text-align:center;">
-            <span>🦅 Stealth Standby</span><br>
-            <span style="font-size:9px; color:rgba(255,255,255,0.3);">No viewer counter added</span>
-          </div>
-        `}
+      <div id="watchtower-container-${ch.key}" style="background:#000; height:120px; border-radius:4px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;">
+        <div style="color:var(--sub); font-size:11px; text-align:center; padding:20px 10px;">
+          <span>🦅 Stealth Standby</span><br>
+          <span style="font-size:9px; color:rgba(255,255,255,0.3);">Click '▶️ Play Preview' to inspect</span>
+        </div>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px;">
-        <span style="color:var(--sub);">M3U8 Monitor</span>
-        <button class="btn-gold-sm" onclick="window.open('${streamUrl}', '_blank')" style="padding:2px 6px; font-size:10px;">↗ Open</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; margin-top:2px;">
+        <button id="watchtower-play-btn-${ch.key}" class="btn-gold-sm" onclick="godfatherToggleSingleVideo('${ch.key}', '${esc(ch.endpoint)}')" style="padding:3px 8px; font-size:10px; font-weight:bold;">
+          ▶️ Play Preview
+        </button>
+        <button class="btn-gold-sm" onclick="window.open('${streamUrl}', '_blank')" style="padding:3px 8px; font-size:10px; background:transparent; border-color:var(--border2); color:var(--sub);">
+          ↗ Full Window
+        </button>
       </div>
     `;
     grid.appendChild(card);
-
-    if (watchtowerWallActive) {
-      setTimeout(() => {
-        const vid = $(`watchtower-video-${ch.key}`);
-        if (vid) {
-          if (Hls.isSupported()) {
-            const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
-            hls.loadSource(streamUrl);
-            hls.attachMedia(vid);
-          } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
-            vid.src = streamUrl;
-          }
-        }
-      }, 100);
-    }
   });
 };
 
 // ── 📜 SUPERADMIN AUDIT TRAIL & 1-CLICK STREAM ROLLBACK ─────────────
+let auditLogsUnsubscriber = null;
+
 window.godfatherInitAuditLogs = function() {
   godfatherLoadAuditLogs();
 };
@@ -9126,7 +9224,12 @@ window.godfatherLoadAuditLogs = function() {
   const tbody = $('godfather-audit-logs-tbody');
   if (!tbody) return;
 
-  db.collection('auditLogs').orderBy('timestamp', 'desc').limit(40).onSnapshot(snap => {
+  if (auditLogsUnsubscriber) {
+    auditLogsUnsubscriber();
+    auditLogsUnsubscriber = null;
+  }
+
+  auditLogsUnsubscriber = db.collection('adminAuditLogs').orderBy('timestamp', 'desc').limit(40).onSnapshot(snap => {
     if (snap.empty) {
       tbody.innerHTML = `<tr><td colspan="4" style="color:var(--sub); padding:16px; text-align:center;">No activity logged yet. All actions are tracked in real time.</td></tr>`;
       return;
@@ -9144,7 +9247,6 @@ window.godfatherLoadAuditLogs = function() {
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
 
-      const isStreamChange = action.includes('STREAM_UPDATE') || action.includes('TAKEOVER') || meta.prevPrimaryUrl;
       const canRevert = Boolean(meta.scope && (meta.prevPrimaryUrl || meta.prevUrl));
 
       tr.innerHTML = `
@@ -9164,7 +9266,7 @@ window.godfatherLoadAuditLogs = function() {
       tbody.appendChild(tr);
     });
   }, err => {
-    console.warn('Audit logs listener error:', err);
+    console.warn('Admin audit logs listener error:', err);
     tbody.innerHTML = `<tr><td colspan="4" style="color:var(--red); padding:16px; text-align:center;">Error loading audit logs: ${err.message}</td></tr>`;
   });
 };
@@ -9191,7 +9293,7 @@ window.godfatherRevertStreamAction = async function(scope, prevUrl, prevBackupUr
 window.godfatherClearAuditLogs = async function() {
   if (!confirm('Are you sure you want to clear audit logs history?')) return;
   try {
-    const snap = await db.collection('auditLogs').limit(50).get();
+    const snap = await db.collection('adminAuditLogs').limit(50).get();
     const batch = db.batch();
     snap.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
@@ -9206,7 +9308,7 @@ window.godfatherClearAuditLogs = async function() {
 window.logAdminAuditAction = function(action, details, metadata = {}) {
   try {
     const user = firebase.auth().currentUser;
-    db.collection('auditLogs').add({
+    db.collection('adminAuditLogs').add({
       action,
       details,
       metadata,
