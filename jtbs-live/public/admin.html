@@ -59,7 +59,28 @@ input[type="email"],input[type="password"],input[type="text"],input[type="url"],
   font-size:15px;outline:none;transition:border-color .2s;
   font-family:var(--vista-font);
 }
-input:focus,textarea:focus,select:focus{border-color:#388be8;box-shadow:0 0 5px rgba(56,139,232,0.8);}
+select, option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  color-scheme: dark !important;
+}
+select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  padding: 8px 12px;
+}
+input, textarea, select {
+  color-scheme: dark !important;
+}
+.card select, .card input[type="text"], .card input[type="url"], .card input[type="email"], .card textarea,
+.feed-panel select, .feed-panel input, .feed-panel textarea,
+#tab-godfather select, #tab-godfather input, #tab-godfather textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color-scheme: dark !important;
+}
+input:focus,textarea:focus,select:focus{border-color:#fbbf24 !important;box-shadow:0 0 5px rgba(251,191,36,0.5) !important;}
 textarea{resize:vertical;min-height:90px;}
 .field{margin-bottom:18px;}
 .btn{
@@ -1597,27 +1618,27 @@ tr:last-child td{border-bottom:none;}
           <div style="font-weight:700; color:#fbbf24; font-size:12px; margin-bottom:8px;">Generate New VIP Access Token</div>
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:10px;">
             <div>
-              <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:4px;">Client / Operator Name</label>
-              <input type="text" id="keymaker-client-name" placeholder="e.g. Mayapur Cable Network" style="font-size:12px; padding:6px 10px; width:100%;" />
+              <label style="font-size:11px; color:#fde68a; font-weight:700; display:block; margin-bottom:4px;">Client / Operator Name</label>
+              <input type="text" id="keymaker-client-name" placeholder="e.g. Mayapur Cable Network" style="font-size:12px; padding:7px 10px; width:100%; background:#0f172a; color:#fff; border:1px solid rgba(245,158,11,0.4); border-radius:4px;" />
             </div>
             <div>
-              <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:4px;">Expiration Duration</label>
-              <select id="keymaker-expiry-select" style="font-size:12px; padding:6px 10px; width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
-                <option value="1h">1 Hour (Temporary Demo)</option>
-                <option value="6h">6 Hours (Event Pass)</option>
-                <option value="24h" selected>24 Hours (1 Day Pass)</option>
-                <option value="7d">7 Days (1 Week Pass)</option>
-                <option value="30d">30 Days (1 Month License)</option>
-                <option value="365d">1 Year (Annual VIP)</option>
-                <option value="never">Permanent (Never Expires)</option>
+              <label style="font-size:11px; color:#fde68a; font-weight:700; display:block; margin-bottom:4px;">Expiration Duration</label>
+              <select id="keymaker-expiry-select" style="font-size:12px; padding:7px 10px; width:100%; background:#0f172a; border:1px solid rgba(245,158,11,0.4); border-radius:4px; color:#fde68a; font-weight:600; color-scheme:dark;">
+                <option value="1h" style="background:#0f172a; color:#fff;">1 Hour (Temporary Demo)</option>
+                <option value="6h" style="background:#0f172a; color:#fff;">6 Hours (Event Pass)</option>
+                <option value="24h" selected style="background:#0f172a; color:#fff;">24 Hours (1 Day Pass)</option>
+                <option value="7d" style="background:#0f172a; color:#fff;">7 Days (1 Week Pass)</option>
+                <option value="30d" style="background:#0f172a; color:#fff;">30 Days (1 Month License)</option>
+                <option value="365d" style="background:#0f172a; color:#fff;">1 Year (Annual VIP)</option>
+                <option value="never" style="background:#0f172a; color:#fff;">Permanent (Never Expires)</option>
               </select>
             </div>
             <div>
-              <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:4px;">Channel Scope</label>
-              <select id="keymaker-channels-select" style="font-size:12px; padding:6px 10px; width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
-                <option value="all">🌐 All Channels (Feeds 1–20 + Srinjana)</option>
-                <option value="feed1,feed2,feed3">Feeds 1 to 3 Only</option>
-                <option value="srinjana">Srinjana Feed Only</option>
+              <label style="font-size:11px; color:#fde68a; font-weight:700; display:block; margin-bottom:4px;">Channel Scope</label>
+              <select id="keymaker-channels-select" style="font-size:12px; padding:7px 10px; width:100%; background:#0f172a; border:1px solid rgba(245,158,11,0.4); border-radius:4px; color:#fde68a; font-weight:600; color-scheme:dark;">
+                <option value="all" style="background:#0f172a; color:#fff;">🌐 All Channels (Feeds 1–20 + Srinjana)</option>
+                <option value="feed1,feed2,feed3" style="background:#0f172a; color:#fff;">Feeds 1 to 3 Only</option>
+                <option value="srinjana" style="background:#0f172a; color:#fff;">Srinjana Feed Only</option>
               </select>
             </div>
           </div>
@@ -6070,19 +6091,19 @@ function loadOtherStreams() {
             <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(245,158,11,0.2); border-radius:6px; padding:10px; margin-bottom:10px;">
               <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:8px; margin-bottom:8px;">
                 <div>
-                  <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:2px;">Client / Operator Name</label>
-                  <input type="text" id="feed-inline-client-name-${i}" placeholder="e.g. Cable Operator 1" style="font-size:12px; padding:5px 8px; width:100%;" />
+                  <label style="font-size:11px; color:#fde68a; font-weight:700; display:block; margin-bottom:4px;">Client / Operator Name</label>
+                  <input type="text" id="feed-inline-client-name-${i}" placeholder="e.g. Cable Operator 1" style="font-size:12px; padding:7px 10px; width:100%; background:#0f172a; color:#fff; border:1px solid rgba(245,158,11,0.4); border-radius:4px;" />
                 </div>
                 <div>
-                  <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:2px;">Expiration Duration</label>
-                  <select id="feed-inline-expiry-select-${i}" style="font-size:12px; padding:5px 8px; width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
-                    <option value="1h">1 Hour (Demo)</option>
-                    <option value="6h">6 Hours</option>
-                    <option value="24h" selected>24 Hours (1 Day)</option>
-                    <option value="7d">7 Days (1 Week)</option>
-                    <option value="30d">30 Days (1 Month)</option>
-                    <option value="365d">1 Year (Annual)</option>
-                    <option value="never">Permanent (Never Expires)</option>
+                  <label style="font-size:11px; color:#fde68a; font-weight:700; display:block; margin-bottom:4px;">Expiration Duration</label>
+                  <select id="feed-inline-expiry-select-${i}" style="font-size:12px; padding:7px 10px; width:100%; background:#0f172a; color:#fde68a; border:1px solid rgba(245,158,11,0.4); border-radius:4px; font-weight:600; color-scheme:dark;">
+                    <option value="1h" style="background:#0f172a; color:#fff;">1 Hour (Demo)</option>
+                    <option value="6h" style="background:#0f172a; color:#fff;">6 Hours</option>
+                    <option value="24h" selected style="background:#0f172a; color:#fff;">24 Hours (1 Day)</option>
+                    <option value="7d" style="background:#0f172a; color:#fff;">7 Days (1 Week)</option>
+                    <option value="30d" style="background:#0f172a; color:#fff;">30 Days (1 Month)</option>
+                    <option value="365d" style="background:#0f172a; color:#fff;">1 Year (Annual)</option>
+                    <option value="never" style="background:#0f172a; color:#fff;">Permanent (Never Expires)</option>
                   </select>
                 </div>
               </div>
