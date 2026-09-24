@@ -6657,7 +6657,7 @@ function loadOtherStreams() {
   }, err => console.warn('Inline feed tokens listener error:', err));
 }
 
-window.onFeedTokenToggleChange = function(i) {
+window.onFeedTokenToggleChange = async function(i) {
   const toggle = $(`feed-token-toggle-${i}`);
   const expandedBox = $(`feed-token-expanded-box-${i}`);
   const badge = $(`feed-token-badge-${i}`);
@@ -6665,6 +6665,7 @@ window.onFeedTokenToggleChange = function(i) {
   const iptvIn = $(`feed-iptv-url-${i}`);
   const feed = ALL_FEED_DEFINITIONS.find(f => String(f.key) === String(i));
   const endpoint = feed ? feed.endpoint : `live${i}.m3u8`;
+  const scope = feed ? feed.id : `feed${i}`;
 
   if (!toggle) return;
   const isTokenized = toggle.checked;
@@ -6687,6 +6688,23 @@ window.onFeedTokenToggleChange = function(i) {
     iptvIn.value = isTokenized
       ? `https://${iptvDomain}/${endpoint}?token=YOUR_TOKEN`
       : `https://${iptvDomain}/${endpoint}`;
+  }
+
+  // Instant auto-save to Firestore & sync with Cloudflare Worker
+  try {
+    const docRef = db.doc(`streamState/${scope}`);
+    await docRef.set({
+      isTokenized: isTokenized,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    logAdminAuditAction('FEED_TOKEN_MODE_TOGGLE', `Toggled ${feed ? feed.name : scope} to ${isTokenized ? 'TOKENIZED (VIP Required)' : 'FTA (Open Access)'}`, { isTokenized, scope });
+
+    const streamUrl = $(`feed-url-input-${i}`) ? $(`feed-url-input-${i}`).value.trim() : '';
+    const isLive = $(`feed-toggle-${i}`) ? $(`feed-toggle-${i}`).checked : true;
+    fetch(`/updatestreamstate?doc=${scope}&isLive=${isLive}&url=${encodeURIComponent(streamUrl)}&isTokenized=${isTokenized}`).catch(() => {});
+  } catch (err) {
+    console.error('Failed to auto-save feed token toggle state:', err);
   }
 };
 

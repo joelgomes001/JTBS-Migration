@@ -495,16 +495,26 @@ ${proxiedVideoUrl}`;
       const doc = url.searchParams.get('doc') || 'main';
       const streamUrl = url.searchParams.get('url') || '';
       const isLive = url.searchParams.get('isLive') !== 'false';
+      const hasIsTokenized = url.searchParams.has('isTokenized');
+      const isTokenized = url.searchParams.get('isTokenized') === 'true';
 
-      memoryStore.set(doc, { isLive, streamUrl, updatedAt: Date.now() });
+      const existingMem = memoryStore.get(doc) || {};
+      memoryStore.set(doc, {
+        ...existingMem,
+        isLive,
+        streamUrl: streamUrl || existingMem.streamUrl || '',
+        isTokenized: hasIsTokenized ? isTokenized : (existingMem.isTokenized !== undefined ? existingMem.isTokenized : false),
+        updatedAt: Date.now()
+      });
 
       const mockDoc = {
         name: `projects/jtbs-classic/databases/(default)/documents/streamState/${doc}`,
         fields: {
           isLive: { booleanValue: isLive },
-          streamUrl: { stringValue: streamUrl },
+          streamUrl: { stringValue: streamUrl || existingMem.streamUrl || '' },
+          isTokenized: { booleanValue: hasIsTokenized ? isTokenized : !!existingMem.isTokenized },
           decoderIsLive: { booleanValue: isLive },
-          decoderStreamUrl: { stringValue: streamUrl },
+          decoderStreamUrl: { stringValue: streamUrl || existingMem.streamUrl || '' },
           mode: { stringValue: doc === 'decoder' ? 'different' : 'same' }
         }
       };
