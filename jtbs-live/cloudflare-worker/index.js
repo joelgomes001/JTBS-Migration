@@ -1033,21 +1033,25 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       const data = await getCachedFirestoreDoc(firestoreUrl, url.origin);
       const fields = data ? (data.fields || data) : {};
 
+      let backupStreamUrl = '';
       if (target.type === 'decoder') {
         const mode = parseFirestoreString(fields.mode) || 'same';
         if (mode === 'different') {
           isLive = parseFirestoreBool(fields.decoderIsLive);
           streamUrl = parseFirestoreString(fields.decoderStreamUrl);
+          backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
           offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
         } else {
           isLive = parseFirestoreBool(fields.isLive);
           streamUrl = parseFirestoreString(fields.streamUrl);
+          backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
           offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
         }
       } else {
-        // Public streams (main or feed1..feed6)
+        // Public streams (main or feed1..feed20 or srinjana)
         isLive = parseFirestoreBool(fields.isLive);
         streamUrl = parseFirestoreString(fields.streamUrl);
+        backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
         offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
       }
 
@@ -1071,89 +1075,109 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       if (memData) {
         if (memData.isLive !== undefined) isLive = memData.isLive;
         if (memData.streamUrl) streamUrl = memData.streamUrl;
+        if (memData.backupStreamUrl) backupStreamUrl = memData.backupStreamUrl;
         if (memData.offlineHlsUrl) offlineHlsUrl = memData.offlineHlsUrl;
       }
 
+      const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
+
       // OFFLINE STATE: If isLive is false or streamUrl is empty, play offlineHlsUrl screen!
       if (!isLive || !streamUrl) {
-        if (isLive && !streamUrl) {
-          // streamUrl is missing (Firestore failure) but channel is live — fallback to holding HLS stream
-          const fallbackUrl = 'https://infinite-hls-stream.vercel.app/stream.m3u8';
-          return await handleOffAirResponse(fallbackUrl, 10, url.origin, target.doc);
-        } else {
-          const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
-          return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
+        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
+      }
+
+      // Helper to attempt fetching & proxying an HLS stream URL (with auto-discontinuity on backup switch)
+      const tryFetchAndProxyHLS = async (candidateUrl, isBackup = false) => {
+        if (!candidateUrl || typeof candidateUrl !== 'string') return null;
+        const cleanCandidate = candidateUrl.trim();
+        if (!cleanCandidate) return null;
+
+        // If candidate URL is a YouTube or social video web page, return null to allow backup/offline fallback
+        const isWebPage = cleanCandidate.includes('youtube.com') || cleanCandidate.includes('youtu.be') || cleanCandidate.includes('facebook.com') || cleanCandidate.includes('fb.watch');
+        if (isWebPage) return null;
+
+        // If candidate is a direct video file (MP4/TS/WebM), return 302 redirect
+        if (!cleanCandidate.includes('.m3u8') && !cleanCandidate.includes('mpegurl')) {
+          return new Response(null, {
+            status: 302,
+            headers: {
+              'Location': cleanCandidate,
+              'Access-Control-Allow-Origin': '*',
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+              'X-JTBS-Tier': isBackup ? 'backup' : 'primary'
+            }
+          });
         }
-      }
 
-      // If stream URL is a YouTube or web video page, IPTV players cannot parse HTML web pages:
-      // Fallback gracefully to the feed's configured Offline HLS stream!
-      const isWebPageUrl = streamUrl.includes('youtube.com') || streamUrl.includes('youtu.be') || streamUrl.includes('facebook.com') || streamUrl.includes('fb.watch');
-      if (isWebPageUrl) {
-        const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
-        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
-      }
-
-      // If stream URL is a direct video file (MP4/TS/WebM) or non-HLS direct media stream, dynamically redirect!
-      if (!streamUrl.includes('.m3u8') && !streamUrl.includes('mpegurl')) {
-        return new Response(null, {
-          status: 302,
-          headers: {
-            'Location': streamUrl,
-            'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
-          }
-        });
-      }
-
-      let targetStreamUrl = streamUrl;
-      if (!targetStreamUrl.includes('cookieCheck=')) {
-        targetStreamUrl += (targetStreamUrl.includes('?') ? '&' : '?') + 'cookieCheck=1';
-      }
-
-      let streamRes;
-      try {
-        streamRes = await fetch(targetStreamUrl, {
-          redirect: 'follow',
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'cf-tunnel-skip-offline-page': 'true',
-            'Cookie': 'cookieCheck=1'
-          }
-        });
-      } catch (e) {
-        // Watchdog: Upstream fetch network error (e.g. connection refused, DNS failure)
-        const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
-        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
-      }
-
-      if (!streamRes || !streamRes.ok) {
-        // Watchdog: Upstream HTTP error (530 Cloudflare Tunnel down, 502, 1016, 404, etc.)
-        const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
-        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
-      }
-
-      const sessionCookie = extractSetCookies(streamRes.headers);
-      if (sessionCookie) {
-        upstreamSessionStore.set(target.doc, {
-          cookie: sessionCookie,
-          timestamp: Date.now(),
-          streamUrl
-        });
-      }
-      const rawBody = await streamRes.text();
-      const rewrittenBody = rewriteM3u8(rawBody, streamUrl, url.origin, sessionCookie, target.doc);
-
-      return new Response(rewrittenBody, {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/vnd.apple.mpegurl',
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'Access-Control-Allow-Origin': '*'
+        let targetUrlWithCookie = cleanCandidate;
+        if (!targetUrlWithCookie.includes('cookieCheck=')) {
+          targetUrlWithCookie += (targetUrlWithCookie.includes('?') ? '&' : '?') + 'cookieCheck=1';
         }
-      });
+
+        let streamRes;
+        try {
+          streamRes = await fetch(targetUrlWithCookie, {
+            redirect: 'follow',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'cf-tunnel-skip-offline-page': 'true',
+              'Cookie': 'cookieCheck=1'
+            }
+          });
+        } catch (e) {
+          return null; // Network drop / connection refused / DNS failure
+        }
+
+        if (!streamRes || !streamRes.ok) {
+          return null; // HTTP 404 / 502 / 530 / timeout
+        }
+
+        try {
+          const sessionCookie = extractSetCookies(streamRes.headers);
+          if (sessionCookie) {
+            upstreamSessionStore.set(target.doc, {
+              cookie: sessionCookie,
+              timestamp: Date.now(),
+              streamUrl: cleanCandidate
+            });
+          }
+          const rawBody = await streamRes.text();
+          if (!rawBody || (!rawBody.includes('#EXTM3U') && !rawBody.includes('#EXTINF'))) {
+            return null; // Not valid HLS manifest
+          }
+
+          const rewrittenBody = rewriteM3u8(rawBody, cleanCandidate, url.origin, sessionCookie, target.doc, isBackup);
+          return new Response(rewrittenBody, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/vnd.apple.mpegurl',
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+              'Pragma': 'no-cache',
+              'Expires': '0',
+              'Access-Control-Allow-Origin': '*',
+              'X-JTBS-Tier': isBackup ? 'backup' : 'primary'
+            }
+          });
+        } catch (e) {
+          return null;
+        }
+      };
+
+      // ── 3-TIER CASCADE AUTO-FAILOVER ENGINE ───────────────────────
+      // Tier 1: Try Primary Live Stream
+      let liveResponse = await tryFetchAndProxyHLS(streamUrl, false);
+
+      // Tier 2: If Primary failed, immediately try Backup Stream URL (if configured)
+      if (!liveResponse && backupStreamUrl) {
+        liveResponse = await tryFetchAndProxyHLS(backupStreamUrl, true);
+      }
+
+      // Tier 3: If both Primary & Backup failed, serve Infinite Offline HLS Slate
+      if (!liveResponse) {
+        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
+      }
+
+      return liveResponse;
 
     } catch (e) {
       const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';

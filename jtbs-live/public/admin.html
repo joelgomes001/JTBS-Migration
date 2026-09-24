@@ -1078,6 +1078,15 @@ tr:last-child td{border-bottom:none;}
           <div id="live-fields" class="live-fields" style="display:none; margin-top:20px;">
             <div class="field" style="margin-top:18px;"><label>Stream URL</label><input type="url" id="stream-url-input" placeholder="YouTube, HLS, DASH, MP4, or WebM URL"/><div class="hint" id="url-type-hint">Accepts: YouTube · HLS · DASH · MP4 · WebM</div></div>
             
+            <div class="field" style="margin-top:12px; background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: 8px; padding: 10px 12px;">
+              <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span style="font-weight:700; color:#c7d2fe; font-size:12px;">🛡️ Backup Stream URL (Optional Auto-Failover)</span>
+                <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:9px; padding:1px 6px;">AUTO-FAILOVER</span>
+              </label>
+              <input type="url" id="backup-stream-url-input" placeholder="e.g. https://backup-server.com/live.m3u8"/>
+              <div class="hint" style="color:#a5b4fc; font-size:11px;">If primary stream goes down or drops frames, IPTV players will auto-switch to this backup with 0 downtime.</div>
+            </div>
+            
             <div class="field" id="yt-options-container" style="display:none; margin-top: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border2); border-radius: 8px; padding: 12px 14px;">
               <label style="margin-bottom: 8px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; text-transform: uppercase; font-size: 11px;">YouTube Playback Mode</label>
               <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -1151,6 +1160,15 @@ tr:last-child td{border-bottom:none;}
               
               <div id="public-live-fields" style="display: none; margin-top: 16px;">
                 <div class="field"><label>Stream URL</label><input type="url" id="public-url-input" placeholder="YouTube, HLS, DASH, MP4, or WebM URL"/><div class="hint" id="public-url-hint">Accepts: YouTube · HLS · DASH · MP4 · WebM</div></div>
+                
+                <div class="field" style="margin-top:10px; background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: 8px; padding: 10px 12px;">
+                  <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-weight:700; color:#c7d2fe; font-size:12px;">🛡️ Public Backup Stream URL</span>
+                    <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:9px; padding:1px 6px;">AUTO-FAILOVER</span>
+                  </label>
+                  <input type="url" id="public-backup-url-input" placeholder="e.g. https://backup-server.com/live.m3u8"/>
+                  <div class="hint" style="color:#a5b4fc; font-size:11px;">Auto fallback if public primary stream is offline.</div>
+                </div>
                 
                 <div class="field" id="public-yt-options-container" style="display:none; margin-top: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 12px;">
                   <label style="margin-bottom: 6px; font-weight: 700; color: var(--gold); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">YouTube Playback Mode</label>
@@ -1250,6 +1268,15 @@ tr:last-child td{border-bottom:none;}
               
               <div id="decoder-live-fields" style="display: none; margin-top: 16px;">
                 <div class="field"><label>Stream URL</label><input type="url" id="decoder-url-input" placeholder="HLS, DASH, MP4, WebM, MKV, AVI, MOV, or TS URL"/><div class="hint" id="decoder-url-hint">Accepts: HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS</div></div>
+                
+                <div class="field" style="margin-top:10px; background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: 8px; padding: 10px 12px;">
+                  <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-weight:700; color:#c7d2fe; font-size:12px;">🛡️ Decoder Backup Stream URL</span>
+                    <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:9px; padding:1px 6px;">AUTO-FAILOVER</span>
+                  </label>
+                  <input type="url" id="decoder-backup-url-input" placeholder="e.g. https://backup-server.com/live.m3u8"/>
+                  <div class="hint" style="color:#a5b4fc; font-size:11px;">Auto fallback for TV boxes if decoder primary stream is offline.</div>
+                </div>
                 
                 <div class="field" id="decoder-yt-options-container" style="display:none; margin-top: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 12px;">
                   <label style="margin-bottom: 6px; font-weight: 700; color: var(--gold); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">YouTube Playback Mode</label>
@@ -3621,9 +3648,9 @@ function loadStreamState(){
 
     // Lock/Unlock all control elements in tab-stream
     const streamControls = [
-      'stream-toggle', 'stream-url-input', 'go-live-btn',
-      'public-toggle', 'public-url-input', 'public-go-live-btn',
-      'decoder-toggle', 'decoder-url-input', 'decoder-go-live-btn',
+      'stream-toggle', 'stream-url-input', 'backup-stream-url-input', 'go-live-btn',
+      'public-toggle', 'public-url-input', 'public-backup-url-input', 'public-go-live-btn',
+      'decoder-toggle', 'decoder-url-input', 'decoder-backup-url-input', 'decoder-go-live-btn',
       'offline-image-url', 'offline-hls-url', 'offline-text-input', 'save-offline-btn',
       'public-offline-image-url', 'public-offline-hls-url', 'public-offline-text-input', 'public-save-offline-btn',
       'decoder-offline-image-url', 'decoder-offline-hls-url', 'decoder-offline-text-input', 'decoder-save-offline-btn'
@@ -3651,6 +3678,9 @@ function loadStreamState(){
       // Public Stream
       $('public-toggle').checked = !!d.isLive;
       updatePublicUI(!!d.isLive, d.streamUrl || '');
+      if ($('public-backup-url-input') && document.activeElement !== $('public-backup-url-input')) {
+        $('public-backup-url-input').value = d.backupStreamUrl || '';
+      }
       window.currentPublicVideoIsLive = (d.playMode === 'live');
       updateYTFields('public', d.streamUrl || '', d.playMode || 'offair', d.selectedVideos);
       updateMP4Fields('public', d.streamUrl || '', d.mp4PlayMode || 'repeat');
@@ -3658,6 +3688,9 @@ function loadStreamState(){
       // Decoder Stream
       $('decoder-toggle').checked = !!d.decoderIsLive;
       updateDecoderUI(!!d.decoderIsLive, d.decoderStreamUrl || '');
+      if ($('decoder-backup-url-input') && document.activeElement !== $('decoder-backup-url-input')) {
+        $('decoder-backup-url-input').value = d.decoderBackupStreamUrl || '';
+      }
       window.currentDecoderVideoIsLive = (d.decoderPlayMode === 'live');
       updateYTFields('decoder', d.decoderStreamUrl || '', d.decoderPlayMode || 'offair', d.decoderSelectedVideos);
       updateMP4Fields('decoder', d.decoderStreamUrl || '', d.decoderMp4PlayMode || 'repeat');
@@ -3744,6 +3777,9 @@ function loadStreamState(){
       
       $('stream-toggle').checked=!!d.isLive;
       updateStreamUI(!!d.isLive,d.streamUrl||'');
+      if ($('backup-stream-url-input') && document.activeElement !== $('backup-stream-url-input')) {
+        $('backup-stream-url-input').value = d.backupStreamUrl || '';
+      }
       window.currentVideoIsLive = (d.playMode === 'live');
       updateYTFields('same', d.streamUrl||'', d.playMode||'offair', d.selectedVideos);
       if ($('offline-hls-url') && document.activeElement !== $('offline-hls-url')) {
@@ -4444,10 +4480,12 @@ function saveStreamState(url, duration) {
   }
   const mp4PlayModeEl = document.querySelector('input[name="mp4-play-mode"]:checked');
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
+  const backupUrl = $('backup-stream-url-input') ? $('backup-stream-url-input').value.trim() : '';
 
   const data = {
     isLive: true,
     streamUrl: url,
+    backupStreamUrl: backupUrl,
     streamType: detectType(url),
     duration: duration || 0,
     playMode: playMode,
@@ -4500,10 +4538,12 @@ function savePublicStreamState(url, duration) {
   }
   const mp4PlayModeEl = document.querySelector('input[name="public-mp4-play-mode"]:checked');
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
+  const backupUrl = $('public-backup-url-input') ? $('public-backup-url-input').value.trim() : '';
 
   const data = {
     isLive: true,
     streamUrl: url,
+    backupStreamUrl: backupUrl,
     streamType: detectType(url),
     duration: duration || 0,
     playMode: playMode,
@@ -4561,10 +4601,12 @@ function saveDecoderStreamState(url, duration) {
   }
   const mp4PlayModeEl = document.querySelector('input[name="decoder-mp4-play-mode"]:checked');
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
+  const backupUrl = $('decoder-backup-url-input') ? $('decoder-backup-url-input').value.trim() : '';
 
   const data = {
     decoderIsLive: true,
     decoderStreamUrl: url,
+    decoderBackupStreamUrl: backupUrl,
     decoderStreamType: detectType(url),
     decoderDuration: duration || 0,
     decoderPlayMode: playMode,
@@ -5760,6 +5802,15 @@ function loadOtherStreams() {
             <div class="hint" id="feed${i}-url-hint">Accepts: YouTube · HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS · RTMP</div>
           </div>
 
+          <div class="field" style="margin-top:10px; background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: 8px; padding: 10px 12px;">
+            <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-weight:700; color:#c7d2fe; font-size:12px;">🛡️ Backup Stream URL (${feed.name})</span>
+              <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:9px; padding:1px 6px;">AUTO-FAILOVER</span>
+            </label>
+            <input type="url" id="feed-backup-url-${i}" placeholder="e.g. https://backup-server.com/live.m3u8"/>
+            <div class="hint" style="color:#a5b4fc; font-size:11px;">Auto fallback if primary ${feed.name} stream is offline or down.</div>
+          </div>
+
           <!-- YOUTUBE PLAYBACK OPTIONS (Shown ONLY when YouTube URL is detected) -->
           <div class="field" id="feed${i}-yt-options-container" style="display:none; margin-top: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border2); border-radius: 8px; padding: 12px 14px;">
             <label style="margin-bottom: 8px; font-weight: 700; color: var(--gold); letter-spacing: 0.5px; text-transform: uppercase; font-size: 12px;">YouTube Playback Mode</label>
@@ -5982,6 +6033,7 @@ function loadOtherStreams() {
 
       // Update disabled states
       const feedUrlIn = $(`feed-url-input-${i}`);
+      const feedBackupIn = $(`feed-backup-url-${i}`);
       const feedToggle = $(`feed-toggle-${i}`);
       const feedSaveB = $(`feed-save-btn-${i}`);
       const feedOffImg = $(`feed-offline-image-${i}`);
@@ -5991,6 +6043,7 @@ function loadOtherStreams() {
       const feedDeselAll = $(`feed${i}-playlist-deselect-all-btn`);
 
       if (feedUrlIn) { feedUrlIn.disabled = !canManage; feedUrlIn.style.opacity = canManage ? '' : '0.6'; feedUrlIn.style.cursor = canManage ? '' : 'not-allowed'; }
+      if (feedBackupIn) { feedBackupIn.disabled = !canManage; feedBackupIn.style.opacity = canManage ? '' : '0.6'; feedBackupIn.style.cursor = canManage ? '' : 'not-allowed'; }
       if (feedToggle) { feedToggle.disabled = !canManage; feedToggle.style.cursor = canManage ? '' : 'not-allowed'; }
       if (feedSaveB) {
         feedSaveB.disabled = !canManage;
@@ -6059,6 +6112,15 @@ function loadOtherStreams() {
         }
       }
 
+      if (feedBackupIn && document.activeElement !== feedBackupIn) {
+        if (isSrinjana && !isGodfather) {
+          feedBackupIn.value = '';
+          feedBackupIn.placeholder = '🔒 Hidden';
+        } else {
+          feedBackupIn.value = data.backupStreamUrl || '';
+        }
+      }
+
       if (feedOffImg && document.activeElement !== feedOffImg) {
         feedOffImg.value = data.offlineImageUrl || '';
       }
@@ -6087,6 +6149,7 @@ function loadOtherStreams() {
         saveBtn.disabled = true;
         const isLive = $(`feed-toggle-${i}`).checked;
         const streamUrl = $(`feed-url-input-${i}`).value.trim();
+        const backupStreamUrl = $(`feed-backup-url-${i}`) ? $(`feed-backup-url-${i}`).value.trim() : '';
         
         const ytRadio = document.querySelector(`input[name="feed${i}-yt-play-mode"]:checked`);
         const mp4Radio = document.querySelector(`input[name="feed${i}-mp4-play-mode"]:checked`);
@@ -6103,6 +6166,7 @@ function loadOtherStreams() {
         const payload = {
           isLive: isLive,
           streamUrl: streamUrl,
+          backupStreamUrl: backupStreamUrl,
           streamType: detectType(streamUrl),
           mode: ytPlayMode,
           playMode: ytPlayMode,
