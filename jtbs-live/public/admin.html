@@ -1535,6 +1535,166 @@ tr:last-child td{border-bottom:none;}
 
       </div>
 
+      <!-- 🔴 GODFATHER MASTER NETWORK TAKEOVER (SUPREME OVERRIDE) -->
+      <div style="background:rgba(220,38,38,0.12); border:1.5px solid #ef4444; border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 20px rgba(239,68,68,0.25);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div style="font-weight:800; color:#fca5a5; font-size:14px; display:flex; align-items:center; gap:8px;">
+            <span>🔴 MASTER NETWORK TAKEOVER (1-CLICK OVERRIDE)</span>
+            <span id="godfather-takeover-badge" class="role-badge" style="background:#7f1d1d; color:#fecaca; border:1px solid #ef4444; font-size:10px;">IDLE / STANDBY</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:12px; color:#fca5a5; font-weight:700;">Takeover State:</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="godfather-takeover-toggle" onchange="godfatherToggleTakeover(this.checked)" />
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        </div>
+        <div style="font-size:12px; color:#fecaca; margin-bottom:14px; line-height:1.5;">
+          Instantly hijack and broadcast a single master stream across <strong>all 20 feeds + Main Channel + Decoders + Srinjana</strong> simultaneously in under 500ms. Disabling restores all feeds back to their original channels.
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:12px;">
+          <div class="field" style="margin-bottom:0;">
+            <label style="color:#fecaca; font-size:11px; font-weight:700;">Master Primary Stream URL</label>
+            <input type="url" id="godfather-takeover-url" placeholder="https://emergency-broadcast.com/live.m3u8" style="background:rgba(0,0,0,0.4); border-color:rgba(239,68,68,0.5); color:#fff;" />
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label style="color:#fecaca; font-size:11px; font-weight:700;">Master Backup Stream URL (Auto-Failover)</label>
+            <input type="url" id="godfather-takeover-backup" placeholder="https://backup-emergency.com/live.m3u8" style="background:rgba(0,0,0,0.4); border-color:rgba(239,68,68,0.5); color:#fff;" />
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label style="font-size:11px; color:#fecaca; font-weight:700;">Override Scope:</label>
+            <select id="godfather-takeover-scope" style="padding:6px 10px; font-size:12px; background:var(--bg2); border:1px solid rgba(239,68,68,0.5); border-radius:4px; color:#fff;">
+              <option value="all">🌐 All Channels (Feeds 1–20 + Main + Decoders + Srinjana)</option>
+              <option value="feeds_only">📡 Feeds 1–20 & Srinjana Only</option>
+              <option value="main_only">📺 Main Channel (live.m3u8) Only</option>
+              <option value="decoders_only">📦 Decoder TV Boxes (decoder.m3u8) Only</option>
+            </select>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="godfatherSaveTakeoverConfig()" style="padding:6px 16px; font-size:12px; margin-left:auto;">
+            💾 Save Master Takeover Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- 🔑 GODFATHER VIP KEYMAKER & TOKEN LICENSE GENERATOR -->
+      <div style="background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div style="font-weight:700; color:#fde68a; font-size:14px; display:flex; align-items:center; gap:8px;">
+            <span>🔑 Godfather VIP Keymaker (Expiring Token License Generator)</span>
+            <span class="role-badge godfather" style="font-size:10px;">SECURE LICENSING</span>
+          </div>
+          <button class="btn-gold-sm" onclick="godfatherLoadTokens()" style="padding:4px 12px; font-size:11px;">🔄 Refresh Tokens</button>
+        </div>
+        <div style="font-size:12px; color:#fef3c7; margin-bottom:14px; line-height:1.5;">
+          Generate time-limited VIP access tokens for cable operators, private viewers, and VIP clients. Feeds in <strong>🔒 Tokenized Mode</strong> strictly require these tokens to stream. (<code>live.m3u8</code> and <code>decoder.m3u8</code> remain FTA and open).
+        </div>
+        
+        <!-- Generator Form -->
+        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(245,158,11,0.25); border-radius:6px; padding:12px; margin-bottom:14px;">
+          <div style="font-weight:700; color:#fbbf24; font-size:12px; margin-bottom:8px;">Generate New VIP Access Token</div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:10px;">
+            <div>
+              <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:4px;">Client / Operator Name</label>
+              <input type="text" id="keymaker-client-name" placeholder="e.g. Mayapur Cable Network" style="font-size:12px; padding:6px 10px; width:100%;" />
+            </div>
+            <div>
+              <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:4px;">Expiration Duration</label>
+              <select id="keymaker-expiry-select" style="font-size:12px; padding:6px 10px; width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
+                <option value="1h">1 Hour (Temporary Demo)</option>
+                <option value="6h">6 Hours (Event Pass)</option>
+                <option value="24h" selected>24 Hours (1 Day Pass)</option>
+                <option value="7d">7 Days (1 Week Pass)</option>
+                <option value="30d">30 Days (1 Month License)</option>
+                <option value="365d">1 Year (Annual VIP)</option>
+                <option value="never">Permanent (Never Expires)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px; color:var(--sub); display:block; margin-bottom:4px;">Channel Scope</label>
+              <select id="keymaker-channels-select" style="font-size:12px; padding:6px 10px; width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
+                <option value="all">🌐 All Channels (Feeds 1–20 + Srinjana)</option>
+                <option value="feed1,feed2,feed3">Feeds 1 to 3 Only</option>
+                <option value="srinjana">Srinjana Feed Only</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end;">
+            <button class="btn-gold-sm" onclick="godfatherGenerateVipToken()" style="padding:7px 18px; font-size:12px;">
+              ⚡ Generate VIP Token Link
+            </button>
+          </div>
+        </div>
+
+        <!-- Generated Link Modal/Output Box -->
+        <div id="keymaker-output-card" style="display:none; background:rgba(16,185,129,0.1); border:1.5px solid #10b981; border-radius:6px; padding:12px; margin-bottom:14px;">
+          <div style="font-weight:700; color:#6ee7b7; font-size:12px; margin-bottom:6px; display:flex; justify-content:space-between;">
+            <span>✓ VIP Token Generated Successfully</span>
+            <span style="cursor:pointer; color:var(--sub);" onclick="$('keymaker-output-card').style.display='none'">✕ Close</span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+            <input type="text" id="keymaker-generated-url" readonly style="flex:1; font-family:monospace; font-size:12px; padding:6px 8px; background:rgba(0,0,0,0.5); color:#a7f3d0; border:1px solid #10b981;" />
+            <button class="btn-gold-sm" onclick="copyIPTV('keymaker-generated-url')" style="white-space:nowrap; padding:6px 12px; font-size:12px;">📋 Copy Link</button>
+          </div>
+          <div style="font-size:11px; color:#d1fae5;" id="keymaker-generated-details"></div>
+        </div>
+
+        <!-- Active Tokens Table -->
+        <div class="users-table-wrap" style="max-height: 280px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+          <table style="width:100%; border-collapse:collapse; font-size:12px;">
+            <thead>
+              <tr style="background:rgba(255,255,255,0.06);">
+                <th style="padding:8px 10px; color:#fde68a;">Client / Name</th>
+                <th style="padding:8px 10px; color:#fde68a;">Token Code</th>
+                <th style="padding:8px 10px; color:#fde68a;">Scope</th>
+                <th style="padding:8px 10px; color:#fde68a;">Expires</th>
+                <th style="padding:8px 10px; color:#fde68a; text-align:center;">Status</th>
+                <th style="padding:8px 10px; color:#fde68a; text-align:center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="godfather-tokens-tbody">
+              <tr><td colspan="6" style="color:var(--sub); padding:14px; text-align:center;">Loading active VIP tokens…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 📱 GODFATHER TELEGRAM WATCHDOG HOTLINE -->
+      <div style="background:rgba(59,130,246,0.08); border:1.5px solid rgba(59,130,246,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <div style="font-weight:700; color:#93c5fd; font-size:14px; display:flex; align-items:center; gap:8px;">
+            <span>📱 Godfather Telegram Watchdog Hotline (Instant Mobile Alerts)</span>
+            <span class="role-badge" style="background:#1d4ed8; color:#dbeafe; font-size:10px;">HOTLINE</span>
+          </div>
+          <button class="btn-gold-sm" onclick="godfatherTestTelegramAlert()" style="padding:4px 12px; font-size:11px;">📲 Send Test Ping</button>
+        </div>
+        <div style="font-size:12px; color:#dbeafe; margin-bottom:14px; line-height:1.5;">
+          Receive real-time 24/7 push alerts directly on your phone via Telegram whenever streams drop/failover, superadmins modify channels, or unauthorized vault accesses occur.
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:11px; color:#bfdbfe; font-weight:700; display:block; margin-bottom:4px;">Telegram Bot Token</label>
+            <input type="text" id="godfather-tg-bot-token" placeholder="e.g. 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ" style="font-size:12px; padding:6px 10px; width:100%; font-family:monospace;" />
+          </div>
+          <div>
+            <label style="font-size:11px; color:#bfdbfe; font-weight:700; display:block; margin-bottom:4px;">Godfather Chat ID</label>
+            <input type="text" id="godfather-tg-chat-id" placeholder="e.g. 987654321" style="font-size:12px; padding:6px 10px; width:100%; font-family:monospace;" />
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; font-size:12px; color:#bfdbfe;">
+            <label style="display:flex; align-items:center; gap:4px; cursor:pointer;"><input type="checkbox" id="tg-alert-failover" checked /> Stream Drops & Failovers</label>
+            <label style="display:flex; align-items:center; gap:4px; cursor:pointer;"><input type="checkbox" id="tg-alert-admin" checked /> Admin URL Changes</label>
+            <label style="display:flex; align-items:center; gap:4px; cursor:pointer;"><input type="checkbox" id="tg-alert-security" checked /> Security Breaches</label>
+          </div>
+          <button class="btn-gold-sm" onclick="godfatherSaveTelegramSettings()" style="padding:6px 16px; font-size:12px; background:linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); border-color:#60a5fa; color:#fff;">
+            💾 Save Telegram Settings
+          </button>
+        </div>
+      </div>
+
       <!-- 📢 ADMIN HUD LIVE FLASH BROADCAST DISPATCHER -->
       <div style="background:rgba(239,68,68,0.08); border:1.5px solid rgba(239,68,68,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
@@ -2805,6 +2965,9 @@ function initDashboard(user,role){
       document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
       $('tab-'+btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'godfather' && typeof window.loadGodfatherSuite === 'function') {
+        window.loadGodfatherSuite();
+      }
     });
   });
   
@@ -2848,12 +3011,8 @@ function initDashboard(user,role){
   godfatherListenBroadcast();
   if (typeof window.godfatherListenDecoderTicker === 'function') window.godfatherListenDecoderTicker();
   if(canAccessUsers) loadUsers(user,role);
-  if(isGodfather) {
-    if (typeof window.godfatherLoadCredentials === 'function') window.godfatherLoadCredentials();
-    if (typeof window.godfatherRefreshFeedMatrix === 'function') window.godfatherRefreshFeedMatrix();
-    if (typeof window.godfatherRefreshVaultAccessMatrix === 'function') window.godfatherRefreshVaultAccessMatrix();
-    if (typeof window.godfatherInitWatchtower === 'function') window.godfatherInitWatchtower();
-    if (typeof window.godfatherInitAuditLogs === 'function') window.godfatherInitAuditLogs();
+  if(isGodfather && typeof window.loadGodfatherSuite === 'function') {
+    window.loadGodfatherSuite();
   }
 
   // Populate IPTV direct link URLs (reads iptvDomain from config/main)
@@ -5526,6 +5685,17 @@ function loadDecoders() {
           <span class="decoder-metric-label">App Version</span>
           <span class="decoder-metric-value">${esc(d.appVersion || 'Unknown')}</span>
         </div>
+        <div class="decoder-metric-row" style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.06); gap:6px;">
+          <span class="decoder-metric-label">Safe Fleet Ctrl</span>
+          <span class="decoder-metric-value" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+            <button class="btn-gold-sm" onclick="safeReloadDecoder('${d.id}')" style="padding:3px 8px; font-size:10px; background:rgba(59,130,246,0.2); border-color:#3b82f6; color:#93c5fd;" title="Safely signal app to reload stream without rebooting device">
+              🔄 Safe Reload
+            </button>
+            <button class="btn-gold-sm" onclick="toggleLockDecoder('${d.id}', ${ctrl.isLocked ? 'true' : 'false'})" style="padding:3px 8px; font-size:10px; ${ctrl.isLocked ? 'background:#ef4444; border-color:#fca5a5; color:#fff;' : 'background:rgba(255,255,255,0.08); color:var(--sub);'}" title="Remote screen freeze / lock">
+              ${ctrl.isLocked ? '🔒 Locked' : '🔓 Unlock'}
+            </button>
+          </span>
+        </div>
         ${d.lastError && d.lastError.trim() !== '' ? `
         <div class="decoder-metric-row" style="margin-top: 4px; padding-top: 4px; border-top: 1px dashed rgba(234,67,53,0.15); flex-direction:column; align-items:flex-start; gap:2px;">
           <span class="decoder-metric-label" style="color:#EA4335;">Last Error</span>
@@ -5722,6 +5892,36 @@ window.deleteDecoder = function(id, displayName) {
   });
 };
 
+window.safeReloadDecoder = function(id) {
+  if (!confirm(`Send Safe In-App Stream Reload signal to decoder "${id}"?\n\n(This instructs the decoder player app to gracefully reload the stream manifest without rebooting hardware).`)) return;
+  
+  db.collection('decoderControl').doc(id).set({
+    reloadStreamAt: Date.now(),
+    reloadCommandId: Math.random().toString(36).substring(2, 9),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true }).then(() => {
+    alert(`✓ Safe stream reload command dispatched to decoder "${id}".`);
+  }).catch(err => {
+    alert(`Error dispatching safe reload: ${err.message}`);
+  });
+};
+
+window.toggleLockDecoder = function(id, isCurrentlyLocked) {
+  const newLock = !isCurrentlyLocked;
+  const promptMsg = newLock ? `Freeze and lock decoder screen for "${id}"? (Prevents unauthorized local interaction).` : `Unlock decoder screen for "${id}"?`;
+  if (!confirm(promptMsg)) return;
+
+  db.collection('decoderControl').doc(id).set({
+    isLocked: newLock,
+    lockedAt: Date.now(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true }).then(() => {
+    alert(`✓ Decoder "${id}" is now ${newLock ? 'LOCKED / SCREEN FROZEN' : 'UNLOCKED'}.`);
+  }).catch(err => {
+    alert(`Error updating decoder lock status: ${err.message}`);
+  });
+};
+
 // ── OTHER STREAMS (FEEDS 1..20 & SRINJANA) ────────────────────────
 const ALL_FEED_DEFINITIONS = [
   ...Array.from({ length: 20 }, (_, idx) => {
@@ -5809,6 +6009,26 @@ function loadOtherStreams() {
             </label>
             <input type="url" id="feed-backup-url-${i}" placeholder="e.g. https://backup-server.com/live.m3u8"/>
             <div class="hint" style="color:#a5b4fc; font-size:11px;">Auto fallback if primary ${feed.name} stream is offline or down.</div>
+          </div>
+
+          <!-- STREAM ACCESS MODE (FTA vs. TOKENIZED) -->
+          <div style="margin-top:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <div style="font-weight:700; font-size:12px; color:var(--gold); display:flex; align-items:center; gap:6px;">
+                <span>🔒 Stream Access Mode</span>
+                <span class="hint-pill" title="FTA (Free-To-Air) links play openly without tokens. Tokenized links strictly require a Godfather-generated ?token=XYZ access parameter." style="cursor:help; font-size:10px; background:rgba(255,255,255,0.1); padding:1px 6px; border-radius:4px; color:var(--gold); border:1px solid rgba(255,215,0,0.3);">ℹ️ HOVER FOR INFO</span>
+              </div>
+              <div style="font-size:11px; color:var(--sub); margin-top:2px;" id="feed-token-desc-${i}">
+                🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely.
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="feed-token-badge-${i}" class="role-badge" style="font-size:10px; background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid #10b981;">🌐 FTA OPEN</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="feed-token-toggle-${i}" />
+                <span class="toggle-track"></span>
+              </label>
+            </div>
           </div>
 
           <!-- YOUTUBE PLAYBACK OPTIONS (Shown ONLY when YouTube URL is detected) -->
@@ -6034,6 +6254,9 @@ function loadOtherStreams() {
       // Update disabled states
       const feedUrlIn = $(`feed-url-input-${i}`);
       const feedBackupIn = $(`feed-backup-url-${i}`);
+      const feedTokenToggle = $(`feed-token-toggle-${i}`);
+      const feedTokenBadge = $(`feed-token-badge-${i}`);
+      const feedTokenDesc = $(`feed-token-desc-${i}`);
       const feedToggle = $(`feed-toggle-${i}`);
       const feedSaveB = $(`feed-save-btn-${i}`);
       const feedOffImg = $(`feed-offline-image-${i}`);
@@ -6041,9 +6264,11 @@ function loadOtherStreams() {
       const feedOffTxt = $(`feed-offline-text-${i}`);
       const feedSelAll = $(`feed${i}-playlist-select-all-btn`);
       const feedDeselAll = $(`feed${i}-playlist-deselect-all-btn`);
+      const iptvUrlInput = $(`feed-iptv-url-${i}`);
 
       if (feedUrlIn) { feedUrlIn.disabled = !canManage; feedUrlIn.style.opacity = canManage ? '' : '0.6'; feedUrlIn.style.cursor = canManage ? '' : 'not-allowed'; }
       if (feedBackupIn) { feedBackupIn.disabled = !canManage; feedBackupIn.style.opacity = canManage ? '' : '0.6'; feedBackupIn.style.cursor = canManage ? '' : 'not-allowed'; }
+      if (feedTokenToggle) { feedTokenToggle.disabled = !canManage; }
       if (feedToggle) { feedToggle.disabled = !canManage; feedToggle.style.cursor = canManage ? '' : 'not-allowed'; }
       if (feedSaveB) {
         feedSaveB.disabled = !canManage;
@@ -6059,6 +6284,35 @@ function loadOtherStreams() {
       document.querySelectorAll(`input[name="feed${i}-yt-play-mode"]`).forEach(r => r.disabled = !canManage);
       document.querySelectorAll(`input[name="feed${i}-mp4-play-mode"]`).forEach(r => r.disabled = !canManage);
       document.querySelectorAll(`input[name="feed-offline-mp4-play-mode-${i}"]`).forEach(r => r.disabled = !canManage);
+
+      if (feedTokenToggle) {
+        feedTokenToggle.checked = !!data.isTokenized;
+      }
+      if (feedTokenBadge) {
+        if (data.isTokenized) {
+          feedTokenBadge.className = 'role-badge godfather';
+          feedTokenBadge.style.background = 'rgba(245, 158, 11, 0.2)';
+          feedTokenBadge.style.color = '#fde68a';
+          feedTokenBadge.style.borderColor = '#f59e0b';
+          feedTokenBadge.textContent = '🔒 TOKENIZED';
+        } else {
+          feedTokenBadge.className = 'role-badge superadmin';
+          feedTokenBadge.style.background = 'rgba(16,185,129,0.2)';
+          feedTokenBadge.style.color = '#6ee7b7';
+          feedTokenBadge.style.borderColor = '#10b981';
+          feedTokenBadge.textContent = '🌐 FTA OPEN';
+        }
+      }
+      if (feedTokenDesc) {
+        feedTokenDesc.innerHTML = data.isTokenized 
+          ? '🔒 <strong>Tokenized Mode:</strong> Requests without a valid Godfather VIP <code>?token=XYZ</code> are blocked.' 
+          : '🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely without tokens.';
+      }
+      if (iptvUrlInput) {
+        iptvUrlInput.value = data.isTokenized
+          ? `https://jtbsclassic.dpdns.org/${feed.endpoint}?token=YOUR_TOKEN`
+          : `https://jtbsclassic.dpdns.org/${feed.endpoint}`;
+      }
 
       // Sync inline assign dropdown if godfather
       if (isGodfather && !isSrinjana) {
@@ -6150,6 +6404,7 @@ function loadOtherStreams() {
         const isLive = $(`feed-toggle-${i}`).checked;
         const streamUrl = $(`feed-url-input-${i}`).value.trim();
         const backupStreamUrl = $(`feed-backup-url-${i}`) ? $(`feed-backup-url-${i}`).value.trim() : '';
+        const isTokenized = $(`feed-token-toggle-${i}`) ? $(`feed-token-toggle-${i}`).checked : false;
         
         const ytRadio = document.querySelector(`input[name="feed${i}-yt-play-mode"]:checked`);
         const mp4Radio = document.querySelector(`input[name="feed${i}-mp4-play-mode"]:checked`);
@@ -6167,6 +6422,7 @@ function loadOtherStreams() {
           isLive: isLive,
           streamUrl: streamUrl,
           backupStreamUrl: backupStreamUrl,
+          isTokenized: isTokenized,
           streamType: detectType(streamUrl),
           mode: ytPlayMode,
           playMode: ytPlayMode,
@@ -8195,6 +8451,784 @@ window.godfatherLoadCredentials = function() {
   }).catch(err => {
     console.warn('Could not load Godfather credentials from Firestore:', err);
   });
+};
+
+// ── 🔴 MASTER NETWORK TAKEOVER OVERRIDE ─────────────────────────────
+window.godfatherLoadTakeoverConfig = function() {
+  db.doc('config/masterOverride').onSnapshot(doc => {
+    const data = doc.exists ? doc.data() : {};
+    const enabled = data.enabled === true;
+    const url = data.streamUrl || '';
+    const backup = data.backupStreamUrl || '';
+    const scope = data.scope || 'all';
+
+    const toggleEl = $('godfather-takeover-toggle');
+    const badgeEl = $('godfather-takeover-status-badge');
+    const urlEl = $('godfather-takeover-url');
+    const backupEl = $('godfather-takeover-backup');
+    const scopeEl = $('godfather-takeover-scope');
+
+    if (toggleEl) toggleEl.checked = enabled;
+    if (badgeEl) {
+      if (enabled) {
+        badgeEl.textContent = '🔴 ACTIVE TAKEOVER';
+        badgeEl.style.background = '#ef4444';
+        badgeEl.style.color = '#fff';
+      } else {
+        badgeEl.textContent = '⚪ STANDBY (NORMAL)';
+        badgeEl.style.background = 'rgba(255,255,255,0.1)';
+        badgeEl.style.color = 'var(--sub)';
+      }
+    }
+    if (urlEl && document.activeElement !== urlEl) urlEl.value = url;
+    if (backupEl && document.activeElement !== backupEl) backupEl.value = backup;
+    if (scopeEl) scopeEl.value = scope;
+  }, err => console.warn('Takeover listener error:', err));
+};
+
+window.godfatherToggleTakeover = async function(enabled) {
+  const urlEl = $('godfather-takeover-url');
+  const backupEl = $('godfather-takeover-backup');
+  const scopeEl = $('godfather-takeover-scope');
+
+  const streamUrl = urlEl ? urlEl.value.trim() : '';
+  const backupStreamUrl = backupEl ? backupEl.value.trim() : '';
+  const scope = scopeEl ? scopeEl.value : 'all';
+
+  if (enabled && !streamUrl) {
+    alert('Please enter a Master Primary Stream URL before activating Network Takeover.');
+    if ($('godfather-takeover-toggle')) $('godfather-takeover-toggle').checked = false;
+    return;
+  }
+
+  const confirmMsg = enabled 
+    ? `🚨 CONFIRM MASTER NETWORK TAKEOVER?\n\nThis will immediately hijack playback across [${scope.toUpperCase()}] channels in under 500ms.\n\nMaster Stream: ${streamUrl}`
+    : `Deactivate Master Network Takeover and restore all channels back to normal routing?`;
+
+  if (!confirm(confirmMsg)) {
+    if ($('godfather-takeover-toggle')) $('godfather-takeover-toggle').checked = !enabled;
+    return;
+  }
+
+  try {
+    await db.doc('config/masterOverride').set({
+      enabled,
+      streamUrl,
+      backupStreamUrl,
+      scope,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather'
+    }, { merge: true });
+
+    logAdminAuditAction('MASTER_TAKEOVER_TOGGLE', `Master Takeover ${enabled ? 'ACTIVATED' : 'DEACTIVATED'} (Scope: ${scope})`, { enabled, streamUrl, scope });
+    
+    // Send Telegram alert
+    godfatherSendTelegramPush(`🚨 [MASTER TAKEOVER ${enabled ? 'ACTIVATED' : 'DEACTIVATED'}]\n\nGodfather initiated Master Network Takeover.\nScope: ${scope}\nStream: ${streamUrl || 'N/A'}\nTime: ${new Date().toLocaleString()}`);
+
+    const msgEl = $('godfather-msg');
+    if (msgEl) {
+      msgEl.textContent = `✓ Master Takeover ${enabled ? 'ACTIVATED' : 'DEACTIVATED'} across network!`;
+      msgEl.className = 'save-msg show';
+      setTimeout(() => msgEl.classList.remove('show'), 5000);
+    }
+  } catch (err) {
+    console.error('Takeover toggle error:', err);
+    alert('Error toggling Master Takeover: ' + err.message);
+  }
+};
+
+window.godfatherSaveTakeoverConfig = async function() {
+  const urlEl = $('godfather-takeover-url');
+  const backupEl = $('godfather-takeover-backup');
+  const scopeEl = $('godfather-takeover-scope');
+  const toggleEl = $('godfather-takeover-toggle');
+
+  const streamUrl = urlEl ? urlEl.value.trim() : '';
+  const backupStreamUrl = backupEl ? backupEl.value.trim() : '';
+  const scope = scopeEl ? scopeEl.value : 'all';
+  const enabled = toggleEl ? toggleEl.checked : false;
+
+  try {
+    await db.doc('config/masterOverride').set({
+      enabled,
+      streamUrl,
+      backupStreamUrl,
+      scope,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather'
+    }, { merge: true });
+
+    logAdminAuditAction('MASTER_TAKEOVER_CONFIG_SAVE', `Master Takeover settings updated (Scope: ${scope})`, { streamUrl, backupStreamUrl, scope });
+
+    const msgEl = $('godfather-msg');
+    if (msgEl) {
+      msgEl.textContent = '✓ Master Takeover settings saved successfully!';
+      msgEl.className = 'save-msg show';
+      setTimeout(() => msgEl.classList.remove('show'), 4000);
+    }
+  } catch (err) {
+    console.error('Save takeover config error:', err);
+    alert('Error saving Takeover config: ' + err.message);
+  }
+};
+
+// ── 🔑 GODFATHER VIP KEYMAKER & TOKEN SECURITY ─────────────────────
+window.godfatherGenerateVipToken = async function() {
+  const nameEl = $('keymaker-client-name');
+  const expiryEl = $('keymaker-expiry-select');
+  const scopeEl = $('keymaker-channels-select');
+
+  const clientName = nameEl ? nameEl.value.trim() : '';
+  if (!clientName) {
+    alert('Please enter a Client / Operator Name for this VIP token.');
+    return;
+  }
+
+  const expiryCode = expiryEl ? expiryEl.value : '24h';
+  const allowedFeeds = scopeEl ? scopeEl.value : 'all';
+
+  let expiresAt = null;
+  const now = Date.now();
+  if (expiryCode === '1h') expiresAt = now + (3600 * 1000);
+  else if (expiryCode === '6h') expiresAt = now + (6 * 3600 * 1000);
+  else if (expiryCode === '24h') expiresAt = now + (24 * 3600 * 1000);
+  else if (expiryCode === '7d') expiresAt = now + (7 * 24 * 3600 * 1000);
+  else if (expiryCode === '30d') expiresAt = now + (30 * 24 * 3600 * 1000);
+  else if (expiryCode === '365d') expiresAt = now + (365 * 24 * 3600 * 1000);
+  else expiresAt = null; // Permanent
+
+  // Generate random token string
+  const token = 'vip_' + Math.random().toString(36).substring(2, 9) + '_' + Math.random().toString(36).substring(2, 9);
+
+  try {
+    await db.collection('tokens').doc(token).set({
+      token,
+      clientName,
+      allowedFeeds,
+      expiryCode,
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather',
+      revoked: false
+    });
+
+    logAdminAuditAction('VIP_TOKEN_GENERATE', `Generated VIP token for client "${clientName}" (Expires: ${expiryCode}, Scope: ${allowedFeeds})`, { token, clientName, allowedFeeds });
+
+    // Show output card
+    const outCard = $('keymaker-output-card');
+    const outUrl = $('keymaker-generated-url');
+    const outDetails = $('keymaker-generated-details');
+
+    const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
+    const sampleChannel = (allowedFeeds && allowedFeeds !== 'all' && allowedFeeds.includes('srinjana')) ? 'Srinjana.m3u8' : 'live1.m3u8';
+    const linkUrl = `https://${iptvDomain}/${sampleChannel}?token=${token}`;
+
+    if (outUrl) outUrl.value = linkUrl;
+    if (outDetails) {
+      outDetails.innerHTML = `<strong>Client:</strong> ${esc(clientName)} &nbsp;|&nbsp; <strong>Token:</strong> <code>${token}</code> &nbsp;|&nbsp; <strong>Scope:</strong> ${allowedFeeds} &nbsp;|&nbsp; <strong>Expires:</strong> ${expiresAt ? new Date(expiresAt).toLocaleString() : 'Permanent'}`;
+    }
+    if (outCard) outCard.style.display = 'block';
+
+    if (nameEl) nameEl.value = '';
+    godfatherLoadTokens();
+  } catch (err) {
+    console.error('Generate VIP token error:', err);
+    alert('Error generating VIP token: ' + err.message);
+  }
+};
+
+window.godfatherLoadTokens = function() {
+  const tbody = $('godfather-tokens-tbody');
+  if (!tbody) return;
+
+  db.collection('tokens').orderBy('createdAt', 'desc').limit(50).onSnapshot(snap => {
+    if (snap.empty) {
+      tbody.innerHTML = `<tr><td colspan="6" style="color:var(--sub); padding:16px; text-align:center;">No VIP tokens issued yet. Generate a VIP token above.</td></tr>`;
+      return;
+    }
+
+    const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
+    tbody.innerHTML = '';
+
+    snap.forEach(doc => {
+      const d = doc.data();
+      const token = d.token || doc.id;
+      const client = d.clientName || 'Anonymous VIP';
+      const scope = d.allowedFeeds || 'all';
+      const isRevoked = d.revoked === true;
+      
+      let isExpired = false;
+      let expiryLabel = 'Permanent';
+      if (d.expiresAt) {
+        const expDate = d.expiresAt.toDate ? d.expiresAt.toDate() : new Date(d.expiresAt);
+        isExpired = expDate.getTime() < Date.now();
+        expiryLabel = expDate.toLocaleString();
+      }
+
+      let statusBadge = '';
+      if (isRevoked) {
+        statusBadge = `<span class="badge" style="background:#ef4444; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">REVOKED</span>`;
+      } else if (isExpired) {
+        statusBadge = `<span class="badge" style="background:#6b7280; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">EXPIRED</span>`;
+      } else {
+        statusBadge = `<span class="badge" style="background:#10b981; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">ACTIVE</span>`;
+      }
+
+      const sampleFeed = (scope !== 'all' && scope.includes('srinjana')) ? 'Srinjana.m3u8' : 'live1.m3u8';
+      const tokenUrl = `https://${iptvDomain}/${sampleFeed}?token=${token}`;
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+      tr.innerHTML = `
+        <td style="padding:8px 10px; font-weight:600; color:#fde68a;">${esc(client)}</td>
+        <td style="padding:8px 10px; font-family:monospace; color:#93c5fd; font-size:11px;">
+          <span>${esc(token)}</span>
+          <button class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('✓ Copied tokenized URL to clipboard:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px; margin-left:6px;">📋 Copy Link</button>
+        </td>
+        <td style="padding:8px 10px; color:var(--sub); font-size:11px;">${esc(scope)}</td>
+        <td style="padding:8px 10px; color:${isExpired ? '#f87171' : 'var(--text)'}; font-size:11px;">${esc(expiryLabel)}</td>
+        <td style="padding:8px 10px; text-align:center;">${statusBadge}</td>
+        <td style="padding:8px 10px; text-align:center;">
+          ${!isRevoked ? `
+            <button class="btn-gold-sm" onclick="godfatherRevokeToken('${esc(token)}', '${esc(client)}')" style="padding:3px 8px; font-size:10px; background:#ef4444; border-color:#fca5a5; color:#fff;">
+              🚫 Revoke
+            </button>
+          ` : `<span style="color:var(--sub); font-size:11px;">—</span>`}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }, err => {
+    console.warn('VIP tokens listener error:', err);
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red); padding:16px; text-align:center;">Error loading tokens: ${err.message}</td></tr>`;
+  });
+};
+
+window.godfatherRevokeToken = async function(token, clientName) {
+  if (!confirm(`Are you sure you want to permanently REVOKE the VIP access token for "${clientName}"?\n\nToken: ${token}`)) return;
+
+  try {
+    await db.collection('tokens').doc(token).update({
+      revoked: true,
+      revokedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      revokedBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather'
+    });
+
+    logAdminAuditAction('VIP_TOKEN_REVOKE', `Revoked VIP token for client "${clientName}" (${token})`, { token, clientName });
+    alert(`✓ VIP Token for "${clientName}" has been revoked.`);
+  } catch (err) {
+    console.error('Revoke token error:', err);
+    alert('Error revoking token: ' + err.message);
+  }
+};
+
+// ── 📱 GODFATHER TELEGRAM WATCHDOG HOTLINE ─────────────────────────
+window.godfatherLoadTelegramSettings = function() {
+  db.doc('config/telegramWatchdog').get().then(doc => {
+    if (doc.exists) {
+      const d = doc.data() || {};
+      if ($('godfather-tg-bot-token')) $('godfather-tg-bot-token').value = d.botToken || '';
+      if ($('godfather-tg-chat-id')) $('godfather-tg-chat-id').value = d.chatId || '';
+      if ($('tg-alert-failover')) $('tg-alert-failover').checked = d.alertFailover !== false;
+      if ($('tg-alert-admin')) $('tg-alert-admin').checked = d.alertAdmin !== false;
+      if ($('tg-alert-security')) $('tg-alert-security').checked = d.alertSecurity !== false;
+    }
+  }).catch(err => console.warn('Load Telegram settings error:', err));
+};
+
+window.godfatherSaveTelegramSettings = async function() {
+  const botToken = $('godfather-tg-bot-token') ? $('godfather-tg-bot-token').value.trim() : '';
+  const chatId = $('godfather-tg-chat-id') ? $('godfather-tg-chat-id').value.trim() : '';
+  const alertFailover = $('tg-alert-failover') ? $('tg-alert-failover').checked : true;
+  const alertAdmin = $('tg-alert-admin') ? $('tg-alert-admin').checked : true;
+  const alertSecurity = $('tg-alert-security') ? $('tg-alert-security').checked : true;
+
+  try {
+    await db.doc('config/telegramWatchdog').set({
+      botToken,
+      chatId,
+      alertFailover,
+      alertAdmin,
+      alertSecurity,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    const msgEl = $('godfather-msg');
+    if (msgEl) {
+      msgEl.textContent = '✓ Telegram Hotline settings saved successfully!';
+      msgEl.className = 'save-msg show';
+      setTimeout(() => msgEl.classList.remove('show'), 4000);
+    }
+    alert('✓ Telegram Watchdog Hotline settings saved!');
+  } catch (err) {
+    console.error('Save telegram settings error:', err);
+    alert('Error saving Telegram settings: ' + err.message);
+  }
+};
+
+window.godfatherSendTelegramPush = async function(text) {
+  try {
+    const doc = await db.doc('config/telegramWatchdog').get();
+    if (!doc.exists) return;
+    const d = doc.data() || {};
+    const botToken = d.botToken;
+    const chatId = d.chatId;
+
+    if (!botToken || !chatId) return;
+
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' })
+    }).catch(e => console.warn('Telegram push fetch error:', e));
+  } catch (e) {
+    console.warn('Could not send Telegram push:', e);
+  }
+};
+
+window.godfatherTestTelegramAlert = async function() {
+  const botToken = $('godfather-tg-bot-token') ? $('godfather-tg-bot-token').value.trim() : '';
+  const chatId = $('godfather-tg-chat-id') ? $('godfather-tg-chat-id').value.trim() : '';
+
+  if (!botToken || !chatId) {
+    alert('Please enter both a Telegram Bot Token and Chat ID before testing.');
+    return;
+  }
+
+  const testMsg = `🚨 <b>[GODFATHER HOTLINE TEST]</b>\n\nGodfather Watchdog Hotline alert system is ONLINE and operational.\n<b>Time:</b> ${new Date().toLocaleString()}\n<b>Status:</b> All systems healthy.`;
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: testMsg, parse_mode: 'HTML' })
+    });
+
+    const json = await res.json();
+    if (json.ok) {
+      alert('✓ Test alert message successfully delivered to your Telegram chat!');
+    } else {
+      alert('Telegram API Error: ' + (json.description || 'Failed to send message'));
+    }
+  } catch (err) {
+    console.error('Telegram test error:', err);
+    alert('Failed to connect to Telegram: ' + err.message);
+  }
+};
+
+// ── 📢 ADMIN HUD LIVE FLASH BROADCAST DISPATCHER ───────────────────
+window.godfatherSendBroadcast = async function() {
+  const textEl = $('godfather-broadcast-text');
+  const sevEl = $('godfather-broadcast-severity');
+
+  const message = textEl ? textEl.value.trim() : '';
+  const severity = sevEl ? sevEl.value : 'warning';
+
+  if (!message) {
+    alert('Please enter a broadcast message to dispatch.');
+    return;
+  }
+
+  try {
+    await db.doc('config/adminBroadcast').set({
+      active: true,
+      message,
+      severity,
+      timestamp: Date.now(),
+      author: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather'
+    });
+
+    logAdminAuditAction('ADMIN_BROADCAST_SEND', `Dispatched Admin HUD Flash Broadcast: "${message}"`, { message, severity });
+    alert('✓ Flash broadcast dispatched to all connected admin screens!');
+  } catch (err) {
+    console.error('Send broadcast error:', err);
+    alert('Error dispatching broadcast: ' + err.message);
+  }
+};
+
+window.godfatherClearBroadcast = async function() {
+  try {
+    await db.doc('config/adminBroadcast').set({ active: false, timestamp: Date.now() }, { merge: true });
+    if ($('godfather-broadcast-text')) $('godfather-broadcast-text').value = '';
+    alert('✓ Active broadcast cleared from all admin screens.');
+  } catch (err) {
+    console.error('Clear broadcast error:', err);
+    alert('Error clearing broadcast: ' + err.message);
+  }
+};
+
+window.godfatherListenBroadcast = function() {
+  db.doc('config/adminBroadcast').onSnapshot(doc => {
+    const data = doc.exists ? doc.data() : null;
+    let banner = $('admin-live-broadcast-banner');
+
+    const badge = $('godfather-broadcast-status-badge');
+    if (badge) {
+      if (data && data.active && data.message) {
+        badge.textContent = 'ACTIVE BROADCAST';
+        badge.style.background = '#ef4444';
+        badge.style.color = '#fff';
+      } else {
+        badge.textContent = 'IDLE';
+        badge.style.background = 'rgba(255,255,255,0.1)';
+        badge.style.color = 'var(--sub)';
+      }
+    }
+
+    if (data && data.active && data.message) {
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'admin-live-broadcast-banner';
+        document.body.prepend(banner);
+      }
+      
+      const isCritical = data.severity === 'critical';
+      const isWarning = data.severity === 'warning';
+      const bg = isCritical ? 'linear-gradient(90deg, #b91c1c 0%, #ef4444 100%)' : isWarning ? 'linear-gradient(90deg, #b45309 0%, #f59e0b 100%)' : 'linear-gradient(90deg, #1d4ed8 0%, #3b82f6 100%)';
+
+      banner.style.cssText = `position:sticky; top:0; z-index:99999; background:${bg}; color:#fff; padding:10px 16px; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 12px rgba(0,0,0,0.4); text-align:center;`;
+      banner.innerHTML = `
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>${isCritical ? '🚨 [EMERGENCY GODFATHER NOTICE]:' : isWarning ? '⚠️ [IMPORTANT NOTICE]:' : '📢 [ANNOUNCEMENT]:'}</span>
+          <span>${esc(data.message)}</span>
+        </div>
+      `;
+    } else {
+      if (banner) banner.remove();
+    }
+  });
+};
+
+// ── 🎯 GODFATHER MASTER FEED ASSIGNMENT & OWNERSHIP MATRIX ─────────
+window.godfatherRefreshFeedMatrix = async function() {
+  const tbody = $('godfather-feed-matrix-tbody');
+  if (!tbody) return;
+
+  try {
+    // Fetch users to populate admin list
+    const usersSnap = await db.collection('users').get();
+    const adminEmails = [];
+    usersSnap.forEach(doc => {
+      const u = doc.data();
+      if (u.email) adminEmails.push(u.email);
+    });
+
+    const feeds = [
+      { id: 'main', name: 'Main Channel (live.m3u8)', endpoint: 'live.m3u8' },
+      { id: 'decoder', name: 'Decoder Stream (decoder.m3u8)', endpoint: 'decoder.m3u8' },
+      ...Array.from({ length: 20 }, (_, idx) => {
+        const num = idx + 1;
+        return { id: `feed${num}`, name: `Feed ${num} (live${num}.m3u8)`, endpoint: `live${num}.m3u8` };
+      }),
+      { id: 'srinjana', name: 'Srinjana Feed (Srinjana.m3u8)', endpoint: 'Srinjana.m3u8' }
+    ];
+
+    tbody.innerHTML = '';
+
+    for (const feed of feeds) {
+      const streamDoc = await db.collection('streamState').doc(feed.id).get();
+      const sData = streamDoc.exists ? streamDoc.data() : {};
+      const assigned = sData.assignedAdmin || '';
+      const isOnline = sData.primaryStreamUrl && sData.primaryStreamUrl.trim() !== '';
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+
+      let selectHtml = `<select onchange="godfatherAssignFeed('${feed.id}', this.value)" style="padding:4px 8px; font-size:11px; background:var(--bg2); border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:var(--text);">`;
+      selectHtml += `<option value="" ${!assigned ? 'selected' : ''}>🌐 Unrestricted (All Superadmins)</option>`;
+      adminEmails.forEach(email => {
+        selectHtml += `<option value="${esc(email)}" ${assigned === email ? 'selected' : ''}>👤 ${esc(email)}</option>`;
+      });
+      selectHtml += `</select>`;
+
+      tr.innerHTML = `
+        <td style="padding:8px 10px; font-weight:600; color:#c7d2fe;">${esc(feed.name)}</td>
+        <td style="padding:8px 10px; font-family:monospace; color:var(--gold); font-size:11px;">/${esc(feed.endpoint)}</td>
+        <td style="padding:8px 10px;">${selectHtml}</td>
+        <td style="padding:8px 10px; text-align:center;">
+          <span class="badge" style="background:${isOnline ? '#10b981' : '#6b7280'}; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">
+            ${isOnline ? 'ONLINE' : 'IDLE'}
+          </span>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+  } catch (err) {
+    console.error('Feed matrix refresh error:', err);
+    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--red); padding:14px; text-align:center;">Error loading feed matrix: ${err.message}</td></tr>`;
+  }
+};
+
+window.godfatherAssignFeed = async function(scope, adminEmail) {
+  try {
+    await db.collection('streamState').doc(scope).set({
+      assignedAdmin: adminEmail || '',
+      assignedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    logAdminAuditAction('FEED_OWNERSHIP_ASSIGN', `Assigned feed "${scope}" to ${adminEmail || 'Unrestricted (All)'}`, { scope, adminEmail });
+    
+    const msgEl = $('godfather-msg');
+    if (msgEl) {
+      msgEl.textContent = `✓ Feed "${scope}" ownership updated!`;
+      msgEl.className = 'save-msg show';
+      setTimeout(() => msgEl.classList.remove('show'), 3000);
+    }
+  } catch (err) {
+    console.error('Assign feed error:', err);
+    alert('Error assigning feed: ' + err.message);
+  }
+};
+
+// ── 🔐 GODFATHER LINK VAULT ACCESS MATRIX ───────────────────────────
+window.godfatherRefreshVaultAccessMatrix = async function() {
+  const tbody = $('godfather-vault-matrix-tbody');
+  if (!tbody) return;
+
+  try {
+    const snap = await db.collection('users').get();
+    if (snap.empty) {
+      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">No users registered yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    snap.forEach(doc => {
+      const u = doc.data();
+      const uid = doc.id;
+      const email = u.email || 'No email';
+      const role = u.role || 'admin';
+      const isGodfather = role === 'godfather' || email.toLowerCase() === 'joel.s.gomes001@gmail.com';
+      const vaultAllowed = isGodfather || u.vaultAllowed === true;
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+      tr.innerHTML = `
+        <td style="padding:8px 10px; font-weight:600; color:var(--text);">${esc(email)}</td>
+        <td style="padding:8px 10px;"><span class="role-badge ${esc(role)}" style="font-size:10px;">${esc(role.toUpperCase())}</span></td>
+        <td style="padding:8px 10px; text-align:center;">
+          <span class="badge" style="background:${vaultAllowed ? '#10b981' : '#ef4444'}; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">
+            ${vaultAllowed ? '🔓 ACCESS GRANTED' : '🔒 LOCKED'}
+          </span>
+        </td>
+        <td style="padding:8px 10px; text-align:center;">
+          ${!isGodfather ? `
+            <button class="btn-gold-sm" onclick="godfatherToggleVaultAccess('${uid}', ${vaultAllowed})" style="padding:3px 8px; font-size:10px; ${vaultAllowed ? 'background:#ef4444; border-color:#fca5a5; color:#fff;' : 'background:#10b981; border-color:#a7f3d0; color:#fff;'}">
+              ${vaultAllowed ? '🚫 Revoke Access' : '✓ Grant Access'}
+            </button>
+          ` : `<span style="color:var(--gold); font-size:10px;">👑 Permanent</span>`}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Vault access matrix error:', err);
+    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--red); padding:14px; text-align:center;">Error loading vault matrix: ${err.message}</td></tr>`;
+  }
+};
+
+window.godfatherToggleVaultAccess = async function(uid, currentAllowed) {
+  const newAllowed = !currentAllowed;
+  try {
+    await db.collection('users').doc(uid).set({ vaultAllowed: newAllowed }, { merge: true });
+    godfatherRefreshVaultAccessMatrix();
+  } catch (err) {
+    console.error('Toggle vault access error:', err);
+    alert('Error updating vault permission: ' + err.message);
+  }
+};
+
+// ── 🦅 GODFATHER WATCHTOWER (22-CHANNEL SURVEILLANCE COCKPIT) ──────
+let watchtowerWallActive = false;
+
+window.godfatherInitWatchtower = function() {
+  godfatherRefreshWatchtower();
+};
+
+window.godfatherToggleWatchtowerWall = function() {
+  watchtowerWallActive = !watchtowerWallActive;
+  const btn = $('godfather-watchtower-toggle-btn');
+  if (btn) {
+    btn.textContent = watchtowerWallActive ? '⏹️ Stop All Live Video Feeds' : '▶️ Activate All Video Feeds';
+    btn.style.background = watchtowerWallActive ? 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)' : '';
+  }
+  godfatherRefreshWatchtower();
+};
+
+window.godfatherRefreshWatchtower = function() {
+  const grid = $('godfather-watchtower-grid');
+  if (!grid) return;
+
+  const channels = [
+    { key: 'main', name: 'Main Channel', endpoint: 'live.m3u8' },
+    { key: 'decoder', name: 'Decoder Box', endpoint: 'decoder.m3u8' },
+    ...Array.from({ length: 20 }, (_, idx) => {
+      const num = idx + 1;
+      return { key: `feed${num}`, name: `Feed ${num}`, endpoint: `live${num}.m3u8` };
+    }),
+    { key: 'srinjana', name: 'Srinjana Feed', endpoint: 'Srinjana.m3u8' }
+  ];
+
+  const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
+  grid.innerHTML = '';
+
+  channels.forEach(ch => {
+    const card = document.createElement('div');
+    card.style.cssText = 'background:rgba(0,0,0,0.5); border:1px solid rgba(56,189,248,0.25); border-radius:6px; padding:10px; display:flex; flex-direction:column; gap:6px;';
+    
+    const streamUrl = `https://${iptvDomain}/${ch.endpoint}`;
+    
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:700; color:#7dd3fc; font-size:12px;">${esc(ch.name)}</span>
+        <span style="font-family:monospace; color:var(--gold); font-size:10px;">/${esc(ch.endpoint)}</span>
+      </div>
+      <div style="background:#000; height:120px; border-radius:4px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;">
+        ${watchtowerWallActive ? `
+          <video id="watchtower-video-${ch.key}" autoplay muted playsinline controls style="width:100%; height:100%; object-fit:contain;"></video>
+        ` : `
+          <div style="color:var(--sub); font-size:11px; text-align:center;">
+            <span>🦅 Stealth Standby</span><br>
+            <span style="font-size:9px; color:rgba(255,255,255,0.3);">No viewer counter added</span>
+          </div>
+        `}
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px;">
+        <span style="color:var(--sub);">M3U8 Monitor</span>
+        <button class="btn-gold-sm" onclick="window.open('${streamUrl}', '_blank')" style="padding:2px 6px; font-size:10px;">↗ Open</button>
+      </div>
+    `;
+    grid.appendChild(card);
+
+    if (watchtowerWallActive) {
+      setTimeout(() => {
+        const vid = $(`watchtower-video-${ch.key}`);
+        if (vid) {
+          if (Hls.isSupported()) {
+            const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+            hls.loadSource(streamUrl);
+            hls.attachMedia(vid);
+          } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+            vid.src = streamUrl;
+          }
+        }
+      }, 100);
+    }
+  });
+};
+
+// ── 📜 SUPERADMIN AUDIT TRAIL & 1-CLICK STREAM ROLLBACK ─────────────
+window.godfatherInitAuditLogs = function() {
+  godfatherLoadAuditLogs();
+};
+
+window.godfatherLoadAuditLogs = function() {
+  const tbody = $('godfather-audit-logs-tbody');
+  if (!tbody) return;
+
+  db.collection('auditLogs').orderBy('timestamp', 'desc').limit(40).onSnapshot(snap => {
+    if (snap.empty) {
+      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--sub); padding:16px; text-align:center;">No activity logged yet. All actions are tracked in real time.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    snap.forEach(doc => {
+      const d = doc.data();
+      const time = d.timestamp ? (d.timestamp.toDate ? d.timestamp.toDate().toLocaleString() : new Date(d.timestamp).toLocaleString()) : 'Just now';
+      const user = d.user || d.author || 'Superadmin';
+      const action = d.action || 'ACTION';
+      const details = d.details || '';
+      const meta = d.metadata || {};
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+
+      const isStreamChange = action.includes('STREAM_UPDATE') || action.includes('TAKEOVER') || meta.prevPrimaryUrl;
+      const canRevert = Boolean(meta.scope && (meta.prevPrimaryUrl || meta.prevUrl));
+
+      tr.innerHTML = `
+        <td style="padding:8px 10px; color:var(--sub); font-size:11px; white-space:nowrap;">${esc(time)}</td>
+        <td style="padding:8px 10px; font-weight:600; color:#e2e8f0; font-size:11px;">${esc(user)}</td>
+        <td style="padding:8px 10px; font-size:11px; color:#cbd5e1;">
+          <span style="font-weight:700; color:#93c5fd;">[${esc(action)}]</span> ${esc(details)}
+        </td>
+        <td style="padding:8px 10px; text-align:center;">
+          ${canRevert ? `
+            <button class="btn-gold-sm" onclick="godfatherRevertStreamAction('${meta.scope}', '${esc(meta.prevPrimaryUrl || meta.prevUrl || '')}', '${esc(meta.prevBackupUrl || '')}')" style="padding:3px 8px; font-size:10px; background:linear-gradient(180deg, #f59e0b 0%, #b45309 100%); border-color:#fde68a; color:#fff;">
+              ⚡ Revert
+            </button>
+          ` : `<span style="color:var(--sub); font-size:10px;">—</span>`}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }, err => {
+    console.warn('Audit logs listener error:', err);
+    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--red); padding:16px; text-align:center;">Error loading audit logs: ${err.message}</td></tr>`;
+  });
+};
+
+window.godfatherRevertStreamAction = async function(scope, prevUrl, prevBackupUrl) {
+  if (!confirm(`Are you sure you want to REVERT and restore previous stream state for feed "${scope}"?\n\nRestores URL:\n${prevUrl}`)) return;
+
+  try {
+    await db.collection('streamState').doc(scope).set({
+      primaryStreamUrl: prevUrl || '',
+      backupStreamUrl: prevBackupUrl || '',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather (Rollback)'
+    }, { merge: true });
+
+    logAdminAuditAction('STREAM_ROLLBACK_EXECUTE', `Godfather executed 1-click stream rollback on "${scope}" to ${prevUrl}`, { scope, restoredUrl: prevUrl });
+    alert(`✓ Successfully restored feed "${scope}" to previous stream URL!`);
+  } catch (err) {
+    console.error('Rollback error:', err);
+    alert('Error executing rollback: ' + err.message);
+  }
+};
+
+window.godfatherClearAuditLogs = async function() {
+  if (!confirm('Are you sure you want to clear audit logs history?')) return;
+  try {
+    const snap = await db.collection('auditLogs').limit(50).get();
+    const batch = db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    alert('✓ Audit logs cleared.');
+  } catch (err) {
+    console.error('Clear logs error:', err);
+    alert('Error clearing audit logs: ' + err.message);
+  }
+};
+
+// Global Audit Logger Helper
+window.logAdminAuditAction = function(action, details, metadata = {}) {
+  try {
+    const user = firebase.auth().currentUser;
+    db.collection('auditLogs').add({
+      action,
+      details,
+      metadata,
+      user: user ? user.email : 'Admin',
+      uid: user ? user.uid : 'anon',
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {
+    console.warn('Could not record audit log:', e);
+  }
+};
+
+// ── 👑 MASTER GODFATHER SUITE LOADER ────────────────────────────────
+window.loadGodfatherSuite = function() {
+  if (typeof godfatherLoadCredentials === 'function') godfatherLoadCredentials();
+  if (typeof godfatherLoadTakeoverConfig === 'function') godfatherLoadTakeoverConfig();
+  if (typeof godfatherLoadTokens === 'function') godfatherLoadTokens();
+  if (typeof godfatherLoadTelegramSettings === 'function') godfatherLoadTelegramSettings();
+  if (typeof godfatherRefreshFeedMatrix === 'function') godfatherRefreshFeedMatrix();
+  if (typeof godfatherRefreshVaultAccessMatrix === 'function') godfatherRefreshVaultAccessMatrix();
+  if (typeof godfatherInitWatchtower === 'function') godfatherInitWatchtower();
+  if (typeof godfatherInitAuditLogs === 'function') godfatherInitAuditLogs();
 };
 </script>
 </body>

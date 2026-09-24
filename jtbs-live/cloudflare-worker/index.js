@@ -182,7 +182,7 @@ function parseFirestoreString(field) {
   return '';
 }
 
-function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, injectDiscontinuity = false) {
+function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, injectDiscontinuity = false, token = '') {
   const targetBaseUrl = new URL(targetUrl);
   const baseUrl = targetBaseUrl.origin + targetBaseUrl.pathname.substring(0, targetBaseUrl.pathname.lastIndexOf('/') + 1);
 
@@ -232,6 +232,9 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
       let proxyUrl = `${workerOrigin}/proxy?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(absoluteUrl)}`;
       if (cleanCookie) {
         proxyUrl += `&cookie=${encodeURIComponent(cleanCookie)}`;
+      }
+      if (token) {
+        proxyUrl += `&token=${encodeURIComponent(token)}`;
       }
       rewrittenLines.push(proxyUrl);
     } catch (e) {
@@ -886,11 +889,12 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
 
         let contentType = proxyRes.headers.get('Content-Type') || '';
+        const passedToken = url.searchParams.get('token') || '';
 
         // If sub-playlist (.m3u8), rewrite relative URLs
         if (contentType.includes('mpegurl') || contentType.includes('m3u8') || targetUrl.includes('.m3u8')) {
           const rawText = await proxyRes.text();
-          const rewrittenPlaylist = rewriteM3u8(rawText, targetUrl, url.origin, combinedCookie, docName);
+          const rewrittenPlaylist = rewriteM3u8(rawText, targetUrl, url.origin, combinedCookie, docName, false, passedToken);
 
           return new Response(rewrittenPlaylist, {
             status: 200,
@@ -1081,6 +1085,108 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         if (memData.offlineHlsUrl) offlineHlsUrl = memData.offlineHlsUrl;
       }
 
+      // ── MASTER NETWORK TAKEOVER OVERRIDE (GODFATHER SUPREME) ────
+      let masterOverrideActive = false;
+      try {
+        const masterData = await getCachedFirestoreDoc('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/masterOverride', url.origin);
+        if (masterData && masterData.fields) {
+          const mEnabled = parseFirestoreBool(masterData.fields.enabled);
+          const mUrl = parseFirestoreString(masterData.fields.streamUrl);
+          const mBackup = parseFirestoreString(masterData.fields.backupStreamUrl);
+          const mScope = parseFirestoreString(masterData.fields.scope) || 'all';
+
+          if (mEnabled && mUrl) {
+            let applies = false;
+            if (mScope === 'all') applies = true;
+            else if (mScope === 'feeds_only' && (target.doc.startsWith('feed') || target.doc === 'srinjana')) applies = true;
+            else if (mScope === 'decoders_only' && target.type === 'decoder') applies = true;
+            else if (mScope === 'main_only' && target.doc === 'main') applies = true;
+
+            if (applies) {
+              masterOverrideActive = true;
+              streamUrl = mUrl;
+              backupStreamUrl = mBackup;
+              isLive = true;
+            }
+          }
+        }
+      } catch (e) {}
+
+      // ── VIP TOKEN SECURITY ENGINE (Feeds 1–20 & Srinjana) ─────────
+      let clientToken = url.searchParams.get('token') || '';
+      if (!clientToken) {
+        const cookieHeader = request.headers.get('Cookie') || '';
+        const tokenMatch = cookieHeader.match(/(?:^|;\s*)jtbs_token=([^;]+)/);
+        if (tokenMatch) clientToken = decodeURIComponent(tokenMatch[1]);
+      }
+
+      // Rule: NEVER tokenize 'main' (live.m3u8) or 'decoder' (decoder.m3u8)
+      const isTokenizedFeed = (target.doc.startsWith('feed') || target.doc === 'srinjana') && parseFirestoreBool(fields.isTokenized);
+
+      if (isTokenizedFeed && !masterOverrideActive) {
+        if (!clientToken) {
+          return new Response(`403 Forbidden: Channel ${target.doc} is protected by Godfather VIP Token Security.\nPlease provide a valid ?token=YOUR_TOKEN parameter to view this feed.`, {
+            status: 403,
+            headers: {
+              'Content-Type': 'text/plain; charset=utf-8',
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
+        }
+
+        const tokenDocUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/tokens/${encodeURIComponent(clientToken)}`;
+        const tokenData = await getCachedFirestoreDoc(tokenDocUrl, url.origin);
+        if (!tokenData || !tokenData.fields) {
+          return new Response(`403 Forbidden: Invalid VIP Access Token.\nPlease contact Godfather (Joel Sohan Gomes) for an authorized token.`, {
+            status: 403,
+            headers: {
+              'Content-Type': 'text/plain; charset=utf-8',
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
+        }
+
+        const tFields = tokenData.fields;
+        const isRevoked = parseFirestoreBool(tFields.revoked);
+        if (isRevoked) {
+          return new Response(`403 Forbidden: VIP Access Token has been Revoked by Godfather.`, {
+            status: 403,
+            headers: {
+              'Content-Type': 'text/plain; charset=utf-8',
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
+        }
+
+        const expiresAt = tFields.expiresAt?.timestampValue || tFields.expiresAt?.stringValue || '';
+        if (expiresAt) {
+          const expTime = new Date(expiresAt).getTime();
+          if (!isNaN(expTime) && expTime < Date.now()) {
+            return new Response(`403 Forbidden: VIP Access Token Expired on ${new Date(expTime).toUTCString()}.`, {
+              status: 403,
+              headers: {
+                'Content-Type': 'text/plain; charset=utf-8',
+                'Access-Control-Allow-Origin': '*'
+              }
+            });
+          }
+        }
+
+        const allowedFeeds = parseFirestoreString(tFields.allowedFeeds) || 'all';
+        if (allowedFeeds !== 'all') {
+          const feedList = allowedFeeds.split(',').map(f => f.trim().toLowerCase());
+          if (!feedList.includes(target.doc.toLowerCase())) {
+            return new Response(`403 Forbidden: VIP Token is not authorized for channel ${target.doc}.`, {
+              status: 403,
+              headers: {
+                'Content-Type': 'text/plain; charset=utf-8',
+                'Access-Control-Allow-Origin': '*'
+              }
+            });
+          }
+        }
+      }
+
       const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
 
       // OFFLINE STATE: If isLive is false or streamUrl is empty, play offlineHlsUrl screen!
@@ -1160,7 +1266,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
             return null; // Not valid HLS manifest
           }
 
-          const rewrittenBody = rewriteM3u8(rawBody, cleanCandidate, url.origin, sessionCookie, target.doc, isBackup);
+          const rewrittenBody = rewriteM3u8(rawBody, cleanCandidate, url.origin, sessionCookie, target.doc, isBackup, clientToken);
           return new Response(rewrittenBody, {
             status: 200,
             headers: {
