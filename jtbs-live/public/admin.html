@@ -974,11 +974,11 @@ tr:last-child td{border-bottom:none;}
     </div>
   </div>
 
-  <!-- 👑 GODFATHER BROADCAST HUD (Appears when Godfather pushes a live notice) -->
+  <!-- GODFATHER BROADCAST HUD (Appears when Godfather pushes a live notice) -->
   <div id="godfather-broadcast-hud" style="display:none; position:relative; z-index:999; margin: 12px 20px 4px 20px; padding: 12px 18px; border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,0.4); animation: slideDown 0.3s ease;">
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
       <div style="display:flex; align-items:center; gap:12px;">
-        <span style="font-size:22px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">👑</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px; margin-right:6px;"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
         <div>
           <div style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#fde047;" id="godfather-hud-title">GODFATHER NETWORK BROADCAST</div>
           <div id="godfather-hud-message" style="font-size:13px; font-weight:600; color:#ffffff; line-height:1.4;"></div>
@@ -986,7 +986,7 @@ tr:last-child td{border-bottom:none;}
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <span id="godfather-hud-time" style="font-size:11px; color:rgba(255,255,255,0.75); font-family:monospace;"></span>
-        <button id="godfather-hud-dismiss-btn" class="btn-gold-sm" style="display:none; padding:4px 10px; font-size:11px; background:rgba(0,0,0,0.4); border-color:rgba(255,255,255,0.3); color:#fff;" onclick="godfatherClearBroadcast()">🛑 Clear Broadcast</button>
+        <button id="godfather-hud-dismiss-btn" class="btn-gold-sm" style="display:none; padding:4px 10px; font-size:11px; background:rgba(0,0,0,0.4); border-color:rgba(255,255,255,0.3); color:#fff;" onclick="godfatherClearBroadcast()"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>Clear Broadcast</button>
       </div>
     </div>
   </div>
@@ -1005,7 +1005,7 @@ tr:last-child td{border-bottom:none;}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users
     </button>
     <button class="tab-btn" data-tab="godfather" id="godfather-tab-btn" style="display:none; color:#fbbf24; border-color:rgba(245,158,11,0.6); background:rgba(245,158,11,0.12); font-weight:700; box-shadow:0 0 10px rgba(245,158,11,0.2);">
-      <span style="font-size:14px; margin-right:4px;">👑</span> Godfather
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>Godfather
     </button>
     <button class="tab-btn" data-tab="livecount">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Live Count
@@ -1027,13 +1027,13 @@ tr:last-child td{border-bottom:none;}
       <div class="card-title" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
         <span>Stream Control (Main Channel)</span>
         <div style="display:flex; align-items:center; gap:8px;">
-          <span id="main-stream-ownership-badge" class="role-badge superadmin" style="font-size:11px;">🌐 OPEN TO ALL</span>
+          <span id="main-stream-ownership-badge" class="role-badge superadmin" style="font-size:11px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>OPEN TO ALL</span>
         </div>
       </div>
 
       <div id="main-stream-lock-banner" style="display:none; background: rgba(239, 68, 68, 0.12); border: 1.5px solid #ef4444; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; color: #fecaca;">
         <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; color: #fca5a5;">
-          <span>🔒 MAIN STREAM LOCKED — RESTRICTED ACCESS</span>
+          <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>MAIN STREAM LOCKED — RESTRICTED ACCESS</span>
         </div>
         <div id="main-stream-lock-desc" style="font-size: 12px; line-height: 1.5;">
           This stream is assigned to another admin. Only they or the Godfather can modify it.
@@ -1101,7 +1101,7 @@ tr:last-child td{border-bottom:none;}
             
             <div class="field" style="margin-top:12px; background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: 8px; padding: 10px 12px;">
               <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <span style="font-weight:700; color:#c7d2fe; font-size:12px;">🛡️ Backup Stream URL (Optional Auto-Failover)</span>
+                <span style="font-weight:700; color:#c7d2fe; font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Backup Stream URL (Auto-Failover)</span>
                 <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:9px; padding:1px 6px;">AUTO-FAILOVER</span>
               </label>
               <input type="url" id="backup-stream-url-input" placeholder="e.g. https://backup-server.com/live.m3u8"/>
@@ -1184,7 +1184,7 @@ tr:last-child td{border-bottom:none;}
                 
                 <div class="field" style="margin-top:10px; background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: 8px; padding: 10px 12px;">
                   <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                    <span style="font-weight:700; color:#c7d2fe; font-size:12px;">🛡️ Public Backup Stream URL</span>
+                    <span style="font-weight:700; color:#c7d2fe; font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Public Backup Stream URL</span>
                     <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:9px; padding:1px 6px;">AUTO-FAILOVER</span>
                   </label>
                   <input type="url" id="public-backup-url-input" placeholder="e.g. https://backup-server.com/live.m3u8"/>
@@ -1292,7 +1292,7 @@ tr:last-child td{border-bottom:none;}
                 
                 <div class="field" style="margin-top:10px; background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: 8px; padding: 10px 12px;">
                   <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                    <span style="font-weight:700; color:#c7d2fe; font-size:12px;">🛡️ Decoder Backup Stream URL</span>
+                    <span style="font-weight:700; color:#c7d2fe; font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Decoder Backup Stream URL</span>
                     <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:9px; padding:1px 6px;">AUTO-FAILOVER</span>
                   </label>
                   <input type="url" id="decoder-backup-url-input" placeholder="e.g. https://backup-server.com/live.m3u8"/>
@@ -1443,7 +1443,7 @@ tr:last-child td{border-bottom:none;}
 
     <!-- PUSH ANNOUNCEMENT BANNER CARD (UNDER BRANDING) -->
     <div class="card" style="margin-top:20px;">
-      <div class="card-title">📢 Viewer Announcement Banner</div>
+      <div class="card-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px; margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Viewer Announcement Banner</div>
       <div class="hint" style="margin-top:-8px; margin-bottom:14px;">Displays a high-visibility text notification overlay at the bottom of the public player.</div>
       <div class="field"><label>Announcement text</label><input type="text" id="announce-text" placeholder="Tonight: Special Prayer Service at 7PM IST"/></div>
       
@@ -1479,12 +1479,12 @@ tr:last-child td{border-bottom:none;}
     </div>
   </div>
 
-  <!-- 👑 GODFATHER MASTER SUITE (Dedicated Page / Tab for Godfather) -->
+  <!-- GODFATHER MASTER SUITE (Dedicated Page / Tab for Godfather) -->
   <div class="tab-panel" id="tab-godfather" style="max-width: 1400px; width: 100%;">
     <div class="card" id="godfather-suite-card" style="border: 1.5px solid #f59e0b; background: linear-gradient(180deg, rgba(38, 28, 14, 0.95) 0%, rgba(20, 15, 8, 0.98) 100%); box-shadow: 0 0 24px rgba(245, 158, 11, 0.3);">
       <div class="card-title" style="color: #fbbf24; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
         <span style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:22px;">👑</span> GODFATHER MASTER SUITE
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px; margin-right:6px;"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>GODFATHER MASTER SUITE
         </span>
         <span class="role-badge godfather" style="font-size:11px; padding:4px 12px;">SUPREME AUTHORITY</span>
       </div>
@@ -1498,17 +1498,17 @@ tr:last-child td{border-bottom:none;}
         <!-- Emergency Master Kill-Switch -->
         <div style="background:rgba(220,38,38,0.12); border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:16px;">
           <div style="font-weight:700; color:#fca5a5; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-            🚨 Master Emergency Kill-Switch
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Master Emergency Controls
           </div>
           <div style="font-size:12px; color:#fecaca; margin-bottom:12px; line-height:1.4;">
             Instantly turn OFF or turn ON all 20 feeds, Public stream, Decoder stream, and Srinjana simultaneously.
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn btn-danger btn-sm" onclick="godfatherEmergencyBlackout(true)" style="padding:7px 14px; font-size:12px; flex:1; white-space:nowrap;">
-              🛑 Blackout All Feeds
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>Blackout All Feeds
             </button>
             <button class="btn btn-primary btn-sm" onclick="godfatherEmergencyBlackout(false)" style="padding:7px 14px; font-size:12px; flex:1; white-space:nowrap;">
-              🟢 Set All Live
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>Set All Live
             </button>
           </div>
         </div>
@@ -1516,17 +1516,17 @@ tr:last-child td{border-bottom:none;}
         <!-- 1-Click Master Network Snapshot & Backup -->
         <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.4); border-radius:8px; padding:16px;">
           <div style="font-weight:700; color:#fde68a; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-            📦 Network Snapshot & Recovery
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>Network Snapshot & Recovery
           </div>
           <div style="font-size:12px; color:#fef3c7; margin-bottom:12px; line-height:1.4;">
             Download complete network snapshot (20 Feeds, EPG schedules, Branding, Link Vault, Admins) or restore from JSON.
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="btn-gold-sm" onclick="godfatherExportSnapshot()" style="padding:7px 14px; font-size:12px; flex:1; white-space:nowrap;">
-              📥 Export Backup
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Backup
             </button>
             <label class="btn-gold-sm" style="padding:7px 14px; font-size:12px; flex:1; text-align:center; cursor:pointer; margin:0; white-space:nowrap;">
-              📤 Restore Backup
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Restore Backup
               <input type="file" id="godfather-restore-file" accept=".json" style="display:none;" onchange="godfatherImportSnapshot(event)" />
             </label>
           </div>
@@ -1535,7 +1535,7 @@ tr:last-child td{border-bottom:none;}
         <!-- 1-Click Direct Admin Password Override & Generator -->
         <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4); border-radius:8px; padding:16px;">
           <div style="font-weight:700; color:#a7f3d0; font-size:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-            🔑 Direct Password Override Master
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>Master Password Override
           </div>
           <div style="font-size:12px; color:#d1fae5; margin-bottom:10px; line-height:1.4;">
             Instantly set or override password for any Admin/Superadmin without email confirmation.
@@ -1546,21 +1546,21 @@ tr:last-child td{border-bottom:none;}
             </select>
             <div style="display:flex; gap:6px;">
               <input type="text" id="godfather-pw-new-val" placeholder="New Password (min 8 chars)" style="flex:1; font-size:12px; padding:6px 10px; font-family:monospace;" />
-              <button class="btn-gold-sm" onclick="godfatherRandomizePassword()" title="Generate Random Secure Password" style="padding:6px 10px; font-size:12px; white-space:nowrap;">🎲 Random</button>
+              <button class="btn-gold-sm" onclick="godfatherRandomizePassword()" title="Generate Random Secure Password" style="padding:6px 10px; font-size:12px; white-space:nowrap;">Random</button>
             </div>
             <button class="btn-gold-sm" onclick="godfatherDirectSetPassword()" style="padding:7px 12px; font-size:12px; width:100%; background:linear-gradient(180deg, #10b981 0%, #047857 100%); border-color:#6ee7b7; color:#fff;">
-              ⚡ Set Password Directly
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Set Password Directly
             </button>
           </div>
         </div>
 
       </div>
 
-      <!-- 🔴 GODFATHER MASTER NETWORK TAKEOVER (SUPREME OVERRIDE) -->
+      <!-- GODFATHER MASTER NETWORK TAKEOVER (SUPREME OVERRIDE) -->
       <div style="background:rgba(220,38,38,0.12); border:1.5px solid #ef4444; border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 20px rgba(239,68,68,0.25);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div style="font-weight:800; color:#fca5a5; font-size:14px; display:flex; align-items:center; gap:8px;">
-            <span>🔴 MASTER NETWORK TAKEOVER (1-CLICK OVERRIDE)</span>
+            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>MASTER NETWORK TAKEOVER</span>
             <span id="godfather-takeover-badge" class="role-badge" style="background:#7f1d1d; color:#fecaca; border:1px solid #ef4444; font-size:10px;">IDLE / STANDBY</span>
           </div>
           <div style="display:flex; align-items:center; gap:10px;">
@@ -1588,29 +1588,29 @@ tr:last-child td{border-bottom:none;}
           <div style="display:flex; align-items:center; gap:8px;">
             <label style="font-size:11px; color:#fecaca; font-weight:700;">Override Scope:</label>
             <select id="godfather-takeover-scope" style="padding:6px 10px; font-size:12px; background:var(--bg2); border:1px solid rgba(239,68,68,0.5); border-radius:4px; color:#fff;">
-              <option value="all">🌐 All Channels (Feeds 1–20 + Main + Decoders + Srinjana)</option>
-              <option value="feeds_only">📡 Feeds 1–20 & Srinjana Only</option>
-              <option value="main_only">📺 Main Channel (live.m3u8) Only</option>
-              <option value="decoders_only">📦 Decoder TV Boxes (decoder.m3u8) Only</option>
+              <option value="all">All Channels (Feeds 1–20 + Main + Decoders + Srinjana)</option>
+              <option value="feeds_only">Feeds 1–20 & Srinjana Only</option>
+              <option value="main_only">Main Channel (live.m3u8) Only</option>
+              <option value="decoders_only">Decoder Fleet (decoder.m3u8) Only</option>
             </select>
           </div>
           <button class="btn btn-danger btn-sm" onclick="godfatherSaveTakeoverConfig()" style="padding:6px 16px; font-size:12px; margin-left:auto;">
-            💾 Save Master Takeover Settings
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Master Takeover Settings
           </button>
         </div>
       </div>
 
-      <!-- 🔑 GODFATHER VIP KEYMAKER & TOKEN LICENSE GENERATOR -->
+      <!-- GODFATHER VIP KEYMAKER & TOKEN LICENSE GENERATOR -->
       <div style="background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div style="font-weight:700; color:#fde68a; font-size:14px; display:flex; align-items:center; gap:8px;">
-            <span>🔑 Godfather VIP Keymaker (Expiring Token License Generator)</span>
+            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>VIP Keymaker (Token Licensing)</span>
             <span class="role-badge godfather" style="font-size:10px;">SECURE LICENSING</span>
           </div>
-          <button class="btn-gold-sm" onclick="godfatherLoadTokens()" style="padding:4px 12px; font-size:11px;">🔄 Refresh Tokens</button>
+          <button class="btn-gold-sm" onclick="godfatherLoadTokens()" style="padding:4px 12px; font-size:11px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Refresh Tokens</button>
         </div>
         <div style="font-size:12px; color:#fef3c7; margin-bottom:14px; line-height:1.5;">
-          Generate time-limited VIP access tokens for cable operators, private viewers, and VIP clients. Feeds in <strong>🔒 Tokenized Mode</strong> strictly require these tokens to stream. (<code>live.m3u8</code> and <code>decoder.m3u8</code> remain FTA and open).
+          Generate time-limited VIP access tokens for cable operators, private viewers, and VIP clients. Feeds in <strong>Tokenized Mode</strong> strictly require these tokens to stream. (<code>live.m3u8</code> and <code>decoder.m3u8</code> remain FTA and open).
         </div>
         
         <!-- Generator Form -->
@@ -1636,7 +1636,7 @@ tr:last-child td{border-bottom:none;}
             <div>
               <label style="font-size:11px; color:#fde68a; font-weight:700; display:block; margin-bottom:4px;">Channel Scope</label>
               <select id="keymaker-channels-select" style="font-size:12px; padding:7px 10px; width:100%; background:#0f172a; border:1px solid rgba(245,158,11,0.4); border-radius:4px; color:#fde68a; font-weight:600; color-scheme:dark;">
-                <option value="all" style="background:#0f172a; color:#fff;">🌐 All Channels (Feeds 1–20 + Srinjana)</option>
+                <option value="all" style="background:#0f172a; color:#fff;">All Channels (Feeds 1–20 + Srinjana)</option>
                 <option value="feed1,feed2,feed3" style="background:#0f172a; color:#fff;">Feeds 1 to 3 Only</option>
                 <option value="srinjana" style="background:#0f172a; color:#fff;">Srinjana Feed Only</option>
               </select>
@@ -1644,7 +1644,7 @@ tr:last-child td{border-bottom:none;}
           </div>
           <div style="display:flex; justify-content:flex-end;">
             <button class="btn-gold-sm" onclick="godfatherGenerateVipToken()" style="padding:7px 18px; font-size:12px;">
-              ⚡ Generate VIP Token Link
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Generate VIP Access Token
             </button>
           </div>
         </div>
@@ -1652,8 +1652,8 @@ tr:last-child td{border-bottom:none;}
         <!-- Generated Link Modal/Output Box -->
         <div id="keymaker-output-card" style="display:none; background:rgba(16,185,129,0.1); border:1.5px solid #10b981; border-radius:6px; padding:12px; margin-bottom:14px;">
           <div style="font-weight:700; color:#6ee7b7; font-size:12px; margin-bottom:6px; display:flex; justify-content:space-between;">
-            <span>✓ VIP Token Generated Successfully</span>
-            <span style="cursor:pointer; color:var(--sub);" onclick="$('keymaker-output-card').style.display='none'">✕ Close</span>
+            <span>VIP Token Generated Successfully</span>
+            <span style="cursor:pointer; color:var(--sub);" onclick="$('keymaker-output-card').style.display='none'">Close</span>
           </div>
           <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
             <label style="font-size:11px; color:#a7f3d0; font-weight:700;">Target Channel Link:</label>
@@ -1683,7 +1683,7 @@ tr:last-child td{border-bottom:none;}
           </div>
           <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
             <input type="text" id="keymaker-generated-url" readonly style="flex:1; font-family:monospace; font-size:12px; padding:6px 8px; background:rgba(0,0,0,0.5); color:#a7f3d0; border:1px solid #10b981;" />
-            <button class="btn-gold-sm" onclick="copyIPTV('keymaker-generated-url')" style="white-space:nowrap; padding:6px 12px; font-size:12px;">📋 Copy Link</button>
+            <button class="btn-gold-sm" onclick="copyIPTV('keymaker-generated-url')" style="white-space:nowrap; padding:6px 12px; font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Link</button>
           </div>
           <div style="font-size:11px; color:#d1fae5;" id="keymaker-generated-details"></div>
         </div>
@@ -1708,14 +1708,14 @@ tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
-      <!-- 📱 GODFATHER TELEGRAM WATCHDOG HOTLINE -->
+      <!-- GODFATHER TELEGRAM WATCHDOG HOTLINE -->
       <div style="background:rgba(59,130,246,0.08); border:1.5px solid rgba(59,130,246,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div style="font-weight:700; color:#93c5fd; font-size:14px; display:flex; align-items:center; gap:8px;">
-            <span>📱 Godfather Telegram Watchdog Hotline (Instant Mobile Alerts)</span>
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Telegram Security Watchdog Hotline</span>
             <span class="role-badge" style="background:#1d4ed8; color:#dbeafe; font-size:10px;">HOTLINE</span>
           </div>
-          <button class="btn-gold-sm" onclick="godfatherTestTelegramAlert()" style="padding:4px 12px; font-size:11px;">📲 Send Test Ping</button>
+          <button class="btn-gold-sm" onclick="godfatherTestTelegramAlert()" style="padding:4px 12px; font-size:11px;">Send Test Ping</button>
         </div>
         <div style="font-size:12px; color:#dbeafe; margin-bottom:14px; line-height:1.5;">
           Receive real-time 24/7 push alerts directly on your phone via Telegram whenever streams drop/failover, superadmins modify channels, or unauthorized vault accesses occur.
@@ -1737,16 +1737,16 @@ tr:last-child td{border-bottom:none;}
             <label style="display:flex; align-items:center; gap:4px; cursor:pointer;"><input type="checkbox" id="tg-alert-security" checked /> Security Breaches</label>
           </div>
           <button class="btn-gold-sm" onclick="godfatherSaveTelegramSettings()" style="padding:6px 16px; font-size:12px; background:linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); border-color:#60a5fa; color:#fff;">
-            💾 Save Telegram Settings
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Watchdog Settings
           </button>
         </div>
       </div>
 
-      <!-- 📢 ADMIN HUD LIVE FLASH BROADCAST DISPATCHER -->
+      <!-- ADMIN HUD LIVE FLASH BROADCAST DISPATCHER -->
       <div style="background:rgba(239,68,68,0.08); border:1.5px solid rgba(239,68,68,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
           <div style="font-weight:700; color:#fca5a5; font-size:13px; display:flex; align-items:center; gap:6px;">
-            <span>👑 Admin HUD Live Flash Broadcast</span>
+            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Admin HUD Live Flash Broadcast</span>
           </div>
           <span id="godfather-broadcast-status-badge" class="role-badge" style="font-size:10px; background:rgba(255,255,255,0.1); color:var(--sub);">IDLE</span>
         </div>
@@ -1754,31 +1754,31 @@ tr:last-child td{border-bottom:none;}
           Push an instant high-priority banner directly across the screens of all connected Superadmins & Admins.
         </div>
         <div style="display:flex; flex-direction:column; gap:8px;">
-          <input type="text" id="godfather-broadcast-text" placeholder="e.g. 🚨 Live event on Feed 3 - Please do not alter feeds" style="font-size:12px; padding:7px 10px; width:100%;" />
+          <input type="text" id="godfather-broadcast-text" placeholder="e.g. Live event on Feed 3 - System priority active" style="font-size:12px; padding:7px 10px; width:100%;" />
           <div style="display:flex; gap:8px;">
             <select id="godfather-broadcast-severity" style="flex:1; padding:6px 8px; font-size:12px; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
-              <option value="warning">⚠️ Important Notice (Gold)</option>
-              <option value="critical">🚨 Emergency Alert (Red)</option>
-              <option value="info">📢 Information (Blue)</option>
+              <option value="warning">Important Notice (Gold)</option>
+              <option value="critical">Emergency Alert (Red)</option>
+              <option value="info">Information (Blue)</option>
             </select>
             <button class="btn-gold-sm" onclick="godfatherSendBroadcast()" style="padding:6px 14px; font-size:12px; background:linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); border-color:#f87171; color:#fff; white-space:nowrap;">
-              ⚡ Broadcast
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Broadcast
             </button>
             <button class="btn-gold-sm" onclick="godfatherClearBroadcast()" style="padding:6px 10px; font-size:12px; background:transparent; border-color:var(--border2); color:var(--sub); white-space:nowrap;">
-              🛑 Clear
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>Clear
             </button>
           </div>
         </div>
       </div>
 
-      <!-- 🎯 GODFATHER MASTER FEED ASSIGNMENT & OWNERSHIP MATRIX -->
+      <!-- GODFATHER MASTER FEED ASSIGNMENT & OWNERSHIP MATRIX -->
       <div style="background:rgba(99,102,241,0.08); border:1.5px solid rgba(99,102,241,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
           <div style="font-weight:700; color:#c7d2fe; font-size:14px; display:flex; align-items:center; gap:8px;">
-            <span>🎯 Superadmin Feed Ownership & Assignment Matrix</span>
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Superadmin Feed Ownership & Assignment Matrix</span>
             <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:10px;">GODFATHER GOVERNANCE</span>
           </div>
-          <button class="btn-gold-sm" onclick="godfatherRefreshFeedMatrix()" style="padding:4px 12px; font-size:11px;">🔄 Refresh Matrix</button>
+          <button class="btn-gold-sm" onclick="godfatherRefreshFeedMatrix()" style="padding:4px 12px; font-size:11px;">Refresh Matrix</button>
         </div>
         <div style="font-size:12px; color:#e0e7ff; margin-bottom:12px; line-height:1.4;">
           Assign specific feeds / M3U8 streams to specific Superadmins. When assigned, <strong>only that designated admin (and you as Godfather)</strong> can modify or redirect that feed. All other superadmins are strictly locked out.
@@ -1800,14 +1800,14 @@ tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
-      <!-- 🔐 GODFATHER LINK VAULT ACCESS AUTHORIZATION MATRIX -->
+      <!-- GODFATHER LINK VAULT ACCESS AUTHORIZATION MATRIX -->
       <div style="background:rgba(99,102,241,0.08); border:1.5px solid rgba(99,102,241,0.4); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
           <div style="font-weight:700; color:#c7d2fe; font-size:14px; display:flex; align-items:center; gap:8px;">
-            <span>🔐 Link Vault Access Authorization Matrix</span>
+            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>Link Vault Access Authorization Matrix</span>
             <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:10px;">GODFATHER SECURITY</span>
           </div>
-          <button class="btn-gold-sm" onclick="godfatherRefreshVaultAccessMatrix()" style="padding:4px 12px; font-size:11px;">🔄 Refresh Matrix</button>
+          <button class="btn-gold-sm" onclick="godfatherRefreshVaultAccessMatrix()" style="padding:4px 12px; font-size:11px;">Refresh Matrix</button>
         </div>
         <div style="font-size:12px; color:#e0e7ff; margin-bottom:12px; line-height:1.4;">
           Select which Admins & Superadmins are permitted to view raw stream URLs in the Link Vault. All unauthorized admins will see a locked screen.
@@ -1833,29 +1833,29 @@ tr:last-child td{border-bottom:none;}
       <div style="background:rgba(255,215,0,0.05); border:1px solid rgba(255,215,0,0.25); border-radius:8px; padding:16px; margin-bottom:16px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
           <div style="font-weight:700; color:#fbbf24; font-size:14px; display:flex; align-items:center; gap:6px;">
-            📝 Godfather Private Credential & Password Vault (Secret Notepad)
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Godfather Private Credential Vault (Secure Notepad)
           </div>
           <div style="display:flex; gap:6px;">
-            <button class="btn-gold-sm" onclick="godfatherSaveCredentials()" style="padding:4px 12px; font-size:12px;">💾 Save Notes</button>
-            <button class="btn-gold-sm" onclick="godfatherLoadCredentials()" style="padding:4px 10px; font-size:12px;">🔄 Reload</button>
+            <button class="btn-gold-sm" onclick="godfatherSaveCredentials()" style="padding:4px 12px; font-size:12px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Notes</button>
+            <button class="btn-gold-sm" onclick="godfatherLoadCredentials()" style="padding:4px 10px; font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Reload</button>
           </div>
         </div>
         <div style="font-size:12px; color:var(--sub); margin-bottom:8px;">
           Private encrypted storage only visible to Godfather. Keep notes on admin temporary passwords, phone numbers, and keys.
         </div>
-        <textarea id="godfather-credentials-notepad" rows="5" placeholder="# 👑 Godfather Secret Admin Credential Log&#10;# Store temporary passwords, admin phone numbers, and private notes here...&#10;&#10;admin1@example.com | Pass: Jtbs#Live2026 | Phone: +91 9876543210&#10;superadmin2@example.com | Pass: SuperGod#77" style="font-family: monospace; font-size:12px; line-height:1.6; resize:vertical; width:100%;" oninput="localStorage.setItem('jtbs_godfather_notes_local', this.value)"></textarea>
+        <textarea id="godfather-credentials-notepad" rows="5" placeholder="# Godfather Private Administrative Credentials&#10;# Store temporary passwords, admin phone numbers, and private notes here...&#10;&#10;admin1@example.com | Pass: Jtbs#Live2026 | Phone: +91 9876543210&#10;superadmin2@example.com | Pass: SuperGod#77" style="font-family: monospace; font-size:12px; line-height:1.6; resize:vertical; width:100%;" oninput="localStorage.setItem('jtbs_godfather_notes_local', this.value)"></textarea>
       </div>
 
-      <!-- 🦅 GODFATHER WATCHTOWER (22-CHANNEL MULTI-STREAM SURVEILLANCE WALL) -->
+      <!-- GODFATHER WATCHTOWER (22-CHANNEL MULTI-STREAM SURVEILLANCE WALL) -->
       <div style="background:rgba(15,23,42,0.6); border:1.5px solid rgba(56,189,248,0.35); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div style="font-weight:700; color:#7dd3fc; font-size:14px; display:flex; align-items:center; gap:8px;">
-            <span>🦅 Godfather Watchtower (22-Channel Multi-Stream Wall)</span>
+            <span>Godfather Watchtower (22-Channel Multi-Stream Wall)</span>
             <span class="role-badge" style="background:#0369a1; color:#e0f2fe; font-size:10px;">SURVEILLANCE</span>
           </div>
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button class="btn-gold-sm" id="godfather-watchtower-toggle-btn" onclick="godfatherToggleWatchtowerWall()" style="padding:5px 12px; font-size:11px;">▶️ Activate All Video Feeds</button>
-            <button class="btn-gold-sm" onclick="godfatherRefreshWatchtower()" style="padding:5px 10px; font-size:11px; background:transparent; border-color:var(--border2); color:var(--sub);">🔄 Refresh</button>
+            <button class="btn-gold-sm" id="godfather-watchtower-toggle-btn" onclick="godfatherToggleWatchtowerWall()" style="padding:5px 12px; font-size:11px;">Activate All Feeds</button>
+            <button class="btn-gold-sm" onclick="godfatherRefreshWatchtower()" style="padding:5px 10px; font-size:11px; background:transparent; border-color:var(--border2); color:var(--sub);">Refresh</button>
           </div>
         </div>
         <div style="font-size:12px; color:#bae6fd; margin-bottom:12px; line-height:1.4;">
@@ -1866,19 +1866,19 @@ tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
-      <!-- 📜 SUPERADMIN LIVE ACTIVITY & AUDIT TRAIL (WITH 1-CLICK REVERT) -->
+      <!-- SUPERADMIN LIVE ACTIVITY & AUDIT TRAIL (WITH 1-CLICK REVERT) -->
       <div style="background:rgba(30,41,59,0.5); border:1.5px solid rgba(148,163,184,0.3); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <div style="font-weight:700; color:#e2e8f0; font-size:14px; display:flex; align-items:center; gap:8px;">
-            <span>📜 Superadmin Live Activity & Audit Trail</span>
+            <span>Superadmin Live Activity & Audit Trail</span>
             <span class="role-badge" style="background:#334155; color:#f8fafc; font-size:10px;">REAL-TIME LOG</span>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
-            <button class="btn-gold-sm" onclick="godfatherClearAuditLogs()" style="padding:4px 10px; font-size:11px; background:transparent; border-color:var(--border2); color:var(--red);">🗑️ Clear Logs</button>
+            <button class="btn-gold-sm" onclick="godfatherClearAuditLogs()" style="padding:4px 10px; font-size:11px; background:transparent; border-color:var(--border2); color:var(--red);">Clear Logs</button>
           </div>
         </div>
         <div style="font-size:12px; color:#cbd5e1; margin-bottom:12px; line-height:1.4;">
-          Live monitoring of all superadmin and admin actions across streams, decoders, and branding. Click <strong>⚡ Revert</strong> next to any stream change to immediately undo and restore the previous stream state.
+          Live monitoring of all superadmin and admin actions across streams, decoders, and branding. Click <strong>Revert</strong> next to any stream change to immediately undo and restore the previous stream state.
         </div>
         <div class="users-table-wrap" style="max-height: 320px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
           <table style="width:100%; border-collapse:collapse; font-size:12px;">
@@ -2021,7 +2021,7 @@ tr:last-child td{border-bottom:none;}
         </select>
       </div>
       <button class="btn btn-primary btn-sm" id="save-epg-url-btn" onclick="saveEpgUrl()" style="width:auto; padding:8px 18px;">Apply EPG Source URL</button>
-      <div id="epg-url-save-msg" class="save-msg">✓ EPG Source URL applied to selected feed!</div>
+      <div id="epg-url-save-msg" class="save-msg">EPG Source URL applied to selected feed!</div>
     </div>
 
     <!-- EPG Upload File Card -->
@@ -2331,15 +2331,14 @@ tr:last-child td{border-bottom:none;}
         <span id="vault-access-status-badge" class="role-badge" style="font-size:10px;">CHECKING ACCESS…</span>
       </div>
       <div id="vault-godfather-badge" style="display:none;">
-        <span class="role-badge godfather" style="font-size:10px;">👑 GODFATHER MASTER CONTROL</span>
+        <span class="role-badge godfather" style="font-size:10px;">GODFATHER MASTER CONTROL</span>
       </div>
     </div>
 
     <!-- LOCKED ACCESS SCREEN (SHOWN TO UNAUTHORIZED ADMINS) -->
     <div id="vault-locked-content" class="card" style="display:none; text-align:center; padding: 48px 24px; border: 1.5px solid rgba(239, 68, 68, 0.4); background: linear-gradient(180deg, rgba(30, 15, 15, 0.95) 0%, rgba(15, 10, 10, 0.98) 100%); border-radius: 12px; box-shadow: 0 0 30px rgba(239, 68, 68, 0.15); margin-bottom: 20px;">
       <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 28px;">
-        🔒
-      </div>
+        </div>
       <h2 style="color: #fca5a5; font-size: 20px; font-weight: 800; margin-bottom: 8px; font-family: var(--classic-title-font); letter-spacing: 0.5px;">
         LINK VAULT ACCESS RESTRICTED
       </h2>
@@ -2348,7 +2347,7 @@ tr:last-child td{border-bottom:none;}
       </p>
       <div style="display: inline-block; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 12px 18px; margin-bottom: 22px; text-align: left;">
         <div style="font-weight: 700; color: #fbbf24; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-          <span>👑</span> Authorization Required
+          <span></span> Authorization Required
         </div>
         <div style="font-size: 12px; color: #fde68a;">
           To view links, ask permission from <strong>Godfather (Joel Sohan Gomes)</strong>.
@@ -2408,14 +2407,14 @@ tr:last-child td{border-bottom:none;}
         <div class="card-title">
           <span>Stream Link Vault (TXT Notepad)</span>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="btn-gold-sm" onclick="saveVaultToCloud()" style="padding: 6px 14px; font-size: 13px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); border-color: #a7f3d0; color: #fff;">💾 Save Links</button>
+            <button class="btn-gold-sm" onclick="saveVaultToCloud()" style="padding: 6px 14px; font-size: 13px; background: linear-gradient(180deg, #10b981 0%, #047857 100%); border-color: #a7f3d0; color: #fff;">Save Links</button>
             <label class="btn-gold-sm" style="padding: 6px 14px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; margin: 0;">
-              📁 Import .txt / .m3u
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Import .txt / .m3u
               <input type="file" id="vault-file-import" accept=".txt,.m3u,.m3u8" style="display: none;" onchange="importVaultFile(event)" />
             </label>
-            <button class="btn-gold-sm" onclick="exportVaultFile()" style="padding: 6px 14px; font-size: 13px;">📥 Export .txt</button>
-            <button class="btn-gold-sm" onclick="loadVaultFromCloud()" style="padding: 6px 12px; font-size: 13px;">🔄 Reload</button>
-            <button class="btn-gold-sm" onclick="clearVaultText()" style="padding: 6px 12px; font-size: 13px; background: rgba(220, 38, 38, 0.4); border-color: #ef4444; color: #fff;">🧹 Clear</button>
+            <button class="btn-gold-sm" onclick="exportVaultFile()" style="padding: 6px 14px; font-size: 13px;">Export .txt</button>
+            <button class="btn-gold-sm" onclick="loadVaultFromCloud()" style="padding: 6px 12px; font-size: 13px;">Reload</button>
+            <button class="btn-gold-sm" onclick="clearVaultText()" style="padding: 6px 12px; font-size: 13px; background: rgba(220, 38, 38, 0.4); border-color: #ef4444; color: #fff;">Clear</button>
           </div>
         </div>
         
@@ -2439,7 +2438,7 @@ tr:last-child td{border-bottom:none;}
         
         <!-- Search & Filter Controls -->
         <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
-          <input type="text" id="vault-search-filter" placeholder="🔍 Search links by title or URL..." oninput="renderParsedVaultLinks()" style="flex: 1; min-width: 220px; font-size: 14px;" />
+          <input type="text" id="vault-search-filter" placeholder="Search links by title or URL..." oninput="renderParsedVaultLinks()" style="flex: 1; min-width: 220px; font-size: 14px;" />
           <div style="display: flex; gap: 6px;">
             <button class="btn-gold-sm vault-filter-btn active" id="filter-btn-all" onclick="setVaultTypeFilter('all')" style="padding: 6px 12px; font-size: 12px;">All</button>
             <button class="btn-gold-sm vault-filter-btn" id="filter-btn-hls" onclick="setVaultTypeFilter('hls')" style="padding: 6px 12px; font-size: 12px;">HLS (.m3u8 Only)</button>
@@ -2547,7 +2546,7 @@ tr:last-child td{border-bottom:none;}
 <div id="epg-conflict-modal-overlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:1200;">
   <div class="modal" style="max-width:520px; background:linear-gradient(180deg, rgba(34, 24, 24, 0.98) 0%, rgba(18, 12, 12, 0.99) 100%); border:1px solid #ff4d4d; border-radius:8px; padding:24px;">
     <div class="modal-title" style="color:#ff6b6b; font-size:18px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-      <span>⚠️ Schedule Conflict Detected</span>
+      <span>Schedule Conflict Detected</span>
     </div>
     
     <div id="epg-conflict-details" style="font-size:14px; color:#e0e0e0; line-height:1.5; margin-bottom:20px; background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left:3px solid #ff4d4d;">
@@ -2559,13 +2558,13 @@ tr:last-child td{border-bottom:none;}
 
     <div class="modal-actions" style="display:flex; flex-direction:column; gap:10px;">
       <button class="btn btn-primary btn-sm" onclick="resolveEpgConflict('adjust')" style="background:linear-gradient(135deg, #1e7e34, #155724); border:none; width:100%; padding:10px; text-align:left; font-size:13px;">
-        ✂️ <strong>Auto-Adjust Times</strong> — Trim existing program times so they fit end-to-end without overlapping.
+        <strong>Auto-Adjust Times</strong> — Trim existing program times so they fit end-to-end without overlapping.
       </button>
       <button class="btn btn-danger btn-sm" onclick="resolveEpgConflict('replace')" style="width:100%; padding:10px; text-align:left; font-size:13px;">
-        🗑️ <strong>Replace Existing</strong> — Delete clashing event(s) and replace with new event.
+        <strong>Replace Existing</strong> — Delete clashing event(s) and replace with new event.
       </button>
       <button class="btn btn-secondary btn-sm" onclick="resolveEpgConflict('cancel')" style="width:100%; padding:8px; text-align:center; font-size:13px;">
-        ❌ <strong>Cancel</strong> — Go back and edit times manually.
+        <strong>Cancel</strong> — Go back and edit times manually.
       </button>
     </div>
   </div>
@@ -2575,10 +2574,10 @@ tr:last-child td{border-bottom:none;}
 <div id="profile-modal-overlay">
   <div class="modal" style="max-width:440px;">
     <div class="modal-title">
-      <span style="display:flex; align-items:center; gap:6px;">👤 My Admin Profile</span>
+      <span style="display:flex; align-items:center; gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>My Admin Profile</span>
       <div style="display:flex; align-items:center; gap:8px;">
         <span id="profile-modal-role-badge" class="role-badge admin">ADMIN</span>
-        <button type="button" onclick="closeMyProfileModal()" style="background:transparent; border:none; color:rgba(255,255,255,0.7); font-size:18px; cursor:pointer; padding:0 4px; line-height:1;" title="Close">✕</button>
+        <button type="button" onclick="closeMyProfileModal()" style="background:transparent; border:none; color:rgba(255,255,255,0.7); font-size:18px; cursor:pointer; padding:0 4px; line-height:1;" title="Close">Close</button>
       </div>
     </div>
     
@@ -2592,7 +2591,7 @@ tr:last-child td{border-bottom:none;}
       <!-- Direct Upload from Device / Gallery -->
       <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; justify-content:center;">
         <label class="btn-gold-sm" style="padding:6px 14px; font-size:12px; cursor:pointer; margin:0; display:inline-flex; align-items:center; gap:6px;">
-          📁 Choose Photo / Gallery
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Choose Photo / Gallery
           <input type="file" id="profile-modal-file-input" accept="image/*" style="display:none;" onchange="onProfileModalFileSelected(event)" />
         </label>
         <button type="button" class="btn-gold-sm" onclick="$('profile-modal-photo-url').value=''; onProfileModalPhotoUrlChange();" style="padding:6px 10px; font-size:12px; background:transparent; border-color:var(--border2); color:var(--sub);">Reset</button>
@@ -2617,7 +2616,7 @@ tr:last-child td{border-bottom:none;}
     <div style="margin-bottom:16px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <label style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">Avatar Presets</label>
-        <button type="button" class="btn-gold-sm" onclick="generateRandomDicebearPresets()" style="padding:2px 8px; font-size:10px;">🎲 Random Presets</button>
+        <button type="button" class="btn-gold-sm" onclick="generateRandomDicebearPresets()" style="padding:2px 8px; font-size:10px;">Random Presets</button>
       </div>
       <div class="preset-avatar-grid" id="profile-preset-avatars">
         <!-- Preset avatars inserted dynamically -->
@@ -2650,7 +2649,7 @@ tr:last-child td{border-bottom:none;}
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <label style="margin:0;">Profile Picture</label>
         <label class="btn-gold-sm" style="padding:3px 8px; font-size:11px; cursor:pointer; margin:0;">
-          📁 Choose Photo
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Choose Photo
           <input type="file" accept="image/*" style="display:none;" onchange="onNewAdminFileSelected(event)" />
         </label>
       </div>
@@ -2660,7 +2659,7 @@ tr:last-child td{border-bottom:none;}
       <select id="new-admin-role">
         <option value="admin">Admin — can control stream</option>
         <option value="superadmin">Superadmin — full access</option>
-        <option value="godfather" id="new-role-godfather-option" style="display:none;">👑 Godfather — Supreme Owner</option>
+        <option value="godfather" id="new-role-godfather-option" style="display:none;">Godfather — Supreme Owner</option>
       </select>
     </div>
     <div id="modal-error"></div>
@@ -2682,7 +2681,7 @@ tr:last-child td{border-bottom:none;}
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <label style="margin:0;">Profile Picture</label>
         <label class="btn-gold-sm" style="padding:3px 8px; font-size:11px; cursor:pointer; margin:0;">
-          📁 Choose Photo
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Choose Photo
           <input type="file" accept="image/*" style="display:none;" onchange="onEditAdminFileSelected(event)" />
         </label>
       </div>
@@ -2701,16 +2700,16 @@ tr:last-child td{border-bottom:none;}
       <select id="edit-admin-role">
         <option value="admin">Admin — can control stream</option>
         <option value="superadmin">Superadmin — full access</option>
-        <option value="godfather" id="edit-role-godfather-option" style="display:none;">👑 Godfather — Supreme Owner</option>
+        <option value="godfather" id="edit-role-godfather-option" style="display:none;">Godfather — Supreme Owner</option>
       </select>
     </div>
 
-    <!-- 🔐 Link Vault Access Authorization (Controlled by Godfather) -->
+    <!-- Link Vault Access Authorization (Controlled by Godfather) -->
     <div id="edit-admin-vault-access-section" style="margin-top:14px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.3); border-radius:8px; padding:12px;">
       <div style="display:flex; align-items:center; gap:10px;">
         <input type="checkbox" id="edit-admin-can-access-vault" style="width:auto; cursor:pointer;" />
         <label for="edit-admin-can-access-vault" style="margin-bottom:0; cursor:pointer; font-weight:700; color:#c7d2fe; font-size:13px;">
-          🔐 Grant Link Vault Access
+          Grant Link Vault Access
         </label>
       </div>
       <div style="font-size:11px; color:#a5b4fc; margin-top:4px; line-height:1.4;">
@@ -2718,24 +2717,24 @@ tr:last-child td{border-bottom:none;}
       </div>
     </div>
     <div style="margin: 18px 0 10px 0;">
-      <button class="btn btn-gold-sm" id="edit-admin-reset-pw-btn" style="width:100%; text-align:center;">✉ Send Password Reset Email</button>
-      <div id="edit-reset-msg" style="font-size:12px; color:var(--green); text-align:center; margin-top:6px; display:none;">✓ Password reset email sent!</div>
+      <button class="btn btn-gold-sm" id="edit-admin-reset-pw-btn" style="width:100%; text-align:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Send Password Reset Email</button>
+      <div id="edit-reset-msg" style="font-size:12px; color:var(--green); text-align:center; margin-top:6px; display:none;">Password reset email sent!</div>
     </div>
 
-    <!-- 👑 Godfather Direct Password Override Section (Visible only to Godfather) -->
+    <!-- Godfather Direct Password Override Section (Visible only to Godfather) -->
     <div id="edit-godfather-pw-section" style="display:none; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:12px; margin-top:14px;">
       <label style="color:#6ee7b7; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
-        <span>👑 Godfather Direct Password Override</span>
+        <span>Godfather Direct Password Override</span>
       </label>
       <div style="font-size:11px; color:#d1fae5; margin-bottom:8px;">
         Directly change this admin's password instantly without requiring them to check their email.
       </div>
       <div style="display:flex; gap:6px; margin-bottom:8px;">
         <input type="text" id="edit-godfather-new-pass" placeholder="New Password (min 8 chars)" style="flex:1; font-size:12px; padding:7px 10px; font-family:monospace;" />
-        <button class="btn-gold-sm" type="button" onclick="editModalRandomizePassword()" style="padding:6px 10px; font-size:12px; white-space:nowrap;">🎲 Random</button>
+        <button class="btn-gold-sm" type="button" onclick="editModalRandomizePassword()" style="padding:6px 10px; font-size:12px; white-space:nowrap;">Random</button>
       </div>
       <button class="btn-gold-sm" type="button" id="edit-godfather-save-pw-btn" onclick="editModalDirectSetPassword()" style="width:100%; text-align:center; padding:7px 12px; font-size:12px; background:linear-gradient(180deg, #10b981 0%, #047857 100%); border-color:#6ee7b7; color:#fff;">
-        ⚡ Set New Password Now
+        Set New Password Now
       </button>
       <div id="edit-godfather-pw-msg" style="font-size:12px; color:#6ee7b7; text-align:center; margin-top:6px; display:none;"></div>
     </div>
@@ -2845,7 +2844,7 @@ auth.onAuthStateChanged(async user=>{
   updateHeaderAvatar(user, null);
 
   if (role === 'godfather') {
-    $('admin-email-display').innerHTML = `${esc(user.email||'')} <span class="role-badge godfather" style="margin-left:6px;">👑 GODFATHER</span>`;
+    $('admin-email-display').innerHTML = `${esc(user.email||'')} <span class="role-badge godfather" style="margin-left:6px;">GODFATHER</span>`;
   } else {
     $('admin-email-display').textContent = user.email || '';
   }
@@ -2904,7 +2903,7 @@ auth.onAuthStateChanged(async user=>{
       }
 
       if (u.displayName) {
-        const roleLabel = (u.role === 'godfather' || isGodfatherEmail) ? '<span class="role-badge godfather" style="margin-left:6px;">👑 GODFATHER</span>' : '';
+        const roleLabel = (u.role === 'godfather' || isGodfatherEmail) ? '<span class="role-badge godfather" style="margin-left:6px;">GODFATHER</span>' : '';
         $('admin-email-display').innerHTML = `${esc(u.displayName)} <span style="font-size:11px; color:#fde68a; opacity:0.85;">(${esc(user.email||'')})</span> ${roleLabel}`;
       }
 
@@ -3067,13 +3066,13 @@ function initDashboard(user,role){
     const base = domain ? 'https://' + domain.replace(/^https?:\/\//, '').replace(/\/+$/, '') : null;
     const m3u8El = $('iptv-url-m3u8');
     const shortEl = $('iptv-url-short');
-    if (m3u8El) m3u8El.value = base ? base + '/live.m3u8' : '⚠ Set IPTV domain in Branding tab';
-    if (shortEl) shortEl.value = base ? base + '/live' : '⚠ Set IPTV domain in Branding tab';
+    if (m3u8El) m3u8El.value = base ? base + '/live.m3u8' : 'Set IPTV domain in Branding tab';
+    if (shortEl) shortEl.value = base ? base + '/live' : 'Set IPTV domain in Branding tab';
     
     // Update feed IPTV links (live1.m3u8 to live6.m3u8)
     for (let i = 1; i <= 6; i++) {
       const feedEl = $(`feed-iptv-url-${i}`);
-      if (feedEl) feedEl.value = base ? `${base}/live${i}.m3u8` : '⚠ Set IPTV domain in Branding tab';
+      if (feedEl) feedEl.value = base ? `${base}/live${i}.m3u8` : 'Set IPTV domain in Branding tab';
     }
   }
   // Will be called from loadBranding when config loads
@@ -3087,7 +3086,7 @@ function copyIPTV(inputId) {
   navigator.clipboard.writeText(input.value).then(() => {
     const btn = input.nextElementSibling;
     const orig = btn.textContent;
-    btn.textContent = '✓ Copied!';
+    btn.textContent = 'Copied!';
     btn.style.color = 'var(--green)';
     setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000);
   }).catch(() => {
@@ -3159,7 +3158,7 @@ $('save-branding-btn').addEventListener('click',async()=>{
       iptvDomain: $('brand-iptv-domain').value.trim()
     },{merge:true});
     flash('branding-save-msg',false);
-  }catch(e){$('branding-save-msg').textContent='✗ '+e.message;flash('branding-save-msg',true);}
+  }catch(e){$('branding-save-msg').textContent='Error: '+e.message;flash('branding-save-msg',true);}
   finally{$('save-branding-btn').disabled=false;}
 });
 
@@ -3245,11 +3244,11 @@ window.godfatherRefreshFeedMatrix = async function() {
       if (isSrinjana) {
         assignCellHtml = `
           <span class="role-badge godfather" style="font-size:11px; padding:3px 8px; display:inline-flex; align-items:center; gap:4px;">
-            👑 Joel Sohan Gomes (Godfather Exclusive)
+            Joel Sohan Gomes (Godfather Exclusive)
           </span>
         `;
       } else {
-        let opts = `<option value="" ${!currentAssignedUid ? 'selected' : ''}>🌐 Open to All Superadmins</option>`;
+        let opts = `<option value="" ${!currentAssignedUid ? 'selected' : ''}>Open to All Superadmins</option>`;
         adminList.forEach(adm => {
           const isSelected = (currentAssignedUid === adm.uid) || (feedData.assignedEmail && feedData.assignedEmail.toLowerCase() === adm.email.toLowerCase());
           opts += `<option value="${adm.uid}" data-email="${adm.email}" data-name="${adm.displayName}" ${isSelected ? 'selected' : ''}>${adm.displayName} (${adm.role})</option>`;
@@ -3366,15 +3365,15 @@ function godfatherListenBroadcast() {
       if (sev === 'critical') {
         hud.style.background = 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #450a0a 100%)';
         hud.style.border = '2px solid #ef4444';
-        if (titleEl) titleEl.textContent = '🚨 CRITICAL GODFATHER OVERRIDE ALERT';
+        if (titleEl) titleEl.textContent = 'CRITICAL GODFATHER OVERRIDE ALERT';
       } else if (sev === 'info') {
         hud.style.background = 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #172554 100%)';
         hud.style.border = '2px solid #60a5fa';
-        if (titleEl) titleEl.textContent = '📢 GODFATHER NETWORK BULLETIN';
+        if (titleEl) titleEl.textContent = 'GODFATHER NETWORK BULLETIN';
       } else {
         hud.style.background = 'linear-gradient(135deg, #78350f 0%, #92400e 50%, #451a03 100%)';
         hud.style.border = '2px solid #f59e0b';
-        if (titleEl) titleEl.textContent = '👑 GODFATHER URGENT NOTICE';
+        if (titleEl) titleEl.textContent = 'GODFATHER URGENT NOTICE';
       }
 
       if (msgEl) msgEl.textContent = data.message;
@@ -3411,7 +3410,7 @@ window.godfatherSendBroadcast = async function() {
     });
     logAdminAction('broadcast_sent', 'all', `Sent ${severity.toUpperCase()} broadcast: "${text}"`);
     input.value = '';
-    alert('✓ Flash Broadcast successfully pushed to all Superadmins & Admins!');
+    alert('Flash Broadcast successfully pushed to all Superadmins & Admins!');
   } catch(err) {
     alert(`Error pushing broadcast: ${err.message}`);
   }
@@ -3452,7 +3451,7 @@ window.godfatherPushDecoderTicker = async function() {
     });
     logAdminAction('decoder_ticker_pushed', target, `Pushed OSD Ticker to [${target}]: "${text}"`);
     input.value = '';
-    alert(`✓ Decoder OSD Ticker successfully pushed to ${target === 'all' ? 'all decoder boxes' : 'decoder ' + target}!`);
+    alert(`Decoder OSD Ticker successfully pushed to ${target === 'all' ? 'all decoder boxes' : 'decoder ' + target}!`);
   } catch(err) {
     alert(`Error pushing ticker: ${err.message}`);
   }
@@ -3466,7 +3465,7 @@ window.godfatherClearDecoderTicker = async function() {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
     logAdminAction('decoder_ticker_cleared', 'all', 'Cleared decoder OSD ticker');
-    alert('✓ Decoder OSD Ticker cleared.');
+    alert('Decoder OSD Ticker cleared.');
   } catch(err) {
     alert(`Error clearing ticker: ${err.message}`);
   }
@@ -3491,16 +3490,16 @@ window.godfatherListenDecoderTicker = function() {
   db.collection('decoderStatus').onSnapshot(snap => {
     const targetSel = $('godfather-decoder-ticker-target');
     if (!targetSel) return;
-    let opts = '<option value="all">🌐 All Active Decoders</option>';
+    let opts = '<option value="all">All Active Decoders</option>';
     snap.forEach(doc => {
       const d = doc.data();
-      opts += `<option value="${doc.id}">📺 ${d.customName || d.friendlyName || doc.id}</option>`;
+      opts += `<option value="${doc.id}">${d.customName || d.friendlyName || doc.id}</option>`;
     });
     targetSel.innerHTML = opts;
   });
 };
 
-// ── 🦅 GODFATHER WATCHTOWER (22-CHANNEL SURVEILLANCE) ─────────
+// ── GODFATHER WATCHTOWER (22-CHANNEL SURVEILLANCE) ─────────
 let watchtowerActiveHls = {};
 let watchtowerWallRunning = false;
 
@@ -3522,7 +3521,7 @@ window.godfatherRefreshWatchtower = async function() {
       const d = streamMap[ch.id] || {};
       const isLive = !!d.isLive || (ch.id === 'main' && (!!d.isLive || !!d.decoderIsLive));
       const isSrinjana = ch.id === 'srinjana';
-      const assignedName = isSrinjana ? '👑 Godfather' : (d.assignedName || d.assignedEmail || '🌐 Open to All');
+      const assignedName = isSrinjana ? 'Godfather' : (d.assignedName || d.assignedEmail || 'Open to All');
       const streamUrl = d.streamUrl || d.decoderStreamUrl || '';
 
       html += `
@@ -3540,16 +3539,16 @@ window.godfatherRefreshWatchtower = async function() {
           <div style="position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:4px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
             <video id="watchtower-video-${ch.id}" playsinline muted style="width:100%; height:100%; object-fit:contain; display:${isLive ? 'block' : 'none'};"></video>
             <div id="watchtower-offair-${ch.id}" style="display:${isLive ? 'none' : 'flex'}; flex-direction:column; align-items:center; justify-content:center; color:var(--sub); font-size:11px; gap:4px;">
-              <span>📡</span>
+              <span></span>
               <span>Off Air</span>
             </div>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
             <button class="btn-gold-sm" onclick="godfatherPlaySingleMonitor('${ch.id}', '${encodeURIComponent(streamUrl)}')" style="padding:3px 8px; font-size:10px; flex:1;">
-              ${isLive ? '▶️ Preview' : '⚪ Offline'}
+              ${isLive ? 'Preview' : 'Offline'}
             </button>
             <button class="btn-gold-sm" onclick="godfatherJumpToFeed('${ch.id}')" style="padding:3px 8px; font-size:10px; background:transparent; border-color:var(--border2); color:var(--gold);">
-              ⚡ Jump
+              Jump
             </button>
           </div>
         </div>
@@ -3590,7 +3589,7 @@ window.godfatherToggleWatchtowerWall = function() {
   watchtowerWallRunning = !watchtowerWallRunning;
   const btn = $('godfather-watchtower-toggle-btn');
   if (btn) {
-    btn.textContent = watchtowerWallRunning ? '⏸️ Stop All Live Previews' : '▶️ Activate All Video Feeds';
+    btn.textContent = watchtowerWallRunning ? 'Stop All Previews' : 'Activate All Feeds';
     btn.style.background = watchtowerWallRunning ? 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)' : '';
   }
 
@@ -3627,7 +3626,7 @@ window.godfatherJumpToFeed = function(feedId) {
   }
 };
 
-// ── 📜 SUPERADMIN AUDIT LOGGING & 1-CLICK REVERT ──────────────
+// ── SUPERADMIN AUDIT LOGGING & 1-CLICK REVERT ──────────────
 let auditLogsUnsub = null;
 
 function sanitizeAuditState(obj) {
@@ -3744,7 +3743,7 @@ window.godfatherInitAuditLogs = function() {
             <td style="padding:8px 10px; text-align:center; white-space:nowrap;">
               ${hasRevertableState ? `
                 <button class="btn-gold-sm" onclick="godfatherRevertAuditLog('${logId}', '${d.targetFeed}', '${prevJson}')" style="padding:4px 8px; font-size:11px; background:linear-gradient(180deg, #f59e0b 0%, #b45309 100%); color:#111; font-weight:700;">
-                  ⚡ Revert
+                  Revert
                 </button>
               ` : `
                 <span style="color:var(--sub); font-size:11px;">—</span>
@@ -3771,7 +3770,7 @@ window.godfatherRevertAuditLog = async function(logId, targetFeed, encodedPrevJs
 
     await db.doc(`streamState/${targetFeed}`).set(prevState, { merge: true });
     logAdminAction('godfather_revert', targetFeed, `Godfather reverted ${targetFeed} to previous state.`);
-    alert(`✓ Stream feed "${targetFeed}" successfully reverted to its previous state!`);
+    alert(`Stream feed "${targetFeed}" successfully reverted to its previous state!`);
   } catch(err) {
     alert(`Error reverting state: ${err.message}`);
   }
@@ -3784,7 +3783,7 @@ window.godfatherClearAuditLogs = async function() {
     const batch = db.batch();
     snap.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
-    alert('✓ Audit logs cleared.');
+    alert('Audit logs cleared.');
   } catch(err) {
     alert(`Error clearing audit logs: ${err.message}`);
   }
@@ -3818,26 +3817,26 @@ function loadStreamState(){
           badgeEl.style.background = 'rgba(16,185,129,0.2)';
           badgeEl.style.borderColor = '#10b981';
           badgeEl.style.color = '#6ee7b7';
-          badgeEl.textContent = '✅ Assigned to You';
+          badgeEl.textContent = 'Assigned to You';
         } else {
           badgeEl.className = 'role-badge admin';
           badgeEl.style.background = 'rgba(239,68,68,0.2)';
           badgeEl.style.borderColor = '#ef4444';
           badgeEl.style.color = '#fca5a5';
-          badgeEl.textContent = `🔒 Assigned to: ${d.assignedName || d.assignedEmail || 'Superadmin'}`;
+          badgeEl.textContent = `Assigned to: ${d.assignedName || d.assignedEmail || 'Superadmin'}`;
         }
       } else if (isGodfather) {
         badgeEl.className = 'role-badge godfather';
         badgeEl.style.background = '';
         badgeEl.style.borderColor = '';
         badgeEl.style.color = '';
-        badgeEl.textContent = '👑 Godfather (Full Access)';
+        badgeEl.textContent = 'Godfather (Full Access)';
       } else {
         badgeEl.className = 'role-badge superadmin';
         badgeEl.style.background = '';
         badgeEl.style.borderColor = '';
         badgeEl.style.color = '';
-        badgeEl.textContent = '🌐 Open to All Superadmins';
+        badgeEl.textContent = 'Open to All Superadmins';
       }
     }
 
@@ -4057,7 +4056,7 @@ $('stream-toggle').addEventListener('change',async function(){
 
 $('stream-url-input').addEventListener('input',function(){
   const t=detectType(this.value);
-  const h={'youtube':'✓ YouTube detected','facebook':'✗ Facebook not supported','hls':'✓ HLS stream detected','dash':'✓ DASH stream detected','video':'✓ Video file (MP4/WebM/MKV/AVI/MOV/TS) detected','iframe':'⚠ Will attempt iframe embed','':'Accepts: YouTube · HLS · DASH · MP4 · WebM'};
+  const h={'youtube':'YouTube detected','facebook':'Facebook not supported','hls':'HLS stream detected','dash':'DASH stream detected','video':'Video file detected','iframe':'Will attempt iframe embed','':'Accepts: YouTube · HLS · DASH · MP4 · WebM'};
   $('url-type-hint').textContent=h[t]||h[''];
   updateYTFields('same', this.value, '');
   updateMP4Fields('same', this.value, '');
@@ -4072,7 +4071,7 @@ $('public-toggle').addEventListener('change',async function(){
 
 $('public-url-input').addEventListener('input',function(){
   const t=detectType(this.value);
-  const h={'youtube':'✓ YouTube detected','facebook':'✗ Facebook not accepted','hls':'✓ HLS stream detected','dash':'✓ DASH stream detected','video':'✓ Video file (MP4/WebM/MKV/AVI/MOV/TS) detected','iframe':'⚠ Will attempt iframe embed','':'Accepts: YouTube · HLS · DASH · MP4 · WebM'};
+  const h={'youtube':'YouTube detected','facebook':'Facebook not accepted','hls':'HLS stream detected','dash':'DASH stream detected','video':'Video file detected','iframe':'Will attempt iframe embed','':'Accepts: YouTube · HLS · DASH · MP4 · WebM'};
   $('public-url-hint').textContent=h[t]||h[''];
   updateYTFields('public', this.value, '');
   updateMP4Fields('public', this.value, '');
@@ -4087,7 +4086,7 @@ $('decoder-toggle').addEventListener('change',async function(){
 
 $('decoder-url-input').addEventListener('input',function(){
   const t=detectType(this.value);
-  const h={'youtube':'✗ YouTube not supported on decoder','facebook':'✗ Facebook not supported on decoder','hls':'✓ HLS stream detected','dash':'✓ DASH stream detected','video':'✓ Video file (MP4/WebM/MKV/AVI/MOV/TS) detected','iframe':'⚠ Custom URL format','':'Accepts: HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS'};
+  const h={'youtube':'YouTube not supported on decoder','facebook':'Facebook not supported on decoder','hls':'HLS stream detected','dash':'DASH stream detected','video':'Video file detected','iframe':'Custom URL format','':'Accepts: HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS'};
   $('decoder-url-hint').textContent=h[t]||h[''];
   updateYTFields('decoder', this.value, '');
   updateMP4Fields('decoder', this.value, '');
@@ -4723,11 +4722,11 @@ function saveStreamState(url, duration) {
 
   const prevState = window.currentStreamStateData || {};
   db.doc('streamState/main').set(data, {merge:true}).then(() => {
-    $('live-save-msg').textContent = '✓ Stream is live';
+    $('live-save-msg').textContent = 'Stream is live';
     flash('live-save-msg', false);
     logAdminAction('stream_start', 'main', `Set Main Stream LIVE with URL: ${url}`, prevState, data);
   }).catch(e => {
-    $('live-save-msg').textContent = '✗ ' + e.message;
+    $('live-save-msg').textContent = 'Error: ' + e.message;
     flash('live-save-msg', true);
   }).finally(() => {
     $('go-live-btn').disabled = false;
@@ -4782,13 +4781,13 @@ function savePublicStreamState(url, duration) {
   const prevState = window.currentStreamStateData || {};
   db.doc('streamState/main').set(data, {merge:true}).then(() => {
     if ($('public-live-save-msg')) {
-      $('public-live-save-msg').textContent = '✓ Public stream is live';
+      $('public-live-save-msg').textContent = 'Public stream is live';
       flash('public-live-save-msg', false);
     }
     logAdminAction('stream_start', 'main', `Set Public Stream LIVE with URL: ${url}`, prevState, data);
   }).catch(e => {
     if ($('public-live-save-msg')) {
-      $('public-live-save-msg').textContent = '✗ ' + e.message;
+      $('public-live-save-msg').textContent = 'Error: ' + e.message;
       flash('public-live-save-msg', true);
     }
   }).finally(() => {
@@ -4845,13 +4844,13 @@ function saveDecoderStreamState(url, duration) {
   const prevState = window.currentStreamStateData || {};
   db.doc('streamState/main').set(data, {merge:true}).then(() => {
     if ($('decoder-live-save-msg')) {
-      $('decoder-live-save-msg').textContent = '✓ Decoder stream is live';
+      $('decoder-live-save-msg').textContent = 'Decoder stream is live';
       flash('decoder-live-save-msg', false);
     }
     logAdminAction('stream_start', 'main', `Set Decoder Box Stream LIVE with URL: ${url}`, prevState, data);
   }).catch(e => {
     if ($('decoder-live-save-msg')) {
-      $('decoder-live-save-msg').textContent = '✗ ' + e.message;
+      $('decoder-live-save-msg').textContent = 'Error: ' + e.message;
       flash('decoder-live-save-msg', true);
     }
   }).finally(() => {
@@ -4899,7 +4898,7 @@ $('save-offline-btn').addEventListener('click', async () => {
     await db.doc('config/main').set(payload, { merge: true });
     await db.doc('streamState/main').set(payload, { merge: true });
     flash('offline-save-msg', false);
-  } catch (e) { $('offline-save-msg').textContent = '✗ ' + e.message; flash('offline-save-msg', true); }
+  } catch (e) { $('offline-save-msg').textContent = 'Error: ' + e.message; flash('offline-save-msg', true); }
   finally { $('save-offline-btn').disabled = false; }
 });
 
@@ -4912,7 +4911,7 @@ $('public-save-offline-btn').addEventListener('click', async () => {
     await db.doc('config/main').set({ offlineImageUrl: offImg, offlineHlsUrl: offHls, offlineVideoUrl: offHls || offImg, offlineText: offTxt }, { merge: true });
     await db.doc('streamState/main').set({ offlineImageUrl: offImg, offlineHlsUrl: offHls, offlineVideoUrl: offHls || offImg, offlineText: offTxt }, { merge: true });
     flash('public-offline-save-msg', false);
-  } catch (e) { $('public-offline-save-msg').textContent = '✗ ' + e.message; flash('public-offline-save-msg', true); }
+  } catch (e) { $('public-offline-save-msg').textContent = 'Error: ' + e.message; flash('public-offline-save-msg', true); }
   finally { $('public-save-offline-btn').disabled = false; }
 });
 
@@ -4925,7 +4924,7 @@ $('decoder-save-offline-btn').addEventListener('click', async () => {
     await db.doc('config/main').set({ decoderOfflineImageUrl: offImg, decoderOfflineHlsUrl: offHls, decoderOfflineVideoUrl: offHls || offImg, decoderOfflineText: offTxt }, { merge: true });
     await db.doc('streamState/main').set({ decoderOfflineImageUrl: offImg, decoderOfflineHlsUrl: offHls, decoderOfflineVideoUrl: offHls || offImg, decoderOfflineText: offTxt }, { merge: true });
     flash('decoder-offline-save-msg', false);
-  } catch (e) { $('decoder-offline-save-msg').textContent = '✗ ' + e.message; flash('decoder-offline-save-msg', true); }
+  } catch (e) { $('decoder-offline-save-msg').textContent = 'Error: ' + e.message; flash('decoder-offline-save-msg', true); }
   finally { $('decoder-save-offline-btn').disabled = false; }
 });
 
@@ -4949,7 +4948,7 @@ $('announce-push-btn').addEventListener('click',async()=>{
 $('announce-clear-btn').addEventListener('click',async()=>{
   await db.doc('announcement/current').set({text:'',color:'gold',active:false});
   $('announce-text').value='';
-  $('announce-save-msg').textContent='✓ Banner cleared';
+  $('announce-save-msg').textContent='Banner cleared';
   flash('announce-save-msg',false);
 });
 
@@ -5011,7 +5010,7 @@ window.onProfileModalFileSelected = async function(event) {
     onProfileModalPhotoUrlChange();
     document.querySelectorAll('.preset-avatar-item').forEach(i => i.classList.remove('active'));
     if (msgEl) {
-      msgEl.textContent = '✓ Photo loaded! Click "Save Profile" below to apply.';
+      msgEl.textContent = 'Photo loaded. Click "Save Profile" below to apply.';
       msgEl.style.display = 'block';
     }
   } catch(err) {
@@ -5116,7 +5115,7 @@ window.openMyProfileModal = function() {
   const roleBadge = $('profile-modal-role-badge');
   if (roleBadge) {
     roleBadge.className = 'role-badge ' + (role === 'godfather' ? 'godfather' : role);
-    roleBadge.textContent = role === 'godfather' ? '👑 GODFATHER' : role.toUpperCase();
+    roleBadge.textContent = role === 'godfather' ? 'GODFATHER' : role.toUpperCase();
   }
 
   // Update initial and big preview
@@ -5200,7 +5199,7 @@ window.saveMyProfile = async function() {
     }
     updateHeaderAvatar(user, { displayName: name, photoURL: photoUrl });
 
-    msgEl.textContent = '✓ Profile saved successfully!';
+    msgEl.textContent = 'Profile saved successfully.';
     msgEl.style.display = 'block';
     setTimeout(() => {
       closeMyProfileModal();
@@ -5266,14 +5265,14 @@ function loadUsers(currentUser,role){
       const canDelete = !isMe && (isGodfather || (!targetIsGodfather && (role === 'superadmin')));
       
       const roleBadge = targetIsGodfather
-        ? `<span class="role-badge godfather">👑 GODFATHER</span>`
+        ? `<span class="role-badge godfather">GODFATHER</span>`
         : `<span class="role-badge ${esc(u.role)}">${esc(u.role)}</span>`;
 
       const userInitial = (u.displayName || u.email || 'A').trim().charAt(0).toUpperCase() || 'A';
       const photoUrl = (u.photoURL || u.photoUrl || '').trim();
       const hasVaultAccess = targetIsGodfather || (u.canAccessLinkVault === true);
       const vaultBadge = hasVaultAccess 
-        ? `<span class="role-badge" style="background:rgba(99,102,241,0.2); color:#c7d2fe; font-size:9px; margin-left:4px; border:1px solid rgba(99,102,241,0.35);">🔐 Vault</span>`
+        ? `<span class="role-badge" style="background:rgba(99,102,241,0.2); color:#c7d2fe; font-size:9px; margin-left:4px; border:1px solid rgba(99,102,241,0.35);">Vault</span>`
         : '';
       const avatarHtml = `
         <div class="table-avatar-circle" style="width:36px; height:36px; border-radius:50%; overflow:hidden; background:#1e3a8a; border:1.5px solid ${targetIsGodfather ? '#fbbf24' : 'rgba(255,255,255,0.3)'}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -5298,9 +5297,9 @@ function loadUsers(currentUser,role){
             ${vaultBadge}
           </div>
         </td>
-        <td>${u.linkedGoogle?'<span class="google-badge linked">✓ Linked</span>':isMe?'<button class="btn-gold-sm link-google-btn">Link Google</button>':'<span class="google-badge">—</span>'}</td>
+        <td>${u.linkedGoogle?'<span class="google-badge linked">Linked</span>':isMe?'<button class="btn-gold-sm link-google-btn">Link Google</button>':'<span class="google-badge">—</span>'}</td>
         <td>
-          ${canEdit ? `<button class="btn btn-gold-sm btn-sm edit-btn" style="margin-right:5px;">Edit</button>` : `<span style="color:var(--sub); font-size:11px; padding:4px 6px; user-select:none;">🔒 Protected</span>`}
+          ${canEdit ? `<button class="btn btn-gold-sm btn-sm edit-btn" style="margin-right:5px;">Edit</button>` : `<span style="color:var(--sub); font-size:11px; padding:4px 6px; user-select:none;">Protected</span>`}
           ${canDelete ? `<button class="btn btn-danger btn-sm delete-btn">Remove</button>` : ''}
         </td>`;
         
@@ -5736,10 +5735,10 @@ function loadDecoders() {
           <span class="decoder-metric-label">Safe Fleet Ctrl</span>
           <span class="decoder-metric-value" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
             <button class="btn-gold-sm" onclick="safeReloadDecoder('${d.id}')" style="padding:3px 8px; font-size:10px; background:rgba(59,130,246,0.2); border-color:#3b82f6; color:#93c5fd;" title="Safely signal app to reload stream without rebooting device">
-              🔄 Safe Reload
+              Safe Reload
             </button>
             <button class="btn-gold-sm" onclick="toggleLockDecoder('${d.id}', ${ctrl.isLocked ? 'true' : 'false'})" style="padding:3px 8px; font-size:10px; ${ctrl.isLocked ? 'background:#ef4444; border-color:#fca5a5; color:#fff;' : 'background:rgba(255,255,255,0.08); color:var(--sub);'}" title="Remote screen freeze / lock">
-              ${ctrl.isLocked ? '🔒 Locked' : '🔓 Unlock'}
+              ${ctrl.isLocked ? 'Locked' : 'Unlock'}
             </button>
           </span>
         </div>
@@ -5947,7 +5946,7 @@ window.safeReloadDecoder = function(id) {
     reloadCommandId: Math.random().toString(36).substring(2, 9),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true }).then(() => {
-    alert(`✓ Safe stream reload command dispatched to decoder "${id}".`);
+    alert(`Safe stream reload command dispatched to decoder "${id}".`);
   }).catch(err => {
     alert(`Error dispatching safe reload: ${err.message}`);
   });
@@ -5963,7 +5962,7 @@ window.toggleLockDecoder = function(id, isCurrentlyLocked) {
     lockedAt: Date.now(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true }).then(() => {
-    alert(`✓ Decoder "${id}" is now ${newLock ? 'LOCKED / SCREEN FROZEN' : 'UNLOCKED'}.`);
+    alert(`Decoder "${id}" is now ${newLock ? 'LOCKED / SCREEN FROZEN' : 'UNLOCKED'}.`);
   }).catch(err => {
     alert(`Error updating decoder lock status: ${err.message}`);
   });
@@ -6015,12 +6014,12 @@ function loadOtherStreams() {
         <div style="font-weight: 800; font-size: 15px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; font-family: var(--classic-title-font); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
           <span>${feed.title} (<code style="color:var(--text);">${feed.endpoint}</code>)</span>
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span id="feed-ownership-badge-${i}" class="role-badge superadmin" style="font-size:11px; padding:3px 10px;">🌐 Open to All Superadmins</span>
+            <span id="feed-ownership-badge-${i}" class="role-badge superadmin" style="font-size:11px; padding:3px 10px;">Open to All Superadmins</span>
             ${isGodfather && !isSrinjana ? `
               <div style="display:inline-flex; align-items:center; gap:4px;">
                 <span style="font-size:11px; color:var(--gold); font-weight:700;">Assign:</span>
                 <select id="feed-godfather-inline-assign-${i}" onchange="godfatherAssignFeed(this, '${scope}')" style="width:auto; max-width:180px; padding:3px 6px; font-size:11px; background:#fff; border:1px solid #7a9cb9; border-radius:3px; color:#111;">
-                  <option value="">🌐 Open to All</option>
+                  <option value="">Open to All</option>
                 </select>
               </div>
             ` : ''}
@@ -6029,7 +6028,7 @@ function loadOtherStreams() {
 
         <div id="feed-lock-banner-${i}" style="display:none; background: rgba(239, 68, 68, 0.12); border: 1.5px solid #ef4444; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; color: #fecaca;">
           <div style="font-weight: 800; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; color: #fca5a5;">
-            <span id="feed-lock-banner-title-${i}">🔒 PROTECTED STREAM FEED</span>
+            <span id="feed-lock-banner-title-${i}">PROTECTED STREAM FEED</span>
           </div>
           <div id="feed-lock-banner-desc-${i}" style="font-size: 12px; line-height: 1.5;">
             This feed is currently assigned to another administrator. Controls are in read-only mode.
@@ -6051,7 +6050,7 @@ function loadOtherStreams() {
 
           <div class="field" style="margin-top:10px; background: rgba(99, 102, 241, 0.05); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: 8px; padding: 10px 12px;">
             <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <span style="font-weight:700; color:#c7d2fe; font-size:12px;">🛡️ Backup Stream URL (${feed.name})</span>
+              <span style="font-weight:700; color:#c7d2fe; font-size:12px;">Backup Stream URL (${feed.name})</span>
               <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:9px; padding:1px 6px;">AUTO-FAILOVER</span>
             </label>
             <input type="url" id="feed-backup-url-${i}" placeholder="e.g. https://backup-server.com/live.m3u8"/>
@@ -6062,14 +6061,14 @@ function loadOtherStreams() {
           <div style="margin-top:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border2); border-radius:8px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <div style="font-weight:700; font-size:12px; color:var(--gold); display:flex; align-items:center; gap:6px;">
-                <span>🔒 Stream Access Mode</span>
+                <span>Stream Access Mode</span>
               </div>
               <div style="font-size:11px; color:var(--sub); margin-top:2px;" id="feed-token-desc-${i}">
-                🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely without a token.
+                <strong>Free-To-Air (FTA):</strong> Anyone with the M3U8 link can watch freely without a token.
               </div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
-              <span id="feed-token-badge-${i}" class="role-badge" style="font-size:10px; background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid #10b981;">🌐 FTA OPEN</span>
+              <span id="feed-token-badge-${i}" class="role-badge" style="font-size:10px; background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid #10b981;">FTA OPEN</span>
               <label class="toggle-switch">
                 <input type="checkbox" id="feed-token-toggle-${i}" onchange="onFeedTokenToggleChange('${i}')" />
                 <span class="toggle-track"></span>
@@ -6080,7 +6079,7 @@ function loadOtherStreams() {
           <!-- EXPANDED TOKEN MANAGER FOR THIS FEED (Visible ONLY when Tokenized is ON) -->
           <div id="feed-token-expanded-box-${i}" style="display:none; margin-top:10px; background:rgba(245,158,11,0.06); border:1.5px solid rgba(245,158,11,0.35); border-radius:8px; padding:14px;">
             <div style="font-weight:700; color:#fde68a; font-size:13px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-              <span>🔑 VIP Access Tokens for ${feed.name}</span>
+              <span>VIP Access Tokens for ${feed.name}</span>
               <span class="role-badge godfather" style="font-size:9px;">TOKEN REQUIRED</span>
             </div>
             <div style="font-size:11px; color:#fef3c7; margin-bottom:10px;">
@@ -6109,7 +6108,7 @@ function loadOtherStreams() {
               </div>
               <div style="display:flex; justify-content:flex-end;">
                 <button type="button" class="btn-gold-sm" onclick="feedGenerateInlineToken('${i}', '${feed.id}', '${feed.endpoint}')" style="padding:5px 14px; font-size:11px;">
-                  ⚡ Generate VIP Link for ${feed.name}
+                  Generate VIP Link for ${feed.name}
                 </button>
               </div>
             </div>
@@ -6117,12 +6116,12 @@ function loadOtherStreams() {
             <!-- Inline Generated Link Output Box for this feed -->
             <div id="feed-inline-output-card-${i}" style="display:none; background:rgba(16,185,129,0.12); border:1.5px solid #10b981; border-radius:6px; padding:10px; margin-bottom:10px;">
               <div style="font-weight:700; color:#6ee7b7; font-size:11px; margin-bottom:4px; display:flex; justify-content:space-between;">
-                <span>✓ Token Generated for ${feed.name}</span>
-                <span style="cursor:pointer; color:var(--sub);" onclick="$('feed-inline-output-card-${i}').style.display='none'">✕</span>
+                <span>Token Generated for ${feed.name}</span>
+                <span style="cursor:pointer; color:var(--sub);" onclick="$('feed-inline-output-card-${i}').style.display='none'">Close</span>
               </div>
               <div style="display:flex; gap:6px; align-items:center;">
                 <input type="text" id="feed-inline-generated-url-${i}" readonly style="flex:1; font-family:monospace; font-size:11px; padding:5px 8px; background:rgba(0,0,0,0.5); color:#a7f3d0; border:1px solid #10b981;" />
-                <button type="button" class="btn-gold-sm" onclick="copyIPTV('feed-inline-generated-url-${i}')" style="white-space:nowrap; padding:5px 10px; font-size:11px;">📋 Copy Link</button>
+                <button type="button" class="btn-gold-sm" onclick="copyIPTV('feed-inline-generated-url-${i}')" style="white-space:nowrap; padding:5px 10px; font-size:11px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Link</button>
               </div>
             </div>
 
@@ -6263,12 +6262,12 @@ function loadOtherStreams() {
         const url = this.value;
         const t = detectType(url);
         const h = {
-          'youtube': '✓ YouTube detected',
-          'hls': '✓ HLS stream detected',
-          'dash': '✓ DASH stream detected',
-          'rtmp': '✓ RTMP stream detected',
-          'video': '✓ Video file (MP4/WebM/MKV/AVI/MOV/TS) detected',
-          'iframe': '⚠ Custom URL format',
+          'youtube': 'YouTube detected',
+          'hls': 'HLS stream detected',
+          'dash': 'DASH stream detected',
+          'rtmp': 'RTMP stream detected',
+          'video': 'Video file detected',
+          'iframe': 'Custom URL format',
           '': 'Accepts: YouTube · HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS · RTMP'
         };
         const hintEl = $(`feed${i}-url-hint`);
@@ -6316,33 +6315,33 @@ function loadOtherStreams() {
           badgeEl.style.background = '';
           badgeEl.style.borderColor = '';
           badgeEl.style.color = '';
-          badgeEl.textContent = '👑 Godfather Exclusive';
+          badgeEl.textContent = 'Godfather Exclusive';
         } else if (data.assignedTo) {
           if (isAssignedToMe) {
             badgeEl.className = 'role-badge superadmin';
             badgeEl.style.background = 'rgba(16,185,129,0.2)';
             badgeEl.style.borderColor = '#10b981';
             badgeEl.style.color = '#6ee7b7';
-            badgeEl.textContent = '✅ Assigned to You';
+            badgeEl.textContent = 'Assigned to You';
           } else {
             badgeEl.className = 'role-badge admin';
             badgeEl.style.background = 'rgba(239,68,68,0.2)';
             badgeEl.style.borderColor = '#ef4444';
             badgeEl.style.color = '#fca5a5';
-            badgeEl.textContent = `🔒 Assigned to: ${data.assignedName || data.assignedEmail || 'Superadmin'}`;
+            badgeEl.textContent = `Assigned to: ${data.assignedName || data.assignedEmail || 'Superadmin'}`;
           }
         } else if (isGodfather) {
           badgeEl.className = 'role-badge godfather';
           badgeEl.style.background = '';
           badgeEl.style.borderColor = '';
           badgeEl.style.color = '';
-          badgeEl.textContent = '👑 Godfather (Full Access)';
+          badgeEl.textContent = 'Godfather (Full Access)';
         } else {
           badgeEl.className = 'role-badge superadmin';
           badgeEl.style.background = '';
           badgeEl.style.borderColor = '';
           badgeEl.style.color = '';
-          badgeEl.textContent = '🌐 Open to All Superadmins';
+          badgeEl.textContent = 'Open to All Superadmins';
         }
       }
 
@@ -6354,10 +6353,10 @@ function loadOtherStreams() {
         if (!canManage) {
           lockBanner.style.display = 'block';
           if (isSrinjana) {
-            if (lockTitle) lockTitle.textContent = '👑 GODFATHER PROTECTED STREAM FEED';
+            if (lockTitle) lockTitle.textContent = 'GODFATHER PROTECTED STREAM FEED';
             if (lockDesc) lockDesc.innerHTML = 'Only <strong>Joel Sohan Gomes (Godfather)</strong> is authorized to modify or redirect <code>Srinjana.m3u8</code>. Controls are locked for Superadmins and Admins.';
           } else {
-            if (lockTitle) lockTitle.textContent = '🔒 FEED LOCKED — RESTRICTED ACCESS';
+            if (lockTitle) lockTitle.textContent = 'FEED LOCKED — RESTRICTED ACCESS';
             if (lockDesc) lockDesc.innerHTML = `This feed is currently assigned exclusively to <strong>${data.assignedName || data.assignedEmail || 'another Superadmin'}</strong>. Only they or Joel Sohan Gomes (Godfather) can modify or redirect it.`;
           }
         } else {
@@ -6388,7 +6387,7 @@ function loadOtherStreams() {
         feedSaveB.disabled = !canManage;
         feedSaveB.style.opacity = canManage ? '' : '0.5';
         feedSaveB.style.cursor = canManage ? '' : 'not-allowed';
-        feedSaveB.textContent = canManage ? `Save ${feed.name} Settings` : '🔒 Locked (Unauthorized)';
+        feedSaveB.textContent = canManage ? `Save ${feed.name} Settings` : 'Locked (Unauthorized)';
       }
       if (feedOffImg) { feedOffImg.disabled = !canManage; feedOffImg.style.opacity = canManage ? '' : '0.6'; feedOffImg.style.cursor = canManage ? '' : 'not-allowed'; }
       if (feedOffHls) { feedOffHls.disabled = !canManage; feedOffHls.style.opacity = canManage ? '' : '0.6'; feedOffHls.style.cursor = canManage ? '' : 'not-allowed'; }
@@ -6412,19 +6411,19 @@ function loadOtherStreams() {
           feedTokenBadge.style.background = 'rgba(245, 158, 11, 0.2)';
           feedTokenBadge.style.color = '#fde68a';
           feedTokenBadge.style.borderColor = '#f59e0b';
-          feedTokenBadge.textContent = '🔒 TOKENIZED';
+          feedTokenBadge.textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px; margin-right:3px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>TOKENIZED';
         } else {
           feedTokenBadge.className = 'role-badge superadmin';
           feedTokenBadge.style.background = 'rgba(16,185,129,0.2)';
           feedTokenBadge.style.color = '#6ee7b7';
           feedTokenBadge.style.borderColor = '#10b981';
-          feedTokenBadge.textContent = '🌐 FTA OPEN';
+          feedTokenBadge.textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px; margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>FTA OPEN';
         }
       }
       if (feedTokenDesc) {
         feedTokenDesc.innerHTML = data.isTokenized 
-          ? '🔒 <strong>Tokenized Mode:</strong> Requests without a valid VIP <code>?token=XYZ</code> are blocked.' 
-          : '🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely without tokens.';
+          ? '<strong>Tokenized Security:</strong> Requests without a valid VIP <code>?token=XYZ</code> are blocked.' 
+          : '<strong>Free-To-Air (FTA):</strong> Anyone with the M3U8 link can watch freely without tokens.';
       }
       if (iptvUrlInput) {
         iptvUrlInput.value = data.isTokenized
@@ -6436,7 +6435,7 @@ function loadOtherStreams() {
       if (isGodfather && !isSrinjana) {
         const inlineAssign = $(`feed-godfather-inline-assign-${i}`);
         if (inlineAssign && window._cachedAdminList && window._cachedAdminList.length > 0) {
-          let opts = `<option value="" ${!data.assignedTo ? 'selected' : ''}>🌐 Open to All</option>`;
+          let opts = `<option value="" ${!data.assignedTo ? 'selected' : ''}>Open to All</option>`;
           window._cachedAdminList.forEach(adm => {
             const isSel = (data.assignedTo === adm.uid) || (data.assignedEmail && data.assignedEmail.toLowerCase() === adm.email.toLowerCase());
             opts += `<option value="${adm.uid}" data-email="${adm.email}" data-name="${adm.displayName}" ${isSel ? 'selected' : ''}>${adm.displayName}</option>`;
@@ -6463,18 +6462,18 @@ function loadOtherStreams() {
           feedUrlIn.style.fontFamily = 'monospace';
           feedUrlIn.style.fontWeight = '700';
           const hintEl = $(`feed${i}-url-hint`);
-          if (hintEl) hintEl.innerHTML = '<span style="color:#fde047;">🔒 Upstream stream source is hidden (Godfather Only). Public endpoint: <strong>srinjana.m3u8</strong></span>';
+          if (hintEl) hintEl.innerHTML = '<span style="color:#fde047;">Upstream stream source is protected (Godfather Only). Public endpoint: <strong>srinjana.m3u8</strong></span>';
         } else {
           feedUrlIn.value = data.streamUrl || '';
           if (isSrinjana) feedUrlIn.type = 'url';
           const t = detectType(data.streamUrl || '');
           const h = {
-            'youtube': '✓ YouTube detected',
-            'hls': '✓ HLS stream detected',
-            'dash': '✓ DASH stream detected',
-            'rtmp': '✓ RTMP stream detected',
-            'video': '✓ Video file (MP4/WebM/MKV/AVI/MOV/TS) detected',
-            'iframe': '⚠ Custom URL format',
+            'youtube': 'YouTube detected',
+            'hls': 'HLS stream detected',
+            'dash': 'DASH stream detected',
+            'rtmp': 'RTMP stream detected',
+            'video': 'Video file detected',
+            'iframe': 'Custom URL format',
             '': 'Accepts: YouTube · HLS · DASH · MP4 · WebM · MKV · AVI · MOV · TS · RTMP'
           };
           const hintEl = $(`feed${i}-url-hint`);
@@ -6487,7 +6486,7 @@ function loadOtherStreams() {
       if (feedBackupIn && document.activeElement !== feedBackupIn) {
         if (isSrinjana && !isGodfather) {
           feedBackupIn.value = '';
-          feedBackupIn.placeholder = '🔒 Hidden';
+          feedBackupIn.placeholder = 'Hidden';
         } else {
           feedBackupIn.value = data.backupStreamUrl || '';
         }
@@ -6645,9 +6644,9 @@ function loadOtherStreams() {
           <td style="padding:6px 8px; font-family:monospace; color:#93c5fd; font-size:10px;">${esc(token)}</td>
           <td style="padding:6px 8px; color:${isRevoked ? '#ef4444' : (isExpired ? '#f87171' : 'var(--sub)')};">${isRevoked ? 'REVOKED' : esc(expiryLabel)}</td>
           <td style="padding:6px 8px; text-align:center; white-space:nowrap;">
-            <button type="button" class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('✓ Copied tokenized URL for ${feed.name}:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px;">📋 Copy</button>
+            <button type="button" class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('Copied tokenized URL for ${feed.name}:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
             ${!isRevoked ? `
-              <button type="button" class="btn-gold-sm" onclick="godfatherRevokeToken('${esc(token)}', '${esc(client)}')" style="padding:2px 6px; font-size:10px; background:#ef4444; border-color:#fca5a5; color:#fff; margin-left:4px;">🚫 Revoke</button>
+              <button type="button" class="btn-gold-sm" onclick="godfatherRevokeToken('${esc(token)}', '${esc(client)}')" style="padding:2px 6px; font-size:10px; background:#ef4444; border-color:#fca5a5; color:#fff; margin-left:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Revoke</button>
             ` : ''}
           </td>
         `;
@@ -6672,7 +6671,7 @@ window.onFeedTokenToggleChange = async function(i) {
 
   if (expandedBox) expandedBox.style.display = isTokenized ? 'block' : 'none';
   if (badge) {
-    badge.textContent = isTokenized ? '🔒 TOKENIZED' : '🌐 FTA OPEN';
+    badge.textContent = isTokenized ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px; margin-right:3px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>TOKENIZED' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px; margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>FTA OPEN';
     badge.className = isTokenized ? 'role-badge godfather' : 'role-badge superadmin';
     badge.style.background = isTokenized ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16,185,129,0.2)';
     badge.style.color = isTokenized ? '#fde68a' : '#6ee7b7';
@@ -6680,8 +6679,8 @@ window.onFeedTokenToggleChange = async function(i) {
   }
   if (desc) {
     desc.innerHTML = isTokenized
-      ? '🔒 <strong>Tokenized Mode:</strong> Requests without a valid VIP <code>?token=XYZ</code> are blocked.'
-      : '🌐 <strong>FTA Mode:</strong> Anyone with the M3U8 link can watch freely without a token.';
+      ? '<strong>Tokenized Security:</strong> Requests without a valid VIP <code>?token=XYZ</code> are blocked.'
+      : '<strong>Free-To-Air (FTA):</strong> Anyone with the M3U8 link can watch freely without a token.';
   }
   if (iptvIn) {
     const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
@@ -6760,7 +6759,7 @@ window.feedGenerateInlineToken = async function(feedKey, feedScope, endpoint) {
     if (outCard) outCard.style.display = 'block';
 
     if (nameIn) nameIn.value = '';
-    alert(`✓ VIP Token generated for ${endpoint}:\n\n${linkUrl}`);
+    alert(`VIP Token generated for ${endpoint}:\n\n${linkUrl}`);
   } catch (err) {
     console.error('Generate inline token error:', err);
     alert('Error generating VIP token: ' + err.message);
@@ -7191,7 +7190,7 @@ async function uploadEpgFile() {
       const programmes = xmlDoc.getElementsByTagName('programme');
       
       if (programmes.length === 0) {
-        msgEl.textContent = '✗ No program events found in the XMLTV file.';
+        msgEl.textContent = 'Error: No program events found in the XMLTV file.';
         msgEl.style.color = 'var(--red)';
         btn.disabled = false;
         return;
@@ -7260,7 +7259,7 @@ async function uploadEpgFile() {
         await batch.commit();
       }
 
-      msgEl.textContent = `✓ Successfully imported ${totalImported} program events for ${targetChannel.toUpperCase()}!`;
+      msgEl.textContent = `Successfully imported ${totalImported} program events for ${targetChannel.toUpperCase()}!`;
       msgEl.style.color = 'var(--green)';
       fileInput.value = '';
       if (targetChannel !== 'auto') {
@@ -7268,7 +7267,7 @@ async function uploadEpgFile() {
         filterEpgList();
       }
     } catch (err) {
-      msgEl.textContent = '✗ Error parsing XMLTV file: ' + err.message;
+      msgEl.textContent = 'Error: Error parsing XMLTV file: ' + err.message;
       msgEl.style.color = 'var(--red)';
     } finally {
       btn.disabled = false;
@@ -7334,7 +7333,7 @@ async function loadDefaultEpgTemplate() {
 
   try {
     await batch.commit();
-    alert("✓ Successfully loaded the 24-hour daily template!");
+    alert("Successfully loaded the 24-hour daily template!");
   } catch (e) {
     alert("Error loading template: " + e.message);
   }
@@ -7433,7 +7432,7 @@ async function copyDailyEpgSchedule() {
         }
         await batch.commit();
         closeCopyScheduleModal();
-        alert(`✓ Successfully copied 24-hour default schedule from ${src.toUpperCase()} to ${dst.toUpperCase()}!`);
+        alert(`Successfully copied 24-hour default schedule from ${src.toUpperCase()} to ${dst.toUpperCase()}!`);
         return;
       }
 
@@ -7458,7 +7457,7 @@ async function copyDailyEpgSchedule() {
 
     await batch.commit();
     closeCopyScheduleModal();
-    alert(`✓ Successfully copied ${count} program event(s) from ${src.toUpperCase()} to ${dst.toUpperCase()}!`);
+    alert(`Successfully copied ${count} program event(s) from ${src.toUpperCase()} to ${dst.toUpperCase()}!`);
   } catch (e) {
     errEl.textContent = "Error copying schedule: " + e.message;
   }
@@ -7492,7 +7491,7 @@ async function clearSelectedFeedEpg() {
     }
 
     await batch.commit();
-    alert(`✓ Successfully cleared all ${count} scheduled event(s) for ${channelName}!`);
+    alert(`Successfully cleared all ${count} scheduled event(s) for ${channelName}!`);
     filterEpgList();
   } catch (e) {
     alert("Error clearing EPG schedule: " + e.message);
@@ -7780,7 +7779,7 @@ window.checkVaultPermissionAndRender = function() {
       statusBadge.className = isGodfather ? 'role-badge godfather' : 'role-badge superadmin';
       statusBadge.style.background = isGodfather ? '' : '#059669';
       statusBadge.style.color = '#fff';
-      statusBadge.textContent = isGodfather ? '👑 GODFATHER ACCESS' : '✓ ACCESS AUTHORIZED';
+      statusBadge.textContent = isGodfather ? 'GODFATHER ACCESS' : 'ACCESS AUTHORIZED';
     }
     loadVaultFromCloud();
   } else {
@@ -7790,7 +7789,7 @@ window.checkVaultPermissionAndRender = function() {
       statusBadge.className = 'role-badge';
       statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
       statusBadge.style.color = '#fca5a5';
-      statusBadge.textContent = '🔒 ACCESS RESTRICTED';
+      statusBadge.textContent = 'ACCESS RESTRICTED';
     }
     const textarea = $('vault-raw-textarea');
     if (textarea) textarea.value = '';
@@ -7817,10 +7816,10 @@ window.godfatherRefreshVaultAccessMatrix = function() {
       const hasVault = isGodfather ? true : (u.canAccessLinkVault === true);
 
       const statusBadge = isGodfather
-        ? `<span class="role-badge godfather" style="font-size:10px;">👑 MASTER (FULL)</span>`
+        ? `<span class="role-badge godfather" style="font-size:10px;">MASTER (FULL)</span>`
         : (hasVault 
-            ? `<span class="role-badge superadmin" style="font-size:10px; background:#059669; color:#fff;">✓ PERMITTED</span>`
-            : `<span class="role-badge" style="font-size:10px; background:rgba(239,68,68,0.2); color:#fca5a5;">🔒 LOCKED</span>`);
+            ? `<span class="role-badge superadmin" style="font-size:10px; background:#059669; color:#fff;">PERMITTED</span>`
+            : `<span class="role-badge" style="font-size:10px; background:rgba(239,68,68,0.2); color:#fca5a5;">LOCKED</span>`);
 
       rows += `
         <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
@@ -7839,7 +7838,7 @@ window.godfatherRefreshVaultAccessMatrix = function() {
               <span style="color:var(--gold); font-size:11px; font-weight:700;">Owner</span>
             ` : `
               <button class="btn-gold-sm" onclick="godfatherToggleVaultPermission('${uid}', ${!hasVault}, '${esc(u.displayName || u.email)}')" style="padding:4px 10px; font-size:11px; ${hasVault ? 'background:rgba(220,38,38,0.3); border-color:#ef4444; color:#fff;' : 'background:linear-gradient(180deg, #10b981 0%, #047857 100%); border-color:#6ee7b7; color:#fff;'}">
-                ${hasVault ? '🚫 Revoke Access' : '✓ Grant Access'}
+                ${hasVault ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Revoke Access' : 'Grant Access'}
               </button>
             `}
           </td>
@@ -7861,7 +7860,7 @@ window.godfatherToggleVaultPermission = async function(uid, allow, adminName) {
     logAdminAction('godfather_vault_access', 'linkvault', `Godfather ${allow ? 'GRANTED' : 'REVOKED'} Link Vault access for admin: ${adminName}`);
     godfatherRefreshVaultAccessMatrix();
     if (typeof loadUsers === 'function') loadUsers(auth.currentUser, window.currentUserRole);
-    alert(`✓ Link Vault access ${allow ? 'GRANTED' : 'REVOKED'} for "${adminName}"`);
+    alert(`Link Vault access ${allow ? 'GRANTED' : 'REVOKED'} for "${adminName}"`);
   } catch(err) {
     alert(`Error updating permission: ${err.message}`);
   }
@@ -7877,7 +7876,7 @@ function setupVaultPlayerEvents() {
   if (!vid) return;
 
   vid.addEventListener('playing', () => {
-    updateVaultPlayerBadge('playing', '🟢 PLAYING');
+    updateVaultPlayerBadge('playing', 'PLAYING');
   });
 
   vid.addEventListener('waiting', () => {
@@ -7885,7 +7884,7 @@ function setupVaultPlayerEvents() {
   });
 
   vid.addEventListener('error', () => {
-    updateVaultPlayerBadge('error', '🔴 STREAM ERROR / OFFLINE');
+    updateVaultPlayerBadge('error', 'STREAM ERROR / OFFLINE');
   });
 
   vid.addEventListener('pause', () => {
@@ -7950,7 +7949,7 @@ window.previewVaultUrl = function(url, title) {
   const isHls = uLower.includes('.m3u8') || uLower.includes('mpegurl') || uLower.includes('format=m3u8');
 
   if (!isHls) {
-    alert("ℹ️ HLS Only Preview:\n\nIn-browser live preview is only available for HLS (.m3u8) streams.\n\nFor MPD/DASH, RTMP, and TS streams:\n1. Copy the link to preview directly in VLC Media Player.\n2. Or use '⚡ Quick Assign' to route this stream to any feed.");
+    alert("HLS Preview Note:\n\nIn-browser live preview is only available for HLS (.m3u8) streams.\n\nFor MPD/DASH, RTMP, and TS streams:\n1. Copy the link to preview directly in VLC Media Player.\n2. Or use 'Quick Assign' to route this stream to any feed.");
     return;
   }
 
@@ -7997,16 +7996,16 @@ window.previewVaultUrl = function(url, title) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
               console.error("fatal network error encountered, try to recover", data);
-              updateVaultPlayerBadge('error', '🔴 NETWORK / MIXED-CONTENT ERROR');
+              updateVaultPlayerBadge('error', 'NETWORK / MIXED-CONTENT ERROR');
               vaultHls.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
               console.error("fatal media error encountered, try to recover", data);
-              updateVaultPlayerBadge('error', '🔴 MEDIA ERROR');
+              updateVaultPlayerBadge('error', 'MEDIA ERROR');
               vaultHls.recoverMediaError();
               break;
             default:
-              updateVaultPlayerBadge('error', '🔴 STREAM OFFLINE');
+              updateVaultPlayerBadge('error', 'STREAM OFFLINE');
               vaultHls.destroy();
               break;
           }
@@ -8132,14 +8131,14 @@ window.renderParsedVaultLinks = function() {
             </button>
           ` : `
             <span style="font-size:11px; color:#94a3b8; padding:5px 10px; background:rgba(255,255,255,0.06); border-radius:4px; border:1px solid rgba(255,255,255,0.1); font-family:var(--classic-title-font);">
-              📺 VLC / IPTV Stream
+              VLC / IPTV Stream
             </span>
           `}
           <button class="btn-gold-sm" onclick="copyVaultLinkText(decodeURIComponent('${safeUrlForAttr}'), this)" style="padding:6px 12px; font-size:12px;">
-            📋 Copy Link
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Link
           </button>
           <div style="display:inline-flex; align-items:center; gap:6px; margin-left:auto;">
-            <span style="font-size:12px; color:var(--sub); font-weight:700;">⚡ Quick Assign:</span>
+            <span style="font-size:12px; color:var(--sub); font-weight:700;">Quick Assign:</span>
             <select onchange="assignVaultLinkFromSelect(this, decodeURIComponent('${safeUrlForAttr}'))" style="width:auto; padding:5px 10px; font-size:12px; background:#fff; border:1px solid #7a9cb9; border-radius:3px; color:#111;">
               <option value="" selected disabled>Select Feed...</option>
               <option value="main">Main Channel (Public)</option>
@@ -8179,7 +8178,7 @@ window.copyVaultLinkText = function(url, btn) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(() => {
       const orig = btn.textContent;
-      btn.textContent = '✓ Copied!';
+      btn.textContent = 'Copied!';
       setTimeout(() => { btn.textContent = orig; }, 2000);
     }).catch(() => {
       prompt('Copy Stream URL:', url);
@@ -8228,7 +8227,7 @@ window.assignVaultLinkFromSelect = async function(selectEl, url) {
     }
 
     logAdminAction('assign_vault_link', docTarget, `Assigned vault link to ${targetName}: "${url}"`, feedData, updatePayload);
-    alert(`✓ Stream URL successfully assigned to ${targetName} and set LIVE!`);
+    alert(`Stream URL successfully assigned to ${targetName} and set LIVE!`);
   } catch (err) {
     alert(`Error assigning stream: ${err.message}`);
   } finally {
@@ -8265,7 +8264,7 @@ window.saveVaultToCloud = async function() {
     } catch(e){}
 
     if (msg) {
-      msg.textContent = '✓ Links Saved Successfully!';
+      msg.textContent = 'Links Saved Successfully.';
       msg.classList.add('show');
       setTimeout(() => msg.classList.remove('show'), 3500);
     }
@@ -8370,11 +8369,11 @@ window.importVaultFile = function(event) {
   event.target.value = '';
 };
 
-// ── 👑 GODFATHER MASTER CONTROL SUITE ACTIONS ────────────────
+// ── GODFATHER MASTER CONTROL SUITE ACTIONS ────────────────
 window.godfatherEmergencyBlackout = async function(turnOff) {
-  const actionText = turnOff ? '🚨 BLACKOUT ALL FEEDS (Turn OFF)' : '🟢 SET ALL FEEDS LIVE (Turn ON)';
+  const actionText = turnOff ? 'BLACKOUT ALL FEEDS (Turn OFF)' : 'SET ALL FEEDS LIVE (Turn ON)';
   const confirmMsg = turnOff 
-    ? '⚠️ MASTER EMERGENCY ACTION:\n\nAre you sure you want to turn OFF all 20 feeds, Public stream, Decoder stream, and Srinjana simultaneously?' 
+    ? 'MASTER EMERGENCY ACTION:\n\nAre you sure you want to turn OFF all 20 feeds, Public stream, Decoder stream, and Srinjana simultaneously?' 
     : 'Are you sure you want to turn ON and set LIVE all 20 feeds, Public stream, Decoder stream, and Srinjana?';
   
   if (!confirm(confirmMsg)) return;
@@ -8404,14 +8403,14 @@ window.godfatherEmergencyBlackout = async function(turnOff) {
     await batch.commit();
 
     if (msgEl) {
-      msgEl.textContent = `✓ ${turnOff ? 'All 20 feeds and main channels are now OFFLINE (Blackout).' : 'All 20 feeds and main channels are now LIVE!'}`;
+      msgEl.textContent = `${turnOff ? 'All 20 feeds and main channels are now OFFLINE (Blackout).' : 'All 20 feeds and main channels are now LIVE!'}`;
       msgEl.className = 'save-msg show';
       setTimeout(() => msgEl.classList.remove('show'), 5000);
     }
   } catch (err) {
     console.error('Godfather emergency blackout error:', err);
     if (msgEl) {
-      msgEl.textContent = '✗ Error: ' + err.message;
+      msgEl.textContent = 'Error: Error: ' + err.message;
       msgEl.className = 'save-msg show err';
     }
     alert('Error executing emergency command: ' + err.message);
@@ -8482,13 +8481,13 @@ window.godfatherExportSnapshot = async function() {
     URL.revokeObjectURL(url);
 
     if (msgEl) {
-      msgEl.textContent = '✓ Master network snapshot exported and downloaded successfully!';
+      msgEl.textContent = 'Master network snapshot exported and downloaded successfully!';
       setTimeout(() => msgEl.classList.remove('show'), 5000);
     }
   } catch (err) {
     console.error('Export snapshot error:', err);
     if (msgEl) {
-      msgEl.textContent = '✗ Export failed: ' + err.message;
+      msgEl.textContent = 'Error: Export failed: ' + err.message;
       msgEl.className = 'save-msg show err';
     }
   }
@@ -8506,7 +8505,7 @@ window.godfatherImportSnapshot = function(event) {
         throw new Error('Invalid snapshot file format. Missing collections node.');
       }
 
-      if (!confirm(`⚠️ RESTORE NETWORK SNAPSHOT:\n\nFile: ${file.name}\nExported: ${data.exportedAt || 'Unknown'}\nExported By: ${data.exportedBy || 'Unknown'}\n\nThis will restore stream states, channel configs, Link Vault, and EPG items. Proceed?`)) {
+      if (!confirm(`RESTORE NETWORK SNAPSHOT:\n\nFile: ${file.name}\nExported: ${data.exportedAt || 'Unknown'}\nExported By: ${data.exportedBy || 'Unknown'}\n\nThis will restore stream states, channel configs, Link Vault, and EPG items. Proceed?`)) {
         event.target.value = '';
         return;
       }
@@ -8549,10 +8548,10 @@ window.godfatherImportSnapshot = function(event) {
       }
 
       if (msgEl) {
-        msgEl.textContent = '✓ Master network snapshot restored successfully!';
+        msgEl.textContent = 'Master network snapshot restored successfully!';
         setTimeout(() => msgEl.classList.remove('show'), 5000);
       }
-      alert('✓ Master snapshot restored successfully! Page will refresh.');
+      alert('Master snapshot restored successfully! Page will refresh.');
       window.location.reload();
     } catch (err) {
       console.error('Snapshot restore error:', err);
@@ -8623,15 +8622,15 @@ window.godfatherDirectSetPassword = async function() {
     }
 
     if (msgEl) {
-      msgEl.textContent = `✓ Password successfully changed for ${adminName}!`;
+      msgEl.textContent = `Password successfully changed for ${adminName}!`;
       setTimeout(() => msgEl.classList.remove('show'), 6000);
     }
-    alert(`✓ Password for ${adminName} has been updated to:\n\n${newPass}\n\n(It has also been logged to your private Godfather Credentials Notepad below).`);
+    alert(`Password for ${adminName} has been updated to:\n\n${newPass}\n\n(It has also been logged to your private Godfather Credentials Notepad below).`);
     $('godfather-pw-new-val').value = '';
   } catch (err) {
     console.error('Direct set password error:', err);
     if (msgEl) {
-      msgEl.textContent = '✗ ' + (err.message || 'Failed to update password');
+      msgEl.textContent = 'Error: ' + (err.message || 'Failed to update password');
       msgEl.className = 'save-msg show err';
     }
     alert('Error setting password: ' + (err.message || 'Please check that Cloud Functions are running.'));
@@ -8671,22 +8670,22 @@ window.editModalDirectSetPassword = async function() {
     }
 
     if (msgEl) {
-      msgEl.textContent = '✓ Password updated successfully!';
+      msgEl.textContent = 'Password updated successfully!';
       msgEl.style.display = 'block';
     }
-    alert(`✓ Password for ${email} updated successfully to:\n\n${newPass}`);
+    alert(`Password for ${email} updated successfully to:\n\n${newPass}`);
     $('edit-godfather-new-pass').value = '';
   } catch (err) {
     console.error('Edit modal password error:', err);
     if (msgEl) {
-      msgEl.textContent = '✗ ' + (err.message || 'Failed to update password.');
+      msgEl.textContent = 'Error: ' + (err.message || 'Failed to update password.');
       msgEl.style.color = 'var(--red)';
       msgEl.style.display = 'block';
     }
     alert('Error setting password: ' + err.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = '⚡ Set New Password Now';
+    btn.textContent = 'Set New Password Now';
   }
 };
 
@@ -8704,7 +8703,7 @@ window.godfatherSaveCredentials = async function(silent = false) {
     if (!silent) {
       const msgEl = $('godfather-msg');
       if (msgEl) {
-        msgEl.textContent = '✓ Godfather credential notes saved securely to cloud!';
+        msgEl.textContent = 'Godfather credential notes saved securely to cloud!';
         msgEl.className = 'save-msg show';
         setTimeout(() => msgEl.classList.remove('show'), 4000);
       }
@@ -8737,7 +8736,7 @@ window.godfatherLoadCredentials = function() {
   });
 };
 
-// ── 🔴 MASTER NETWORK TAKEOVER OVERRIDE ─────────────────────────────
+// ── MASTER NETWORK TAKEOVER OVERRIDE ─────────────────────────────
 window.godfatherLoadTakeoverConfig = function() {
   db.doc('config/masterOverride').onSnapshot(doc => {
     const data = doc.exists ? doc.data() : {};
@@ -8755,11 +8754,11 @@ window.godfatherLoadTakeoverConfig = function() {
     if (toggleEl) toggleEl.checked = enabled;
     if (badgeEl) {
       if (enabled) {
-        badgeEl.textContent = '🔴 ACTIVE TAKEOVER';
+        badgeEl.textContent = 'ACTIVE TAKEOVER';
         badgeEl.style.background = '#ef4444';
         badgeEl.style.color = '#fff';
       } else {
-        badgeEl.textContent = '⚪ STANDBY (NORMAL)';
+        badgeEl.textContent = 'STANDBY (NORMAL)';
         badgeEl.style.background = 'rgba(255,255,255,0.1)';
         badgeEl.style.color = 'var(--sub)';
       }
@@ -8786,7 +8785,7 @@ window.godfatherToggleTakeover = async function(enabled) {
   }
 
   const confirmMsg = enabled 
-    ? `🚨 CONFIRM MASTER NETWORK TAKEOVER?\n\nThis will immediately hijack playback across [${scope.toUpperCase()}] channels in under 500ms.\n\nMaster Stream: ${streamUrl}`
+    ? `CONFIRM MASTER NETWORK TAKEOVER?\n\nThis will immediately hijack playback across [${scope.toUpperCase()}] channels in under 500ms.\n\nMaster Stream: ${streamUrl}`
     : `Deactivate Master Network Takeover and restore all channels back to normal routing?`;
 
   if (!confirm(confirmMsg)) {
@@ -8807,11 +8806,11 @@ window.godfatherToggleTakeover = async function(enabled) {
     logAdminAuditAction('MASTER_TAKEOVER_TOGGLE', `Master Takeover ${enabled ? 'ACTIVATED' : 'DEACTIVATED'} (Scope: ${scope})`, { enabled, streamUrl, scope });
     
     // Send Telegram alert
-    godfatherSendTelegramPush(`🚨 [MASTER TAKEOVER ${enabled ? 'ACTIVATED' : 'DEACTIVATED'}]\n\nGodfather initiated Master Network Takeover.\nScope: ${scope}\nStream: ${streamUrl || 'N/A'}\nTime: ${new Date().toLocaleString()}`);
+    godfatherSendTelegramPush(`[MASTER TAKEOVER ${enabled ? 'ACTIVATED' : 'DEACTIVATED'}]\n\nGodfather initiated Master Network Takeover.\nScope: ${scope}\nStream: ${streamUrl || 'N/A'}\nTime: ${new Date().toLocaleString()}`);
 
     const msgEl = $('godfather-msg');
     if (msgEl) {
-      msgEl.textContent = `✓ Master Takeover ${enabled ? 'ACTIVATED' : 'DEACTIVATED'} across network!`;
+      msgEl.textContent = `Master Takeover ${enabled ? 'ACTIVATED' : 'DEACTIVATED'} across network!`;
       msgEl.className = 'save-msg show';
       setTimeout(() => msgEl.classList.remove('show'), 5000);
     }
@@ -8846,7 +8845,7 @@ window.godfatherSaveTakeoverConfig = async function() {
 
     const msgEl = $('godfather-msg');
     if (msgEl) {
-      msgEl.textContent = '✓ Master Takeover settings saved successfully!';
+      msgEl.textContent = 'Master Takeover settings saved successfully.';
       msgEl.className = 'save-msg show';
       setTimeout(() => msgEl.classList.remove('show'), 4000);
     }
@@ -8856,7 +8855,7 @@ window.godfatherSaveTakeoverConfig = async function() {
   }
 };
 
-// ── 🔑 GODFATHER VIP KEYMAKER & TOKEN SECURITY ─────────────────────
+// ── GODFATHER VIP KEYMAKER & TOKEN SECURITY ─────────────────────
 window.godfatherGenerateVipToken = async function() {
   const nameEl = $('keymaker-client-name');
   const expiryEl = $('keymaker-expiry-select');
@@ -8992,7 +8991,7 @@ window.godfatherLoadTokens = function() {
         <td style="padding:8px 10px; font-weight:600; color:#fde68a;">${esc(client)}</td>
         <td style="padding:8px 10px; font-family:monospace; color:#93c5fd; font-size:11px;">
           <span>${esc(token)}</span>
-          <button class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('✓ Copied tokenized URL to clipboard:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px; margin-left:6px;">📋 Copy Link</button>
+          <button class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('Copied tokenized URL to clipboard:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px; margin-left:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Link</button>
         </td>
         <td style="padding:8px 10px; color:var(--sub); font-size:11px;">${esc(scope)}</td>
         <td style="padding:8px 10px; color:${isExpired ? '#f87171' : 'var(--text)'}; font-size:11px;">${esc(expiryLabel)}</td>
@@ -9000,7 +8999,7 @@ window.godfatherLoadTokens = function() {
         <td style="padding:8px 10px; text-align:center;">
           ${!isRevoked ? `
             <button class="btn-gold-sm" onclick="godfatherRevokeToken('${esc(token)}', '${esc(client)}')" style="padding:3px 8px; font-size:10px; background:#ef4444; border-color:#fca5a5; color:#fff;">
-              🚫 Revoke
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Revoke
             </button>
           ` : `<span style="color:var(--sub); font-size:11px;">—</span>`}
         </td>
@@ -9028,14 +9027,14 @@ window.godfatherRevokeToken = async function(token, clientName) {
     }, { merge: true });
 
     logAdminAuditAction('VIP_TOKEN_REVOKE', `Revoked VIP token for client "${clientName}" (${token})`, { token, clientName });
-    alert(`✓ VIP Token for "${clientName}" has been revoked.`);
+    alert(`VIP Token for "${clientName}" has been revoked.`);
   } catch (err) {
     console.error('Revoke token error:', err);
     alert('Error revoking token: ' + err.message);
   }
 };
 
-// ── 📱 GODFATHER TELEGRAM WATCHDOG HOTLINE ─────────────────────────
+// ── GODFATHER TELEGRAM WATCHDOG HOTLINE ─────────────────────────
 window.godfatherLoadTelegramSettings = function() {
   db.doc('config/telegramWatchdog').get().then(doc => {
     if (doc.exists) {
@@ -9068,11 +9067,11 @@ window.godfatherSaveTelegramSettings = async function() {
 
     const msgEl = $('godfather-msg');
     if (msgEl) {
-      msgEl.textContent = '✓ Telegram Hotline settings saved successfully!';
+      msgEl.textContent = 'Telegram Hotline settings saved successfully!';
       msgEl.className = 'save-msg show';
       setTimeout(() => msgEl.classList.remove('show'), 4000);
     }
-    alert('✓ Telegram Watchdog Hotline settings saved!');
+    alert('Telegram Watchdog Hotline settings saved!');
   } catch (err) {
     console.error('Save telegram settings error:', err);
     alert('Error saving Telegram settings: ' + err.message);
@@ -9108,7 +9107,7 @@ window.godfatherTestTelegramAlert = async function() {
     return;
   }
 
-  const testMsg = `🚨 <b>[GODFATHER HOTLINE TEST]</b>\n\nGodfather Watchdog Hotline alert system is ONLINE and operational.\n<b>Time:</b> ${new Date().toLocaleString()}\n<b>Status:</b> All systems healthy.`;
+  const testMsg = `<b>[GODFATHER HOTLINE TEST]</b>\n\nGodfather Watchdog Hotline alert system is ONLINE and operational.\n<b>Time:</b> ${new Date().toLocaleString()}\n<b>Status:</b> All systems healthy.`;
 
   try {
     const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -9119,7 +9118,7 @@ window.godfatherTestTelegramAlert = async function() {
 
     const json = await res.json();
     if (json.ok) {
-      alert('✓ Test alert message successfully delivered to your Telegram chat!');
+      alert('Test alert message successfully delivered to your Telegram chat!');
     } else {
       alert('Telegram API Error: ' + (json.description || 'Failed to send message'));
     }
@@ -9129,7 +9128,7 @@ window.godfatherTestTelegramAlert = async function() {
   }
 };
 
-// ── 📢 ADMIN HUD LIVE FLASH BROADCAST DISPATCHER ───────────────────
+// ── ADMIN HUD LIVE FLASH BROADCAST DISPATCHER ───────────────────
 window.godfatherSendBroadcast = async function() {
   const textEl = $('godfather-broadcast-text');
   const sevEl = $('godfather-broadcast-severity');
@@ -9152,7 +9151,7 @@ window.godfatherSendBroadcast = async function() {
     });
 
     logAdminAuditAction('ADMIN_BROADCAST_SEND', `Dispatched Admin HUD Flash Broadcast: "${message}"`, { message, severity });
-    alert('✓ Flash broadcast dispatched to all connected admin screens!');
+    alert('Flash broadcast dispatched to all connected admin screens!');
   } catch (err) {
     console.error('Send broadcast error:', err);
     alert('Error dispatching broadcast: ' + err.message);
@@ -9163,7 +9162,7 @@ window.godfatherClearBroadcast = async function() {
   try {
     await db.doc('config/adminBroadcast').set({ active: false, timestamp: Date.now() }, { merge: true });
     if ($('godfather-broadcast-text')) $('godfather-broadcast-text').value = '';
-    alert('✓ Active broadcast cleared from all admin screens.');
+    alert('Active broadcast cleared from all admin screens.');
   } catch (err) {
     console.error('Clear broadcast error:', err);
     alert('Error clearing broadcast: ' + err.message);
@@ -9202,7 +9201,7 @@ window.godfatherListenBroadcast = function() {
       banner.style.cssText = `position:sticky; top:0; z-index:99999; background:${bg}; color:#fff; padding:10px 16px; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 12px rgba(0,0,0,0.4); text-align:center;`;
       banner.innerHTML = `
         <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px;">
-          <span>${isCritical ? '🚨 [EMERGENCY GODFATHER NOTICE]:' : isWarning ? '⚠️ [IMPORTANT NOTICE]:' : '📢 [ANNOUNCEMENT]:'}</span>
+          <span>${isCritical ? '[EMERGENCY GODFATHER NOTICE]:' : isWarning ? '[IMPORTANT NOTICE]:' : '[ANNOUNCEMENT]:'}</span>
           <span>${esc(data.message)}</span>
         </div>
       `;
@@ -9212,7 +9211,7 @@ window.godfatherListenBroadcast = function() {
   });
 };
 
-// ── 🎯 GODFATHER MASTER FEED ASSIGNMENT & OWNERSHIP MATRIX ─────────
+// ── GODFATHER MASTER FEED ASSIGNMENT & OWNERSHIP MATRIX ─────────
 window.godfatherRefreshFeedMatrix = async function() {
   const tbody = $('godfather-feed-matrix-tbody');
   if (!tbody) return;
@@ -9248,9 +9247,9 @@ window.godfatherRefreshFeedMatrix = async function() {
       tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
 
       let selectHtml = `<select onchange="godfatherAssignFeed('${feed.id}', this.value)" style="padding:4px 8px; font-size:11px; background:var(--bg2); border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:var(--text);">`;
-      selectHtml += `<option value="" ${!assigned ? 'selected' : ''}>🌐 Unrestricted (All Superadmins)</option>`;
+      selectHtml += `<option value="" ${!assigned ? 'selected' : ''}>Unrestricted (All Superadmins)</option>`;
       adminEmails.forEach(email => {
-        selectHtml += `<option value="${esc(email)}" ${assigned === email ? 'selected' : ''}>👤 ${esc(email)}</option>`;
+        selectHtml += `<option value="${esc(email)}" ${assigned === email ? 'selected' : ''}>${esc(email)}</option>`;
       });
       selectHtml += `</select>`;
 
@@ -9283,7 +9282,7 @@ window.godfatherAssignFeed = async function(scope, adminEmail) {
     
     const msgEl = $('godfather-msg');
     if (msgEl) {
-      msgEl.textContent = `✓ Feed "${scope}" ownership updated!`;
+      msgEl.textContent = `Feed "${scope}" ownership updated!`;
       msgEl.className = 'save-msg show';
       setTimeout(() => msgEl.classList.remove('show'), 3000);
     }
@@ -9293,7 +9292,7 @@ window.godfatherAssignFeed = async function(scope, adminEmail) {
   }
 };
 
-// ── 🔐 GODFATHER LINK VAULT ACCESS MATRIX ───────────────────────────
+// ── GODFATHER LINK VAULT ACCESS MATRIX ───────────────────────────
 window.godfatherRefreshVaultAccessMatrix = async function() {
   const tbody = $('godfather-vault-matrix-tbody');
   if (!tbody) return;
@@ -9321,15 +9320,15 @@ window.godfatherRefreshVaultAccessMatrix = async function() {
         <td style="padding:8px 10px;"><span class="role-badge ${esc(role)}" style="font-size:10px;">${esc(role.toUpperCase())}</span></td>
         <td style="padding:8px 10px; text-align:center;">
           <span class="badge" style="background:${vaultAllowed ? '#10b981' : '#ef4444'}; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">
-            ${vaultAllowed ? '🔓 ACCESS GRANTED' : '🔒 LOCKED'}
+            ${vaultAllowed ? 'ACCESS GRANTED' : 'LOCKED'}
           </span>
         </td>
         <td style="padding:8px 10px; text-align:center;">
           ${!isGodfather ? `
             <button class="btn-gold-sm" onclick="godfatherToggleVaultAccess('${uid}', ${vaultAllowed})" style="padding:3px 8px; font-size:10px; ${vaultAllowed ? 'background:#ef4444; border-color:#fca5a5; color:#fff;' : 'background:#10b981; border-color:#a7f3d0; color:#fff;'}">
-              ${vaultAllowed ? '🚫 Revoke Access' : '✓ Grant Access'}
+              ${vaultAllowed ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:3px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Revoke Access' : 'Grant Access'}
             </button>
-          ` : `<span style="color:var(--gold); font-size:10px;">👑 Permanent</span>`}
+          ` : `<span style="color:var(--gold); font-size:10px;">Permanent</span>`}
         </td>
       `;
       tbody.appendChild(tr);
@@ -9351,7 +9350,7 @@ window.godfatherToggleVaultAccess = async function(uid, currentAllowed) {
   }
 };
 
-// ── 🦅 GODFATHER WATCHTOWER (ONE-BY-ONE & MULTI-STREAM WALL) ───────
+// ── GODFATHER WATCHTOWER (ONE-BY-ONE & MULTI-STREAM WALL) ───────
 let activeWatchtowerPlayers = {}; // channelKey -> hlsInstance or true
 
 window.godfatherInitWatchtower = function() {
@@ -9374,11 +9373,11 @@ window.godfatherToggleSingleVideo = function(channelKey, endpoint) {
     delete activeWatchtowerPlayers[channelKey];
     vidContainer.innerHTML = `
       <div style="color:var(--sub); font-size:11px; text-align:center; padding:20px 10px;">
-        <span>🦅 Stealth Standby</span><br>
-        <span style="font-size:9px; color:rgba(255,255,255,0.3);">Click '▶️ Play Preview' to inspect</span>
+        <span>Stealth Standby</span><br>
+        <span style="font-size:9px; color:rgba(255,255,255,0.3);">Click '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>Play Preview' to inspect</span>
       </div>
     `;
-    btn.textContent = '▶️ Play Preview';
+    btn.textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>Play Preview';
     btn.style.background = '';
     btn.style.borderColor = 'var(--gold)';
     btn.style.color = 'var(--gold)';
@@ -9397,7 +9396,7 @@ window.godfatherToggleSingleVideo = function(channelKey, endpoint) {
       activeWatchtowerPlayers[channelKey] = true;
     }
 
-    btn.textContent = '⏹️ Stop Preview';
+    btn.textContent = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>Stop Preview';
     btn.style.background = 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)';
     btn.style.borderColor = '#fca5a5';
     btn.style.color = '#fff';
@@ -9426,7 +9425,7 @@ window.godfatherToggleWatchtowerWall = function() {
       }
     });
     if (masterBtn) {
-      masterBtn.textContent = '▶️ Play All Video Feeds';
+      masterBtn.textContent = 'Play All Feeds';
       masterBtn.style.background = '';
     }
   } else {
@@ -9437,7 +9436,7 @@ window.godfatherToggleWatchtowerWall = function() {
       }
     });
     if (masterBtn) {
-      masterBtn.textContent = '⏹️ Stop All Video Feeds';
+      masterBtn.textContent = 'Stop All Feeds';
       masterBtn.style.background = 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)';
     }
   }
@@ -9474,13 +9473,13 @@ window.godfatherRefreshWatchtower = function() {
       </div>
       <div id="watchtower-container-${ch.key}" style="background:#000; height:120px; border-radius:4px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center;">
         <div style="color:var(--sub); font-size:11px; text-align:center; padding:20px 10px;">
-          <span>🦅 Stealth Standby</span><br>
-          <span style="font-size:9px; color:rgba(255,255,255,0.3);">Click '▶️ Play Preview' to inspect</span>
+          <span>Stealth Standby</span><br>
+          <span style="font-size:9px; color:rgba(255,255,255,0.3);">Click '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>Play Preview' to inspect</span>
         </div>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; margin-top:2px;">
         <button id="watchtower-play-btn-${ch.key}" class="btn-gold-sm" onclick="godfatherToggleSingleVideo('${ch.key}', '${esc(ch.endpoint)}')" style="padding:3px 8px; font-size:10px; font-weight:bold;">
-          ▶️ Play Preview
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px; margin-right:3px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>Play Preview
         </button>
         <button class="btn-gold-sm" onclick="window.open('${streamUrl}', '_blank')" style="padding:3px 8px; font-size:10px; background:transparent; border-color:var(--border2); color:var(--sub);">
           ↗ Full Window
@@ -9491,7 +9490,7 @@ window.godfatherRefreshWatchtower = function() {
   });
 };
 
-// ── 📜 SUPERADMIN AUDIT TRAIL & 1-CLICK STREAM ROLLBACK ─────────────
+// ── SUPERADMIN AUDIT TRAIL & 1-CLICK STREAM ROLLBACK ─────────────
 let auditLogsUnsubscriber = null;
 
 window.godfatherInitAuditLogs = function() {
@@ -9536,7 +9535,7 @@ window.godfatherLoadAuditLogs = function() {
         <td style="padding:8px 10px; text-align:center;">
           ${canRevert ? `
             <button class="btn-gold-sm" onclick="godfatherRevertStreamAction('${meta.scope}', '${esc(meta.prevPrimaryUrl || meta.prevUrl || '')}', '${esc(meta.prevBackupUrl || '')}')" style="padding:3px 8px; font-size:10px; background:linear-gradient(180deg, #f59e0b 0%, #b45309 100%); border-color:#fde68a; color:#fff;">
-              ⚡ Revert
+              Revert
             </button>
           ` : `<span style="color:var(--sub); font-size:10px;">—</span>`}
         </td>
@@ -9561,7 +9560,7 @@ window.godfatherRevertStreamAction = async function(scope, prevUrl, prevBackupUr
     }, { merge: true });
 
     logAdminAuditAction('STREAM_ROLLBACK_EXECUTE', `Godfather executed 1-click stream rollback on "${scope}" to ${prevUrl}`, { scope, restoredUrl: prevUrl });
-    alert(`✓ Successfully restored feed "${scope}" to previous stream URL!`);
+    alert(`Successfully restored feed "${scope}" to previous stream URL!`);
   } catch (err) {
     console.error('Rollback error:', err);
     alert('Error executing rollback: ' + err.message);
@@ -9575,7 +9574,7 @@ window.godfatherClearAuditLogs = async function() {
     const batch = db.batch();
     snap.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
-    alert('✓ Audit logs cleared.');
+    alert('Audit logs cleared.');
   } catch (err) {
     console.error('Clear logs error:', err);
     alert('Error clearing audit logs: ' + err.message);
@@ -9599,7 +9598,7 @@ window.logAdminAuditAction = function(action, details, metadata = {}) {
   }
 };
 
-// ── 👑 MASTER GODFATHER SUITE LOADER ────────────────────────────────
+// ── MASTER GODFATHER SUITE LOADER ────────────────────────────────
 window.loadGodfatherSuite = function() {
   if (typeof godfatherLoadCredentials === 'function') godfatherLoadCredentials();
   if (typeof godfatherLoadTakeoverConfig === 'function') godfatherLoadTakeoverConfig();
