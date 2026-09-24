@@ -773,26 +773,24 @@ ${channelHeaderXml}${programmesXml}</tv>`;
 
     // 1. PROXY HANDLER: Directly proxy any requested media URL with Edge Caching & 401 Session Auto-Recovery
     if (path.startsWith('/proxy')) {
-      let targetUrl = url.searchParams.get('url');
+      let targetUrl = url.searchParams.get('url') || '';
       const passedCookie = url.searchParams.get('cookie') || '';
       const docName = url.searchParams.get('doc') || 'main';
       
-      const rawSearch = url.search;
-      const urlIdx = rawSearch.indexOf('url=');
-      if (urlIdx !== -1) {
-        let extracted = rawSearch.substring(urlIdx + 4);
-        const cookieIdx = extracted.indexOf('&cookie=');
-        if (cookieIdx !== -1) {
-          extracted = extracted.substring(0, cookieIdx);
-        }
-        const seqIdx = extracted.indexOf('&seq=');
-        if (seqIdx !== -1) {
-          extracted = extracted.substring(0, seqIdx);
-        }
-        try {
-          targetUrl = decodeURIComponent(extracted);
-        } catch(e) {
-          targetUrl = extracted;
+      if (!targetUrl) {
+        const rawSearch = url.search;
+        const urlIdx = rawSearch.indexOf('url=');
+        if (urlIdx !== -1) {
+          let extracted = rawSearch.substring(urlIdx + 4);
+          for (const stopParam of ['&cookie=', '&seq=', '&token=', '&doc=']) {
+            const stopIdx = extracted.indexOf(stopParam);
+            if (stopIdx !== -1) extracted = extracted.substring(0, stopIdx);
+          }
+          try {
+            targetUrl = decodeURIComponent(extracted);
+          } catch(e) {
+            targetUrl = extracted;
+          }
         }
       }
       
@@ -828,7 +826,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         } catch (e) {}
       }
 
-      if (!targetUrl.includes('cookieCheck=')) {
+      if (!isMediaSegment && !targetUrl.includes('cookieCheck=')) {
         targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'cookieCheck=1';
       }
 
@@ -1078,11 +1076,13 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
       }
 
+      let isTokenized = parseFirestoreBool(fields.isTokenized);
       if (memData) {
         if (memData.isLive !== undefined) isLive = memData.isLive;
         if (memData.streamUrl) streamUrl = memData.streamUrl;
         if (memData.backupStreamUrl) backupStreamUrl = memData.backupStreamUrl;
         if (memData.offlineHlsUrl) offlineHlsUrl = memData.offlineHlsUrl;
+        if (memData.isTokenized !== undefined) isTokenized = memData.isTokenized;
       }
 
       // ── MASTER NETWORK TAKEOVER OVERRIDE (GODFATHER SUPREME) ────
@@ -1121,7 +1121,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       }
 
       // Rule: NEVER tokenize 'main' (live.m3u8) or 'decoder' (decoder.m3u8)
-      const isTokenizedFeed = (target.doc.startsWith('feed') || target.doc === 'srinjana') && parseFirestoreBool(fields.isTokenized);
+      const isTokenizedFeed = (target.doc.startsWith('feed') || target.doc === 'srinjana') && isTokenized;
 
       if (isTokenizedFeed && !masterOverrideActive) {
         if (!clientToken) {
