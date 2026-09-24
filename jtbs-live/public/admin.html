@@ -6644,8 +6644,11 @@ function loadOtherStreams() {
           <td style="padding:6px 8px; font-weight:600; color:#fde68a;">${esc(client)}</td>
           <td style="padding:6px 8px; font-family:monospace; color:#93c5fd; font-size:10px;">${esc(token)}</td>
           <td style="padding:6px 8px; color:${isRevoked ? '#ef4444' : (isExpired ? '#f87171' : 'var(--sub)')};">${isRevoked ? 'REVOKED' : esc(expiryLabel)}</td>
-          <td style="padding:6px 8px; text-align:center;">
-            <button type="button" class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('✓ Copied tokenized URL for ${feed.name}:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px;">📋 Copy Link</button>
+          <td style="padding:6px 8px; text-align:center; white-space:nowrap;">
+            <button type="button" class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('✓ Copied tokenized URL for ${feed.name}:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px;">📋 Copy</button>
+            ${!isRevoked ? `
+              <button type="button" class="btn-gold-sm" onclick="godfatherRevokeToken('${esc(token)}', '${esc(client)}')" style="padding:2px 6px; font-size:10px; background:#ef4444; border-color:#fca5a5; color:#fff; margin-left:4px;">🚫 Revoke</button>
+            ` : ''}
           </td>
         `;
         tbody.appendChild(tr);
