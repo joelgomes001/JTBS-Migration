@@ -1134,9 +1134,37 @@ ${channelHeaderXml}${programmesXml}</tv>`;
           });
         }
 
-        const tokenDocUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/tokens/${encodeURIComponent(clientToken)}`;
-        const tokenData = await getCachedFirestoreDoc(tokenDocUrl, url.origin);
-        if (!tokenData || !tokenData.fields) {
+        let tokenObj = null;
+        // 1. Check config/vipTokens master registry
+        const vipConfigUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/vipTokens`;
+        const vipConfigDoc = await getCachedFirestoreDoc(vipConfigUrl, url.origin);
+        if (vipConfigDoc && vipConfigDoc.fields && vipConfigDoc.fields.tokens && vipConfigDoc.fields.tokens.mapValue && vipConfigDoc.fields.tokens.mapValue.fields) {
+          const tMap = vipConfigDoc.fields.tokens.mapValue.fields;
+          if (tMap[clientToken] && tMap[clientToken].mapValue && tMap[clientToken].mapValue.fields) {
+            const tf = tMap[clientToken].mapValue.fields;
+            tokenObj = {
+              revoked: parseFirestoreBool(tf.revoked),
+              expiresAt: tf.expiresAt?.timestampValue || tf.expiresAt?.stringValue || '',
+              allowedFeeds: parseFirestoreString(tf.allowedFeeds) || 'all'
+            };
+          }
+        }
+
+        // 2. Fallback to tokens collection if not in config/vipTokens
+        if (!tokenObj) {
+          const tokenDocUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/tokens/${encodeURIComponent(clientToken)}`;
+          const tokenData = await getCachedFirestoreDoc(tokenDocUrl, url.origin);
+          if (tokenData && tokenData.fields) {
+            const tf = tokenData.fields;
+            tokenObj = {
+              revoked: parseFirestoreBool(tf.revoked),
+              expiresAt: tf.expiresAt?.timestampValue || tf.expiresAt?.stringValue || '',
+              allowedFeeds: parseFirestoreString(tf.allowedFeeds) || 'all'
+            };
+          }
+        }
+
+        if (!tokenObj) {
           return new Response(`403 Forbidden: Invalid VIP Access Token.\nPlease contact Godfather (Joel Sohan Gomes) for an authorized token.`, {
             status: 403,
             headers: {
@@ -1146,9 +1174,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
           });
         }
 
-        const tFields = tokenData.fields;
-        const isRevoked = parseFirestoreBool(tFields.revoked);
-        if (isRevoked) {
+        if (tokenObj.revoked) {
           return new Response(`403 Forbidden: VIP Access Token has been Revoked by Godfather.`, {
             status: 403,
             headers: {
@@ -1158,9 +1184,8 @@ ${channelHeaderXml}${programmesXml}</tv>`;
           });
         }
 
-        const expiresAt = tFields.expiresAt?.timestampValue || tFields.expiresAt?.stringValue || '';
-        if (expiresAt) {
-          const expTime = new Date(expiresAt).getTime();
+        if (tokenObj.expiresAt) {
+          const expTime = new Date(tokenObj.expiresAt).getTime();
           if (!isNaN(expTime) && expTime < Date.now()) {
             return new Response(`403 Forbidden: VIP Access Token Expired on ${new Date(expTime).toUTCString()}.`, {
               status: 403,
@@ -1172,7 +1197,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
           }
         }
 
-        const allowedFeeds = parseFirestoreString(tFields.allowedFeeds) || 'all';
+        const allowedFeeds = tokenObj.allowedFeeds || 'all';
         if (allowedFeeds !== 'all') {
           const feedList = allowedFeeds.split(',').map(f => f.trim().toLowerCase());
           if (!feedList.includes(target.doc.toLowerCase())) {

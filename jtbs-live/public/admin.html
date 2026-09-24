@@ -6601,9 +6601,15 @@ function loadOtherStreams() {
   }
 
   // Real-time listener for VIP tokens to populate inline feed token tables
-  db.collection('tokens').orderBy('createdAt', 'desc').limit(50).onSnapshot(snap => {
-    const allTokens = [];
-    snap.forEach(doc => allTokens.push({ id: doc.id, ...doc.data() }));
+  db.doc('config/vipTokens').onSnapshot(snap => {
+    const docData = snap.exists ? snap.data() : {};
+    const tokensMap = docData.tokens || {};
+    const allTokens = Object.keys(tokensMap).map(k => ({ id: k, ...tokensMap[k] }));
+    allTokens.sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return timeB - timeA;
+    });
 
     ALL_FEED_DEFINITIONS.forEach(feed => {
       const i = feed.key;
@@ -6637,7 +6643,7 @@ function loadOtherStreams() {
         tr.innerHTML = `
           <td style="padding:6px 8px; font-weight:600; color:#fde68a;">${esc(client)}</td>
           <td style="padding:6px 8px; font-family:monospace; color:#93c5fd; font-size:10px;">${esc(token)}</td>
-          <td style="padding:6px 8px; color:${isExpired ? '#f87171' : 'var(--sub)'};">${esc(expiryLabel)}</td>
+          <td style="padding:6px 8px; color:${isRevoked ? '#ef4444' : (isExpired ? '#f87171' : 'var(--sub)')};">${isRevoked ? 'REVOKED' : esc(expiryLabel)}</td>
           <td style="padding:6px 8px; text-align:center;">
             <button type="button" class="btn-gold-sm" onclick="navigator.clipboard.writeText('${tokenUrl}'); alert('✓ Copied tokenized URL for ${feed.name}:\n\n${tokenUrl}')" style="padding:2px 6px; font-size:10px;">📋 Copy Link</button>
           </td>
@@ -6705,16 +6711,22 @@ window.feedGenerateInlineToken = async function(feedKey, feedScope, endpoint) {
   const token = 'vip_' + Math.random().toString(36).substring(2, 9) + '_' + Math.random().toString(36).substring(2, 9);
 
   try {
-    await db.collection('tokens').doc(token).set({
+    const tokenData = {
       token,
       clientName,
       allowedFeeds: feedScope,
       expiryCode,
-      expiresAt: expiresAt ? new Date(expiresAt) : null,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt: expiresAt ? new Date(expiresAt).toISOString() : '',
+      createdAt: new Date().toISOString(),
       createdBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Admin',
       revoked: false
-    });
+    };
+
+    await db.doc('config/vipTokens').set({
+      tokens: {
+        [token]: tokenData
+      }
+    }, { merge: true });
 
     logAdminAuditAction('VIP_TOKEN_GENERATE', `Generated VIP token for ${feedScope} for "${clientName}"`, { token, clientName, allowedFeeds: feedScope });
 
@@ -8852,16 +8864,22 @@ window.godfatherGenerateVipToken = async function() {
   const token = 'vip_' + Math.random().toString(36).substring(2, 9) + '_' + Math.random().toString(36).substring(2, 9);
 
   try {
-    await db.collection('tokens').doc(token).set({
+    const tokenData = {
       token,
       clientName,
       allowedFeeds,
       expiryCode,
-      expiresAt: expiresAt ? new Date(expiresAt) : null,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt: expiresAt ? new Date(expiresAt).toISOString() : '',
+      createdAt: new Date().toISOString(),
       createdBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather',
       revoked: false
-    });
+    };
+
+    await db.doc('config/vipTokens').set({
+      tokens: {
+        [token]: tokenData
+      }
+    }, { merge: true });
 
     logAdminAuditAction('VIP_TOKEN_GENERATE', `Generated VIP token for client "${clientName}" (Expires: ${expiryCode}, Scope: ${allowedFeeds})`, { token, clientName, allowedFeeds });
 
@@ -8902,18 +8920,27 @@ window.godfatherLoadTokens = function() {
   const tbody = $('godfather-tokens-tbody');
   if (!tbody) return;
 
-  db.collection('tokens').orderBy('createdAt', 'desc').limit(50).onSnapshot(snap => {
-    if (snap.empty) {
+  db.doc('config/vipTokens').onSnapshot(snap => {
+    const docData = snap.exists ? snap.data() : {};
+    const tokensMap = docData.tokens || {};
+    const allTokens = Object.keys(tokensMap).map(k => ({ id: k, ...tokensMap[k] }));
+
+    if (allTokens.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" style="color:var(--sub); padding:16px; text-align:center;">No VIP tokens issued yet. Generate a VIP token above.</td></tr>`;
       return;
     }
 
+    allTokens.sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return timeB - timeA;
+    });
+
     const iptvDomain = window.currentIptvDomain || 'jtbsclassic.dpdns.org';
     tbody.innerHTML = '';
 
-    snap.forEach(doc => {
-      const d = doc.data();
-      const token = d.token || doc.id;
+    allTokens.forEach(d => {
+      const token = d.token || d.id;
       const client = d.clientName || 'Anonymous VIP';
       const scope = d.allowedFeeds || 'all';
       const isRevoked = d.revoked === true;
@@ -8969,11 +8996,15 @@ window.godfatherRevokeToken = async function(token, clientName) {
   if (!confirm(`Are you sure you want to permanently REVOKE the VIP access token for "${clientName}"?\n\nToken: ${token}`)) return;
 
   try {
-    await db.collection('tokens').doc(token).update({
-      revoked: true,
-      revokedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      revokedBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather'
-    });
+    await db.doc('config/vipTokens').set({
+      tokens: {
+        [token]: {
+          revoked: true,
+          revokedAt: new Date().toISOString(),
+          revokedBy: firebase.auth().currentUser ? firebase.auth().currentUser.email : 'Godfather'
+        }
+      }
+    }, { merge: true });
 
     logAdminAuditAction('VIP_TOKEN_REVOKE', `Revoked VIP token for client "${clientName}" (${token})`, { token, clientName });
     alert(`✓ VIP Token for "${clientName}" has been revoked.`);
