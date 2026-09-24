@@ -1829,31 +1829,33 @@ tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
-      <!-- GODFATHER ADMIN VISIBILITY & CLOAKING MATRIX -->
-      <div style="background:rgba(239,68,68,0.06); border:1.5px solid rgba(239,68,68,0.35); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+      <!-- GODFATHER MANUAL "WHO SEES WHO" PEER VISIBILITY MATRIX -->
+      <div style="background:rgba(99,102,241,0.06); border:1.5px solid rgba(99,102,241,0.35); border-radius:8px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-          <div style="font-weight:700; color:#fca5a5; font-size:14px; display:flex; align-items:center; gap:8px;">
-            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>Admin Accounts Visibility & Stealth Cloaking Matrix</span>
-            <span class="role-badge" style="background:#991b1b; color:#fee2e2; font-size:10px;">GODFATHER STEALTH</span>
+          <div style="font-weight:700; color:#c7d2fe; font-size:14px; display:flex; align-items:center; gap:8px;">
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Manual Admin Visibility Matrix (Who Sees Who)</span>
+            <span class="role-badge" style="background:#4338ca; color:#e0e7ff; font-size:10px;">GODFATHER GOVERNANCE</span>
           </div>
-          <button class="btn-gold-sm" onclick="godfatherRefreshCloakingMatrix()" style="padding:4px 12px; font-size:11px;">Refresh Matrix</button>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-gold-sm" onclick="godfatherMakeAllAdminsPublic()" style="padding:4px 10px; font-size:11px; background:transparent; border-color:var(--border2); color:var(--sub);">Reset All to Public</button>
+            <button class="btn-gold-sm" onclick="godfatherRefreshCloakingMatrix()" style="padding:4px 12px; font-size:11px;">Refresh Matrix</button>
+          </div>
         </div>
-        <div style="font-size:12px; color:#fee2e2; margin-bottom:12px; line-height:1.4;">
-          Cloak specific admin accounts (e.g. SITI ADMIN) to hide them from other administrators. You can selectively choose which individual Superadmins are permitted to see and manage them.
+        <div style="font-size:12px; color:#c7d2fe; margin-bottom:12px; line-height:1.4;">
+          Manually configure which administrators can see which user accounts in their Users tab. For each target account, check or uncheck individual admins (both Superadmins &amp; Admins) who are authorized to see them.
         </div>
-        <div class="users-table-wrap" style="max-height: 340px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+        <div class="users-table-wrap" style="max-height: 440px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
           <table style="width:100%; border-collapse:collapse; font-size:12px;">
             <thead>
               <tr style="background:rgba(255,255,255,0.06);">
-                <th style="padding:8px 10px; color:#fca5a5;">Admin Account</th>
-                <th style="padding:8px 10px; color:#fca5a5;">Role</th>
-                <th style="padding:8px 10px; color:#fca5a5; text-align:center;">Stealth Status</th>
-                <th style="padding:8px 10px; color:#fca5a5;">Permitted Superadmin Viewers</th>
-                <th style="padding:8px 10px; color:#fca5a5; text-align:center;">Action</th>
+                <th style="padding:8px 10px; color:#a5b4fc; width:180px;">Target User Account</th>
+                <th style="padding:8px 10px; color:#a5b4fc; text-align:center; width:140px;">Visibility Mode</th>
+                <th style="padding:8px 10px; color:#a5b4fc;">Permitted Viewers (Who Can See This Account)</th>
+                <th style="padding:8px 10px; color:#a5b4fc; text-align:center; width:140px;">Quick Presets</th>
               </tr>
             </thead>
             <tbody id="godfather-cloaking-matrix-tbody">
-              <tr><td colspan="5" style="color:var(--sub); padding:14px; text-align:center;">Loading cloaking matrix…</td></tr>
+              <tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">Loading visibility matrix…</td></tr>
             </tbody>
           </table>
         </div>
@@ -2747,36 +2749,38 @@ tr:last-child td{border-bottom:none;}
       </div>
     </div>
 
-    <!-- Godfather Admin Visibility & Cloaking Governance (Visible only to Godfather) -->
-    <div id="edit-godfather-cloaking-section" style="display:none; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:12px; margin-top:14px;">
+    <!-- Godfather Peer Visibility Governance (Who Sees Who) -->
+    <div id="edit-godfather-cloaking-section" style="display:none; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.3); border-radius:8px; padding:12px; margin-top:14px;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-        <label style="color:#fca5a5; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px; margin:0;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-          Godfather Account Cloaking & Visibility
+        <label style="color:#c7d2fe; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px; margin:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Peer Visibility Governance (Who Sees Who)
         </label>
       </div>
-      <div style="font-size:11px; color:#fecaca; margin-bottom:10px; line-height:1.4;">
-        Hide this admin account from other administrators. You can selectively choose which individual Superadmins are permitted to see this account in their Users list.
+      <div style="font-size:11px; color:#e0e7ff; margin-bottom:10px; line-height:1.4;">
+        Assign manually which administrators are permitted to see this user account in their Users tab.
       </div>
       
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-        <input type="checkbox" id="edit-admin-is-cloaked" style="width:auto; cursor:pointer;" onchange="toggleEditModalCloakSubpanel()" />
-        <label for="edit-admin-is-cloaked" style="margin:0; cursor:pointer; font-weight:600; color:#fff; font-size:12px;">
-          Cloak this admin (Hide from unauthorized Superadmins &amp; Admins)
-        </label>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:11px; color:#a5b4fc; font-weight:600; margin-bottom:4px; display:block;">Visibility Mode:</label>
+        <select id="edit-admin-vis-mode" onchange="toggleEditModalVisMode()" style="font-size:12px; padding:6px 8px; width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:4px; color:var(--text);">
+          <option value="all">Visible to Everyone (Public)</option>
+          <option value="custom">Custom Viewers (Assign Specific Admins)</option>
+          <option value="none">Godfather Only (Hidden from Everyone)</option>
+        </select>
       </div>
 
       <div id="edit-admin-cloaked-superadmins-box" style="display:none; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:10px;">
         <div style="font-size:11px; color:#c7d2fe; font-weight:600; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-          <span>Select Permitted Superadmins:</span>
+          <span>Permitted Viewers (Admins &amp; Superadmins):</span>
           <div style="display:flex; gap:6px;">
             <a href="javascript:void(0)" onclick="editModalSelectAllSuperadmins(true)" style="color:var(--gold); font-size:10px; text-decoration:none;">Select All</a>
             <span style="color:var(--sub);">|</span>
             <a href="javascript:void(0)" onclick="editModalSelectAllSuperadmins(false)" style="color:var(--sub); font-size:10px; text-decoration:none;">Clear All</a>
           </div>
         </div>
-        <div id="edit-admin-superadmins-list" style="max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
-          <!-- Dynamically populated superadmins -->
+        <div id="edit-admin-superadmins-list" style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
+          <!-- Dynamically populated superadmins/admins -->
         </div>
       </div>
     </div>
@@ -5333,17 +5337,27 @@ function loadUsers(currentUser,role){
       const isMe = (u.uid === myUid) || (uEmail && uEmail === myEmail);
       const targetIsGodfather = (u.role === 'godfather') || (uEmail === 'joel.s.gomes001@gmail.com');
       
-      // Cloaking / Stealth Visibility Check:
-      // If admin is cloaked, ONLY Godfather, the admin themselves, and explicitly authorized Superadmins can see them
-      const isCloaked = (u.isCloaked === true) || (u.hiddenFromAdmins === true);
-      if (isCloaked && !isGodfather && !isMe) {
-        const allowedList = Array.isArray(u.visibleToSuperadmins) 
-          ? u.visibleToSuperadmins.map(s => String(s).toLowerCase().trim()) 
-          : [];
-        const isAllowed = (role === 'superadmin') && (allowedList.includes(myEmail) || (u.uid && allowedList.includes(myUid)));
-        if (!isAllowed) {
-          // Cloaked from this user!
+      // Peer Visibility ("Who Sees Who") enforcement:
+      // 1. Godfather always sees everyone.
+      // 2. A user always sees their own account.
+      // 3. For all other logged-in viewers:
+      const visMode = u.visibilityMode || (u.isCloaked || u.hiddenFromAdmins ? 'custom' : 'all');
+      if (!isGodfather && !isMe) {
+        if (visMode === 'none') {
+          // Hidden from everyone except Godfather and self
           return;
+        }
+        if (visMode === 'custom') {
+          const allowedList = [
+            ...(Array.isArray(u.allowedViewerEmails) ? u.allowedViewerEmails : []),
+            ...(Array.isArray(u.visibleToSuperadmins) ? u.visibleToSuperadmins : [])
+          ].map(s => String(s).toLowerCase().trim());
+          
+          const isAllowed = allowedList.includes(myEmail) || (u.uid && allowedList.includes(myUid));
+          if (!isAllowed) {
+            // Target user is hidden from current logged-in user!
+            return;
+          }
         }
       }
 
@@ -5360,9 +5374,22 @@ function loadUsers(currentUser,role){
       const vaultBadge = hasVaultAccess 
         ? `<span class="role-badge" style="background:rgba(99,102,241,0.2); color:#c7d2fe; font-size:9px; margin-left:4px; border:1px solid rgba(99,102,241,0.35);">Vault</span>`
         : '';
-      const cloakedBadge = (isGodfather && isCloaked)
-        ? `<span class="role-badge" style="background:rgba(239,68,68,0.25); color:#fca5a5; font-size:9px; margin-left:4px; border:1px solid rgba(239,68,68,0.4);" title="Cloaked from unauthorized superadmins">CLOAKED (${Array.isArray(u.visibleToSuperadmins) ? u.visibleToSuperadmins.length : 0})</span>`
-        : '';
+
+      let visibilityBadge = '';
+      if (isGodfather && !targetIsGodfather) {
+        if (visMode === 'all') {
+          visibilityBadge = `<span class="role-badge" style="background:rgba(16,185,129,0.15); color:#6ee7b7; font-size:9px; margin-left:4px; border:1px solid rgba(16,185,129,0.3);" title="Visible to Everyone">Public</span>`;
+        } else if (visMode === 'none') {
+          visibilityBadge = `<span class="role-badge" style="background:rgba(239,68,68,0.25); color:#fca5a5; font-size:9px; margin-left:4px; border:1px solid rgba(239,68,68,0.4);" title="Hidden from all other admins">Godfather Only</span>`;
+        } else {
+          const allowedCount = [
+            ...(Array.isArray(u.allowedViewerEmails) ? u.allowedViewerEmails : []),
+            ...(Array.isArray(u.visibleToSuperadmins) ? u.visibleToSuperadmins : [])
+          ].length;
+          visibilityBadge = `<span class="role-badge" style="background:rgba(99,102,241,0.25); color:#c7d2fe; font-size:9px; margin-left:4px; border:1px solid rgba(99,102,241,0.4);" title="Visible to ${allowedCount} designated admins">Visible to: ${allowedCount}</span>`;
+        }
+      }
+
       const avatarHtml = `
         <div class="table-avatar-circle" style="width:36px; height:36px; border-radius:50%; overflow:hidden; background:#1e3a8a; border:1.5px solid ${targetIsGodfather ? '#fbbf24' : 'rgba(255,255,255,0.3)'}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
           ${photoUrl ? `<img src="${esc(photoUrl)}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" /><span style="display:none; font-size:13px; font-weight:bold; color:#fff; font-family:var(--classic-title-font);">${userInitial}</span>` : `<span style="font-size:13px; font-weight:bold; color:#fff; font-family:var(--classic-title-font);">${userInitial}</span>`}
@@ -5384,7 +5411,7 @@ function loadUsers(currentUser,role){
           <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
             ${roleBadge}
             ${vaultBadge}
-            ${cloakedBadge}
+            ${visibilityBadge}
           </div>
         </td>
         <td>${u.linkedGoogle?'<span class="google-badge linked">Linked</span>':isMe?'<button class="btn-gold-sm link-google-btn">Link Google</button>':'<span class="google-badge">—</span>'}</td>
@@ -5396,7 +5423,11 @@ function loadUsers(currentUser,role){
       const editBtn = tr.querySelector('.edit-btn');
       if (editBtn) {
         editBtn.addEventListener('click', () => {
-          openEditAdmin(u.uid, u.email || '', u.displayName || '', u.role, photoUrl, u.canAccessLinkVault, u.isCloaked || u.hiddenFromAdmins, u.visibleToSuperadmins);
+          const currentAllowed = [
+            ...(Array.isArray(u.allowedViewerEmails) ? u.allowedViewerEmails : []),
+            ...(Array.isArray(u.visibleToSuperadmins) ? u.visibleToSuperadmins : [])
+          ];
+          openEditAdmin(u.uid, u.email || '', u.displayName || '', u.role, photoUrl, u.canAccessLinkVault, visMode, currentAllowed);
         });
       }
       const deleteBtn = tr.querySelector('.delete-btn');
@@ -5465,11 +5496,11 @@ window.deleteAdmin=async function(uid,email){
   }
 };
 
-window.toggleEditModalCloakSubpanel = function() {
-  const cloakChk = $('edit-admin-is-cloaked');
+window.toggleEditModalVisMode = function() {
+  const visSelect = $('edit-admin-vis-mode');
   const box = $('edit-admin-cloaked-superadmins-box');
-  if (box && cloakChk) {
-    box.style.display = cloakChk.checked ? 'block' : 'none';
+  if (box && visSelect) {
+    box.style.display = visSelect.value === 'custom' ? 'block' : 'none';
   }
 };
 
@@ -5480,7 +5511,7 @@ window.editModalSelectAllSuperadmins = function(selectAll) {
 };
 
 // ── EDIT ADMIN MODAL ──────────────────────────────────────────
-window.openEditAdmin=async function(uid, email, displayName, role, photoUrl, canAccessLinkVault, isCloaked, visibleToSuperadmins){
+window.openEditAdmin=async function(uid, email, displayName, role, photoUrl, canAccessLinkVault, visibilityMode, allowedViewerEmails){
   $('edit-admin-uid').value=uid;
   $('edit-admin-email').value=email;
   $('edit-admin-name').value=displayName;
@@ -5511,42 +5542,44 @@ window.openEditAdmin=async function(uid, email, displayName, role, photoUrl, can
   const cloakingSection = $('edit-godfather-cloaking-section');
   if (cloakingSection) {
     cloakingSection.style.display = isGodfather ? 'block' : 'none';
-    const cloakChk = $('edit-admin-is-cloaked');
-    if (cloakChk) {
-      cloakChk.checked = !!isCloaked;
+    const visSelect = $('edit-admin-vis-mode');
+    const curMode = visibilityMode || 'all';
+    if (visSelect) {
+      visSelect.value = curMode;
     }
     const box = $('edit-admin-cloaked-superadmins-box');
     if (box) {
-      box.style.display = isCloaked ? 'block' : 'none';
+      box.style.display = curMode === 'custom' ? 'block' : 'none';
     }
 
     const listEl = $('edit-admin-superadmins-list');
     if (listEl) {
-      listEl.innerHTML = '<span style="color:var(--sub); font-size:11px;">Loading superadmins…</span>';
+      listEl.innerHTML = '<span style="color:var(--sub); font-size:11px;">Loading administrators…</span>';
       try {
         const snap = await db.collection('admins').get();
-        const allowed = Array.isArray(visibleToSuperadmins) ? visibleToSuperadmins.map(s => String(s).toLowerCase().trim()) : [];
+        const allowed = Array.isArray(allowedViewerEmails) ? allowedViewerEmails.map(s => String(s).toLowerCase().trim()) : [];
         let itemsHtml = '';
         snap.forEach(doc => {
           const d = doc.data();
           const dRole = d.role || 'admin';
           const dEmail = (d.email || '').toLowerCase().trim();
           const isGF = dRole === 'godfather' || dEmail === 'joel.s.gomes001@gmail.com';
-          // Show all superadmins other than Godfather and the current target admin
-          if (dRole === 'superadmin' && !isGF && doc.id !== uid && dEmail !== (email || '').toLowerCase().trim()) {
+          if (!isGF && doc.id !== uid && dEmail !== (email || '').toLowerCase().trim()) {
             const isChecked = allowed.includes(dEmail) || allowed.includes(doc.id);
+            const isSA = dRole === 'superadmin';
             itemsHtml += `
-              <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#fff; cursor:pointer; margin:0; background:rgba(255,255,255,0.04); padding:4px 8px; border-radius:4px;">
+              <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#fff; cursor:pointer; margin:0; background:${isSA ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)'}; padding:5px 8px; border-radius:4px; border:1px solid ${isSA ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'};">
                 <input type="checkbox" class="edit-modal-superadmin-chk" value="${esc(dEmail)}" ${isChecked ? 'checked' : ''} style="width:auto; cursor:pointer;" />
                 <span style="font-weight:600;">${esc(d.displayName || dEmail)}</span>
                 <span style="color:var(--sub); font-family:monospace; font-size:10px;">(${esc(dEmail)})</span>
+                <span class="role-badge ${esc(dRole)}" style="font-size:9px; margin-left:auto;">${esc(dRole.toUpperCase())}</span>
               </label>
             `;
           }
         });
-        listEl.innerHTML = itemsHtml || '<span style="color:var(--sub); font-size:11px;">No other superadmins registered.</span>';
+        listEl.innerHTML = itemsHtml || '<span style="color:var(--sub); font-size:11px;">No other admins registered.</span>';
       } catch (err) {
-        listEl.innerHTML = `<span style="color:var(--red); font-size:11px;">Error loading superadmins: ${err.message}</span>`;
+        listEl.innerHTML = `<span style="color:var(--red); font-size:11px;">Error loading admins: ${err.message}</span>`;
       }
     }
   }
@@ -5583,12 +5616,15 @@ $('edit-modal-save-btn').addEventListener('click',async()=>{
       if ($('edit-admin-can-access-vault')) {
         updatePayload.canAccessLinkVault = $('edit-admin-can-access-vault').checked;
       }
-      if ($('edit-admin-is-cloaked')) {
-        const isCloakedVal = $('edit-admin-is-cloaked').checked;
+      if ($('edit-admin-vis-mode')) {
+        const mode = $('edit-admin-vis-mode').value;
+        const isCloakedVal = mode === 'custom' || mode === 'none';
+        updatePayload.visibilityMode = mode;
         updatePayload.isCloaked = isCloakedVal;
         updatePayload.hiddenFromAdmins = isCloakedVal;
-        const selectedSuperadmins = Array.from(document.querySelectorAll('.edit-modal-superadmin-chk:checked')).map(c => c.value.toLowerCase().trim());
-        updatePayload.visibleToSuperadmins = selectedSuperadmins;
+        const selectedViewers = Array.from(document.querySelectorAll('.edit-modal-superadmin-chk:checked')).map(c => c.value.toLowerCase().trim());
+        updatePayload.allowedViewerEmails = selectedViewers;
+        updatePayload.visibleToSuperadmins = selectedViewers;
       }
     }
 
@@ -9507,7 +9543,7 @@ window.godfatherToggleVaultAccess = async function(uid, currentAllowed) {
   }
 };
 
-// ── GODFATHER ADMIN VISIBILITY & CLOAKING MATRIX ────────────────
+// ── GODFATHER MANUAL "WHO SEES WHO" PEER VISIBILITY MATRIX ──────
 window.godfatherRefreshCloakingMatrix = async function() {
   const tbody = $('godfather-cloaking-matrix-tbody');
   if (!tbody) return;
@@ -9519,12 +9555,11 @@ window.godfatherRefreshCloakingMatrix = async function() {
   try {
     const snap = await db.collection('admins').get();
     if (snap.empty) {
-      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--sub); padding:14px; text-align:center;">No admins registered.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">No admins registered.</td></tr>`;
       return;
     }
 
-    const allAdmins = [];
-    const superadmins = [];
+    const allUsers = [];
 
     snap.forEach(doc => {
       const d = doc.data();
@@ -9534,106 +9569,116 @@ window.godfatherRefreshCloakingMatrix = async function() {
       const role = d.role || 'admin';
       const isGF = role === 'godfather' || email === 'joel.s.gomes001@gmail.com';
 
-      const userObj = { uid, email, name, role, isGF, data: d };
-      allAdmins.push(userObj);
-
-      if (role === 'superadmin' && !isGF) {
-        superadmins.push(userObj);
-      }
+      allUsers.push({ uid, email, name, role, isGF, data: d });
     });
 
     tbody.innerHTML = '';
 
-    const targetAdmins = allAdmins.filter(a => !a.isGF);
-    if (targetAdmins.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="color:var(--sub); padding:14px; text-align:center;">No other admin accounts registered.</td></tr>`;
+    const targetUsers = allUsers.filter(a => !a.isGF);
+    if (targetUsers.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" style="color:var(--sub); padding:14px; text-align:center;">No other admin accounts registered.</td></tr>`;
       return;
     }
 
-    targetAdmins.forEach(admin => {
-      const isCloaked = admin.data.isCloaked === true || admin.data.hiddenFromAdmins === true;
-      const allowedSuperadmins = Array.isArray(admin.data.visibleToSuperadmins)
-        ? admin.data.visibleToSuperadmins.map(s => String(s).toLowerCase().trim())
-        : [];
+    targetUsers.forEach(target => {
+      const visMode = target.data.visibilityMode || (target.data.isCloaked || target.data.hiddenFromAdmins ? 'custom' : 'all');
+      const allowedViewers = [
+        ...(Array.isArray(target.data.allowedViewerEmails) ? target.data.allowedViewerEmails : []),
+        ...(Array.isArray(target.data.visibleToSuperadmins) ? target.data.visibleToSuperadmins : [])
+      ].map(s => String(s).toLowerCase().trim());
 
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
 
-      let superadminsCheckboxesHtml = '';
-      if (superadmins.length === 0) {
-        superadminsCheckboxesHtml = `<span style="color:var(--sub); font-size:11px;">No other superadmins registered</span>`;
+      let viewersCheckboxesHtml = '';
+      const potentialViewers = allUsers.filter(v => !v.isGF && v.uid !== target.uid && v.email !== target.email);
+
+      if (potentialViewers.length === 0) {
+        viewersCheckboxesHtml = `<span style="color:var(--sub); font-size:11px;">No other admins</span>`;
       } else {
-        superadminsCheckboxesHtml = `<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">`;
-        superadmins.forEach(sa => {
-          if (sa.uid === admin.uid || sa.email === admin.email) return;
-          const isChecked = allowedSuperadmins.includes(sa.email) || allowedSuperadmins.includes(sa.uid);
-          const chkId = `gf-cloak-${admin.uid}-${sa.uid}`;
-          superadminsCheckboxesHtml += `
-            <label for="${chkId}" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; color:#c7d2fe; background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:4px; cursor:pointer; margin:0; border:1px solid rgba(255,255,255,0.1); opacity:${isCloaked ? '1' : '0.45'};" title="${isCloaked ? 'Grant or revoke visibility for ' + sa.name : 'Account must be cloaked to restrict visibility'}">
-              <input type="checkbox" id="${chkId}" value="${esc(sa.email)}" ${isChecked ? 'checked' : ''} ${!isCloaked ? 'disabled' : ''} onchange="godfatherUpdateAdminCloakSuperadmin('${admin.uid}', '${esc(sa.email)}', this.checked)" style="width:auto; cursor:pointer;" />
-              <span style="font-weight:600;">${esc(sa.name)}</span>
+        viewersCheckboxesHtml = `<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">`;
+        potentialViewers.forEach(v => {
+          const isChecked = visMode === 'all' || (visMode === 'custom' && (allowedViewers.includes(v.email) || allowedViewers.includes(v.uid)));
+          const isDisabled = visMode !== 'custom';
+          const chkId = `gf-whosaw-${target.uid}-${v.uid}`;
+          const isSA = v.role === 'superadmin';
+          
+          viewersCheckboxesHtml += `
+            <label for="${chkId}" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; color:#fff; background:${isSA ? 'rgba(99,102,241,0.14)' : 'rgba(255,255,255,0.05)'}; padding:4px 8px; border-radius:4px; cursor:${isDisabled ? 'default' : 'pointer'}; margin:0; border:1px solid ${isSA ? 'rgba(99,102,241,0.35)' : 'rgba(255,255,255,0.1)'}; opacity:${isDisabled ? '0.45' : '1'};" title="${isDisabled ? 'Set Visibility Mode to Custom to check/uncheck viewers individually' : 'Grant or revoke visibility for ' + v.name}">
+              <input type="checkbox" id="${chkId}" value="${esc(v.email)}" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''} onchange="godfatherUpdateAdminViewer('${target.uid}', '${esc(v.email)}', this.checked)" style="width:auto; cursor:${isDisabled ? 'default' : 'pointer'};" />
+              <span style="font-weight:600;">${esc(v.name)}</span>
+              <span style="font-size:9px; color:var(--sub); text-transform:uppercase;">[${esc(v.role)}]</span>
             </label>
           `;
         });
-        superadminsCheckboxesHtml += `</div>`;
+        viewersCheckboxesHtml += `</div>`;
       }
 
       tr.innerHTML = `
         <td style="padding:8px 10px;">
-          <div style="font-weight:600; color:#fff;">${esc(admin.name)}</div>
-          <div style="font-size:10px; color:var(--sub); font-family:monospace;">${esc(admin.email)}</div>
-        </td>
-        <td style="padding:8px 10px;">
-          <span class="role-badge ${esc(admin.role)}" style="font-size:10px;">${esc(admin.role.toUpperCase())}</span>
+          <div style="font-weight:600; color:#fff; font-size:13px;">${esc(target.name)}</div>
+          <div style="font-size:10px; color:var(--sub); font-family:monospace;">${esc(target.email)}</div>
+          <div style="margin-top:4px;"><span class="role-badge ${esc(target.role)}" style="font-size:9px;">${esc(target.role.toUpperCase())}</span></div>
         </td>
         <td style="padding:8px 10px; text-align:center;">
-          <span class="badge" style="background:${isCloaked ? '#ef4444' : '#10b981'}; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px;">
-            ${isCloaked ? 'CLOAKED (STEALTH)' : 'PUBLIC (ALL)'}
-          </span>
+          <select onchange="godfatherSetAdminVisibilityMode('${target.uid}', this.value)" style="font-size:11px; padding:5px 7px; background:var(--bg2); border:1px solid rgba(255,255,255,0.2); border-radius:4px; color:var(--text); width:100%; cursor:pointer;">
+            <option value="all" ${visMode==='all'?'selected':''}>Everyone (Public)</option>
+            <option value="custom" ${visMode==='custom'?'selected':''}>Custom Assigned</option>
+            <option value="none" ${visMode==='none'?'selected':''}>Godfather Only</option>
+          </select>
         </td>
         <td style="padding:8px 10px;">
-          ${superadminsCheckboxesHtml}
+          ${viewersCheckboxesHtml}
         </td>
         <td style="padding:8px 10px; text-align:center;">
-          <button class="btn-gold-sm" onclick="godfatherToggleAdminCloak('${admin.uid}', ${isCloaked})" style="padding:3px 8px; font-size:10px; ${isCloaked ? 'background:#10b981; border-color:#a7f3d0; color:#fff;' : 'background:#ef4444; border-color:#fca5a5; color:#fff;'}">
-            ${isCloaked ? 'Make Public' : 'Cloak Admin'}
-          </button>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <button class="btn-gold-sm" onclick="godfatherQuickSetViewers('${target.uid}', true)" style="padding:4px 8px; font-size:10px; background:rgba(99,102,241,0.2); border-color:rgba(99,102,241,0.4); color:#c7d2fe; white-space:nowrap;">
+              Allow All
+            </button>
+            <button class="btn-gold-sm" onclick="godfatherQuickSetViewers('${target.uid}', false)" style="padding:4px 8px; font-size:10px; background:transparent; border-color:var(--border2); color:var(--sub); white-space:nowrap;">
+              Clear All
+            </button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
     });
   } catch (err) {
     console.error('Godfather cloaking matrix error:', err);
-    tbody.innerHTML = `<tr><td colspan="5" style="color:var(--red); padding:14px; text-align:center;">Error loading cloaking matrix: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--red); padding:14px; text-align:center;">Error loading visibility matrix: ${err.message}</td></tr>`;
   }
 };
 
-window.godfatherToggleAdminCloak = async function(uid, currentlyCloaked) {
-  const newCloaked = !currentlyCloaked;
+window.godfatherSetAdminVisibilityMode = async function(uid, mode) {
   try {
+    const isCloaked = mode === 'custom' || mode === 'none';
     await db.collection('admins').doc(uid).set({
-      isCloaked: newCloaked,
-      hiddenFromAdmins: newCloaked
+      visibilityMode: mode,
+      isCloaked: isCloaked,
+      hiddenFromAdmins: isCloaked
     }, { merge: true });
 
-    logAdminAuditAction(newCloaked ? 'ADMIN_CLOAK' : 'ADMIN_UNCLOAK', `${newCloaked ? 'Cloaked' : 'Uncloaked'} admin user ${uid}`, { uid, isCloaked: newCloaked });
+    logAdminAuditAction('ADMIN_VISIBILITY_MODE_CHANGE', `Changed visibility mode of ${uid} to ${mode}`, { uid, mode });
     godfatherRefreshCloakingMatrix();
   } catch (err) {
-    console.error('Toggle admin cloak error:', err);
-    alert('Error updating stealth status: ' + err.message);
+    console.error('Set visibility mode error:', err);
+    alert('Error updating visibility mode: ' + err.message);
   }
 };
 
-window.godfatherUpdateAdminCloakSuperadmin = async function(adminUid, superadminEmail, isAllowed) {
+window.godfatherUpdateAdminViewer = async function(targetUid, viewerEmail, isAllowed) {
   try {
-    const docRef = db.collection('admins').doc(adminUid);
+    const docRef = db.collection('admins').doc(targetUid);
     const snap = await docRef.get();
     if (!snap.exists) return;
     const data = snap.data();
-    let currentList = Array.isArray(data.visibleToSuperadmins) ? [...data.visibleToSuperadmins] : [];
-    
-    currentList = currentList.map(s => String(s).toLowerCase().trim());
-    const targetEmail = superadminEmail.toLowerCase().trim();
+    let currentList = [
+      ...(Array.isArray(data.allowedViewerEmails) ? data.allowedViewerEmails : []),
+      ...(Array.isArray(data.visibleToSuperadmins) ? data.visibleToSuperadmins : [])
+    ].map(s => String(s).toLowerCase().trim());
+
+    currentList = Array.from(new Set(currentList));
+    const targetEmail = viewerEmail.toLowerCase().trim();
 
     if (isAllowed) {
       if (!currentList.includes(targetEmail)) {
@@ -9644,13 +9689,72 @@ window.godfatherUpdateAdminCloakSuperadmin = async function(adminUid, superadmin
     }
 
     await docRef.set({
+      visibilityMode: 'custom',
+      isCloaked: true,
+      hiddenFromAdmins: true,
+      allowedViewerEmails: currentList,
       visibleToSuperadmins: currentList
     }, { merge: true });
 
-    logAdminAuditAction('ADMIN_VISIBILITY_UPDATE', `Updated visible superadmins for ${data.email || adminUid}`, { adminUid, visibleToSuperadmins: currentList });
+    logAdminAuditAction('ADMIN_VIEWER_ASSIGN', `Updated permitted viewers for ${data.email || targetUid}`, { targetUid, allowedViewers: currentList });
   } catch (err) {
-    console.error('Update admin cloak superadmin error:', err);
-    alert('Error updating superadmin permission: ' + err.message);
+    console.error('Update admin viewer error:', err);
+    alert('Error updating viewer permission: ' + err.message);
+  }
+};
+
+window.godfatherQuickSetViewers = async function(targetUid, selectAll) {
+  try {
+    const docRef = db.collection('admins').doc(targetUid);
+    const allAdminsSnap = await db.collection('admins').get();
+    let allEmails = [];
+    if (selectAll) {
+      allAdminsSnap.forEach(d => {
+        const email = (d.data().email || '').toLowerCase().trim();
+        const role = d.data().role || 'admin';
+        if (role !== 'godfather' && email && d.id !== targetUid) {
+          allEmails.push(email);
+        }
+      });
+    }
+
+    await docRef.set({
+      visibilityMode: 'custom',
+      isCloaked: true,
+      hiddenFromAdmins: true,
+      allowedViewerEmails: allEmails,
+      visibleToSuperadmins: allEmails
+    }, { merge: true });
+
+    logAdminAuditAction('ADMIN_VIEWERS_QUICK_SET', `Quick set viewers for ${targetUid} (selectAll=${selectAll})`, { targetUid, selectAll, allEmails });
+    godfatherRefreshCloakingMatrix();
+  } catch (err) {
+    console.error('Quick set viewers error:', err);
+    alert('Error updating viewers: ' + err.message);
+  }
+};
+
+window.godfatherMakeAllAdminsPublic = async function() {
+  if (!confirm('Are you sure you want to reset all admin accounts to Public (Visible to Everyone)?')) return;
+  try {
+    const snap = await db.collection('admins').get();
+    const batch = db.batch();
+    snap.forEach(doc => {
+      batch.set(doc.ref, {
+        visibilityMode: 'all',
+        isCloaked: false,
+        hiddenFromAdmins: false,
+        allowedViewerEmails: [],
+        visibleToSuperadmins: []
+      }, { merge: true });
+    });
+    await batch.commit();
+    logAdminAuditAction('ADMIN_VISIBILITY_RESET_ALL', 'Reset all admin accounts to Public (Visible to Everyone)');
+    godfatherRefreshCloakingMatrix();
+    alert('All admin accounts are now Public.');
+  } catch (err) {
+    console.error('Reset all public error:', err);
+    alert('Error resetting visibility: ' + err.message);
   }
 };
 
