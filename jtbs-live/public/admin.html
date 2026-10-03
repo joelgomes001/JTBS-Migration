@@ -960,8 +960,10 @@ tr:last-child td{border-bottom:none;}
       <img class="topbar-logo loaded" id="topbar-logo" src="/logo.png" alt="JTBS Logo" onerror="this.style.display='none'"/>
       <span class="topbar-title" id="topbar-title">JTBS Classic Admin</span>
     </div>
-    <div class="topbar-right" style="display:flex; align-items:center; gap:10px;">
-      <button class="btn-gold-sm" id="header-sync-edge-btn" onclick="window.syncAllFeedsNow()" style="padding:5px 12px; font-size:11px; background:linear-gradient(180deg, #10b981 0%, #059669 100%); border-color:#6ee7b7; color:#fff; font-weight:700; box-shadow:0 0 10px rgba(16,185,129,0.3); cursor:pointer;">⚡ Sync All Feeds to Edge</button>
+      <button class="btn-gold-sm" id="header-sync-edge-btn" onclick="window.syncAllFeedsNow()" style="padding:5px 12px; font-size:12px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="Sync feed configurations to Cloudflare Edge KV">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><polyline points="13 11 16 14 13 17"/><line x1="8" y1="14" x2="16" y2="14"/></svg>
+        <span>Sync Feeds to Edge</span>
+      </button>
       <div class="user-profile-badge" id="header-user-profile-badge" onclick="openMyProfileModal()" title="Click to manage profile & avatar">
         <div class="user-avatar-circle" id="header-avatar-circle">
           <img id="header-avatar-img" src="" alt="Avatar" style="display:none;" onerror="this.style.display='none'; $('header-avatar-initial').style.display='block';" />
@@ -4781,7 +4783,7 @@ window.syncAllFeedsNow = async function() {
   const btn = $('header-sync-edge-btn');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = 'Syncing...';
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg><span>Syncing...</span>`;
   }
   try {
     const payloadFeeds = {};
@@ -4843,7 +4845,7 @@ window.syncAllFeedsNow = async function() {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = '⚡ Sync All Feeds to Edge';
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><polyline points="13 11 16 14 13 17"/><line x1="8" y1="14" x2="16" y2="14"/></svg><span>Sync Feeds to Edge</span>`;
     }
   }
 };
