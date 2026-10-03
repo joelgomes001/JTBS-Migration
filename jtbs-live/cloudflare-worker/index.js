@@ -259,7 +259,7 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
     // 0. Handle CORS preflight options immediately
     if (request.method === 'OPTIONS') {
       return new Response(null, {
@@ -521,14 +521,22 @@ ${proxiedVideoUrl}`;
             const isTokenized = !!fData.isTokenized;
             const offlineHlsUrl = fData.offlineHlsUrl || fData.offlineVideoUrl || '';
             
-            memoryStore.set(docKey, {
+            const feedObj = {
               isLive,
               streamUrl,
               backupStreamUrl,
               isTokenized,
               offlineHlsUrl,
               updatedAt: Date.now()
-            });
+            };
+
+            memoryStore.set(docKey, feedObj);
+
+            if (env && env.JTBS_DB) {
+              try {
+                await env.JTBS_DB.put('streamState:' + docKey, JSON.stringify(feedObj));
+              } catch (e) {}
+            }
             
             const mockDoc = {
               name: `projects/jtbs-classic/databases/(default)/documents/streamState/${docKey}`,
@@ -567,6 +575,11 @@ ${proxiedVideoUrl}`;
           }
           
           if (payload.vipTokens) {
+            if (env && env.JTBS_DB) {
+              try {
+                await env.JTBS_DB.put('config:vipTokens', JSON.stringify(payload.vipTokens));
+              } catch (e) {}
+            }
             const vipDoc = {
               name: `projects/jtbs-classic/databases/(default)/documents/config/vipTokens`,
               fields: {
@@ -582,6 +595,11 @@ ${proxiedVideoUrl}`;
           }
           
           if (payload.masterOverride) {
+            if (env && env.JTBS_DB) {
+              try {
+                await env.JTBS_DB.put('config:masterOverride', JSON.stringify(payload.masterOverride));
+              } catch (e) {}
+            }
             const mDoc = {
               name: `projects/jtbs-classic/databases/(default)/documents/config/masterOverride`,
               fields: {
@@ -626,14 +644,21 @@ ${proxiedVideoUrl}`;
       const isTokenized = url.searchParams.get('isTokenized') === 'true';
 
       const existingMem = memoryStore.get(doc) || {};
-      memoryStore.set(doc, {
+      const updatedMem = {
         ...existingMem,
         isLive,
         streamUrl: streamUrl || (url.searchParams.has('url') ? streamUrl : existingMem.streamUrl || ''),
         backupStreamUrl: backupStreamUrl || existingMem.backupStreamUrl || '',
         isTokenized: hasIsTokenized ? isTokenized : (existingMem.isTokenized !== undefined ? existingMem.isTokenized : false),
         updatedAt: Date.now()
-      });
+      };
+      memoryStore.set(doc, updatedMem);
+
+      if (env && env.JTBS_DB) {
+        try {
+          await env.JTBS_DB.put('streamState:' + doc, JSON.stringify(updatedMem));
+        } catch (e) {}
+      }
 
       const activeUrl = streamUrl || (url.searchParams.has('url') ? streamUrl : existingMem.streamUrl || '');
       const activeBackup = backupStreamUrl || existingMem.backupStreamUrl || '';
@@ -1193,6 +1218,17 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         memData = memoryStore.get(target.doc) || (target.doc === 'main' ? memoryStore.get('main') : null);
       }
 
+      // 2. Check Cloudflare KV (JTBS_DB) globally replicated storage
+      if ((!memData || !memData.streamUrl) && env && env.JTBS_DB) {
+        try {
+          const kvData = await env.JTBS_DB.get('streamState:' + target.doc, { type: 'json' });
+          if (kvData && typeof kvData === 'object' && kvData.streamUrl) {
+            memData = kvData;
+            memoryStore.set(target.doc, kvData);
+          }
+        } catch (e) {}
+      }
+
       let isTokenized = false;
 
       if (memData) {
@@ -1203,7 +1239,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         if (memData.isTokenized !== undefined) isTokenized = memData.isTokenized;
       }
 
-      // 2. Fallback to Firestore / Edge Cache if memoryStore does not have streamUrl
+      // 3. Fallback to Firestore / Edge Cache if not found in KV or memory
       if (!streamUrl) {
         const data = await getCachedFirestoreDoc(firestoreUrl, url.origin);
         const fields = data ? (data.fields || data) : {};
@@ -1233,26 +1269,35 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       // ── MASTER NETWORK TAKEOVER OVERRIDE (GODFATHER SUPREME) ────
       let masterOverrideActive = false;
       try {
-        const masterData = await getCachedFirestoreDoc('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/masterOverride', url.origin);
-        if (masterData && masterData.fields) {
-          const mEnabled = parseFirestoreBool(masterData.fields.enabled);
-          const mUrl = parseFirestoreString(masterData.fields.streamUrl);
-          const mBackup = parseFirestoreString(masterData.fields.backupStreamUrl);
-          const mScope = parseFirestoreString(masterData.fields.scope) || 'all';
+        let masterData = null;
+        if (env && env.JTBS_DB) {
+          try {
+            masterData = await env.JTBS_DB.get('config:masterOverride', { type: 'json' });
+          } catch (e) {}
+        }
+        if (!masterData) {
+          const mDoc = await getCachedFirestoreDoc('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/masterOverride', url.origin);
+          if (mDoc && mDoc.fields) {
+            masterData = {
+              enabled: parseFirestoreBool(mDoc.fields.enabled),
+              streamUrl: parseFirestoreString(mDoc.fields.streamUrl),
+              backupStreamUrl: parseFirestoreString(mDoc.fields.backupStreamUrl),
+              scope: parseFirestoreString(mDoc.fields.scope) || 'all'
+            };
+          }
+        }
+        if (masterData && masterData.enabled && masterData.streamUrl) {
+          let applies = false;
+          if (masterData.scope === 'all' || !masterData.scope) applies = true;
+          else if (masterData.scope === 'feeds_only' && (target.doc.startsWith('feed') || target.doc === 'srinjana')) applies = true;
+          else if (masterData.scope === 'decoders_only' && target.type === 'decoder') applies = true;
+          else if (masterData.scope === 'main_only' && target.doc === 'main') applies = true;
 
-          if (mEnabled && mUrl) {
-            let applies = false;
-            if (mScope === 'all') applies = true;
-            else if (mScope === 'feeds_only' && (target.doc.startsWith('feed') || target.doc === 'srinjana')) applies = true;
-            else if (mScope === 'decoders_only' && target.type === 'decoder') applies = true;
-            else if (mScope === 'main_only' && target.doc === 'main') applies = true;
-
-            if (applies) {
-              masterOverrideActive = true;
-              streamUrl = mUrl;
-              backupStreamUrl = mBackup;
-              isLive = true;
-            }
+          if (applies) {
+            masterOverrideActive = true;
+            streamUrl = masterData.streamUrl;
+            backupStreamUrl = masterData.backupStreamUrl || '';
+            isLive = true;
           }
         }
       } catch (e) {}
@@ -1280,18 +1325,30 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
 
         let tokenObj = null;
-        // 1. Check config/vipTokens master registry
-        const vipConfigUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/vipTokens`;
-        const vipConfigDoc = await getCachedFirestoreDoc(vipConfigUrl, url.origin);
-        if (vipConfigDoc && vipConfigDoc.fields && vipConfigDoc.fields.tokens && vipConfigDoc.fields.tokens.mapValue && vipConfigDoc.fields.tokens.mapValue.fields) {
-          const tMap = vipConfigDoc.fields.tokens.mapValue.fields;
-          if (tMap[clientToken] && tMap[clientToken].mapValue && tMap[clientToken].mapValue.fields) {
-            const tf = tMap[clientToken].mapValue.fields;
-            tokenObj = {
-              revoked: parseFirestoreBool(tf.revoked),
-              expiresAt: tf.expiresAt?.timestampValue || tf.expiresAt?.stringValue || '',
-              allowedFeeds: parseFirestoreString(tf.allowedFeeds) || 'all'
-            };
+        // 1. Check Cloudflare KV config:vipTokens
+        if (env && env.JTBS_DB) {
+          try {
+            const kvTokens = await env.JTBS_DB.get('config:vipTokens', { type: 'json' });
+            if (kvTokens && kvTokens[clientToken]) {
+              tokenObj = kvTokens[clientToken];
+            }
+          } catch (e) {}
+        }
+
+        // 2. Check config/vipTokens master registry in Firestore
+        if (!tokenObj) {
+          const vipConfigUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/vipTokens`;
+          const vipConfigDoc = await getCachedFirestoreDoc(vipConfigUrl, url.origin);
+          if (vipConfigDoc && vipConfigDoc.fields && vipConfigDoc.fields.tokens && vipConfigDoc.fields.tokens.mapValue && vipConfigDoc.fields.tokens.mapValue.fields) {
+            const tMap = vipConfigDoc.fields.tokens.mapValue.fields;
+            if (tMap[clientToken] && tMap[clientToken].mapValue && tMap[clientToken].mapValue.fields) {
+              const tf = tMap[clientToken].mapValue.fields;
+              tokenObj = {
+                revoked: parseFirestoreBool(tf.revoked),
+                expiresAt: tf.expiresAt?.timestampValue || tf.expiresAt?.stringValue || '',
+                allowedFeeds: parseFirestoreString(tf.allowedFeeds) || 'all'
+              };
+            }
           }
         }
 

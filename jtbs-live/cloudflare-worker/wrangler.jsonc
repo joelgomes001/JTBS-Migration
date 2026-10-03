@@ -5,5 +5,11 @@
   "workers_dev": true,
   "routes": [
     { "pattern": "jtbsclassic.dpdns.org", "custom_domain": true }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "JTBS_DB",
+      "id": "def27f359097499ea4df586a37080bec"
+    }
   ]
 }
