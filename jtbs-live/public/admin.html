@@ -960,7 +960,8 @@ tr:last-child td{border-bottom:none;}
       <img class="topbar-logo loaded" id="topbar-logo" src="/logo.png" alt="JTBS Logo" onerror="this.style.display='none'"/>
       <span class="topbar-title" id="topbar-title">JTBS Classic Admin</span>
     </div>
-    <div class="topbar-right" style="display:flex; align-items:center; gap:12px;">
+    <div class="topbar-right" style="display:flex; align-items:center; gap:10px;">
+      <button class="btn-gold-sm" id="header-sync-edge-btn" onclick="window.syncAllFeedsNow()" style="padding:5px 12px; font-size:11px; background:linear-gradient(180deg, #10b981 0%, #059669 100%); border-color:#6ee7b7; color:#fff; font-weight:700; box-shadow:0 0 10px rgba(16,185,129,0.3); cursor:pointer;">⚡ Sync All Feeds to Edge</button>
       <div class="user-profile-badge" id="header-user-profile-badge" onclick="openMyProfileModal()" title="Click to manage profile & avatar">
         <div class="user-avatar-circle" id="header-avatar-circle">
           <img id="header-avatar-img" src="" alt="Avatar" style="display:none;" onerror="this.style.display='none'; $('header-avatar-initial').style.display='block';" />
@@ -4775,6 +4776,77 @@ function syncWorkerState(doc, url, isLive = true, backupUrl = '', isTokenized = 
     fetch(q).catch(()=>{});
   } catch(e){}
 }
+
+window.syncAllFeedsNow = async function() {
+  const btn = $('header-sync-edge-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Syncing...';
+  }
+  try {
+    const payloadFeeds = {};
+    if (window.currentStreamStateData) {
+      const d = window.currentStreamStateData;
+      payloadFeeds['main'] = {
+        isLive: d.isLive !== false,
+        streamUrl: d.streamUrl || '',
+        backupStreamUrl: d.backupStreamUrl || '',
+        offlineHlsUrl: d.offlineHlsUrl || ''
+      };
+      payloadFeeds['decoder'] = {
+        isLive: d.decoderIsLive !== false,
+        streamUrl: d.decoderStreamUrl || d.streamUrl || '',
+        backupStreamUrl: d.decoderBackupStreamUrl || '',
+        offlineHlsUrl: d.decoderOfflineHlsUrl || ''
+      };
+    }
+
+    ALL_FEED_DEFINITIONS.forEach(feed => {
+      const i = feed.key;
+      const scope = feed.id;
+      const urlIn = $(`feed-url-input-${i}`);
+      const backupIn = $(`feed-backup-url-${i}`);
+      const toggleIn = $(`feed-toggle-${i}`);
+      const tokenToggle = $(`feed-token-toggle-${i}`);
+      const offHlsIn = $(`feed-offline-hls-${i}`);
+
+      const streamUrl = (urlIn && urlIn.value) ? urlIn.value.trim() : (_feedSyncBuffer[scope]?.streamUrl || '');
+      const isLive = toggleIn ? toggleIn.checked : (_feedSyncBuffer[scope]?.isLive ?? true);
+      const backupStreamUrl = (backupIn && backupIn.value) ? backupIn.value.trim() : (_feedSyncBuffer[scope]?.backupStreamUrl || '');
+      const isTokenized = tokenToggle ? tokenToggle.checked : (_feedSyncBuffer[scope]?.isTokenized || false);
+      const offlineHlsUrl = (offHlsIn && offHlsIn.value) ? offHlsIn.value.trim() : (_feedSyncBuffer[scope]?.offlineHlsUrl || '');
+
+      if (streamUrl || _feedSyncBuffer[scope]) {
+        payloadFeeds[scope] = {
+          isLive,
+          streamUrl,
+          backupStreamUrl,
+          isTokenized,
+          offlineHlsUrl
+        };
+      }
+    });
+
+    const res = await fetch('https://jtbsclassic.dpdns.org/syncall', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feeds: payloadFeeds })
+    });
+    const resData = await res.json();
+    if (resData.success) {
+      alert(`✓ All ${resData.count || Object.keys(payloadFeeds).length} Channels Synchronized to Live Edge Network!`);
+    } else {
+      alert(`Edge Sync Completed: ${JSON.stringify(resData)}`);
+    }
+  } catch (err) {
+    alert('Sync error: ' + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '⚡ Sync All Feeds to Edge';
+    }
+  }
+};
 
 function saveStreamState(url, duration) {
   const isYT = detectType(url) === 'youtube';
