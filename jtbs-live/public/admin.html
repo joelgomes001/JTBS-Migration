@@ -4737,15 +4737,16 @@ function updateAdminTimers() {
 
 setInterval(updateAdminTimers, 1000);
 
-function syncWorkerState(doc, url, isLive = true) {
+function syncWorkerState(doc, url, isLive = true, backupUrl = '', isTokenized = false) {
   try {
-    fetch(`https://jtbsclassic.dpdns.org/updateStreamState?doc=${encodeURIComponent(doc)}&url=${encodeURIComponent(url)}&isLive=${isLive}`).catch(()=>{});
+    let q = `https://jtbsclassic.dpdns.org/updateStreamState?doc=${encodeURIComponent(doc)}&url=${encodeURIComponent(url)}&isLive=${isLive}`;
+    if (backupUrl) q += `&backupUrl=${encodeURIComponent(backupUrl)}`;
+    if (isTokenized !== undefined) q += `&isTokenized=${isTokenized}`;
+    fetch(q).catch(()=>{});
   } catch(e){}
 }
 
 function saveStreamState(url, duration) {
-  syncWorkerState('main', url, true);
-  syncWorkerState('feed1', url, true);
   const isYT = detectType(url) === 'youtube';
   const isYTLive = isYT && (isLiveStreamUrl(url) || window.currentVideoIsLive === true);
   const playModeEl = document.querySelector('input[name="yt-play-mode"]:checked');
@@ -4756,6 +4757,9 @@ function saveStreamState(url, duration) {
   const mp4PlayModeEl = document.querySelector('input[name="mp4-play-mode"]:checked');
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
   const backupUrl = $('backup-stream-url-input') ? $('backup-stream-url-input').value.trim() : '';
+
+  syncWorkerState('main', url, true, backupUrl);
+  syncWorkerState('feed1', url, true, backupUrl);
 
   const data = {
     isLive: true,
@@ -4815,6 +4819,9 @@ function savePublicStreamState(url, duration) {
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
   const backupUrl = $('public-backup-url-input') ? $('public-backup-url-input').value.trim() : '';
 
+  syncWorkerState('main', url, true, backupUrl);
+  syncWorkerState('feed1', url, true, backupUrl);
+
   const data = {
     isLive: true,
     streamUrl: url,
@@ -4866,7 +4873,6 @@ function savePublicStreamState(url, duration) {
 }
 
 function saveDecoderStreamState(url, duration) {
-  syncWorkerState('decoder', url, true);
   const isYT = detectType(url) === 'youtube';
   const isYTLive = isYT && (isLiveStreamUrl(url) || window.currentDecoderVideoIsLive === true);
   const playModeEl = document.querySelector('input[name="decoder-yt-play-mode"]:checked');
@@ -4877,6 +4883,7 @@ function saveDecoderStreamState(url, duration) {
   const mp4PlayModeEl = document.querySelector('input[name="decoder-mp4-play-mode"]:checked');
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
   const backupUrl = $('decoder-backup-url-input') ? $('decoder-backup-url-input').value.trim() : '';
+  syncWorkerState('decoder', url, true, backupUrl);
 
   const data = {
     decoderIsLive: true,
@@ -6747,6 +6754,7 @@ function loadOtherStreams() {
 
         try {
           await docRef.set(payload, { merge: true });
+          syncWorkerState(scope, streamUrl, isLive, backupStreamUrl, isTokenized);
           flash(`feed-save-msg-${i}`);
           logAdminAction('update_feed', scope, `Updated ${feed.name} URL: ${streamUrl || '(empty)'} (Live: ${isLive})`, checkData, payload);
         } catch (err) {
@@ -6775,6 +6783,10 @@ function loadOtherStreams() {
         };
         try {
           await docRef.set(togglePayload, { merge: true });
+          const currentUrl = $(`feed-url-input-${i}`) ? $(`feed-url-input-${i}`).value.trim() : '';
+          const currentBackup = $(`feed-backup-url-${i}`) ? $(`feed-backup-url-${i}`).value.trim() : '';
+          const currentIsTokenized = $(`feed-token-toggle-${i}`) ? $(`feed-token-toggle-${i}`).checked : false;
+          syncWorkerState(scope, currentUrl, isLive, currentBackup, currentIsTokenized);
           logAdminAction('toggle_feed', scope, `Toggled ${feed.name} status to ${isLive ? 'LIVE' : 'OFFLINE'}`, checkData, togglePayload);
         } catch (err) {
           alert(`Error toggling ${feed.name}: ` + err.message);

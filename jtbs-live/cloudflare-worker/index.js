@@ -494,6 +494,7 @@ ${proxiedVideoUrl}`;
     if (path.startsWith('/updatestreamstate')) {
       const doc = url.searchParams.get('doc') || 'main';
       const streamUrl = url.searchParams.get('url') || '';
+      const backupStreamUrl = url.searchParams.get('backupUrl') || '';
       const isLive = url.searchParams.get('isLive') !== 'false';
       const hasIsTokenized = url.searchParams.has('isTokenized');
       const isTokenized = url.searchParams.get('isTokenized') === 'true';
@@ -502,19 +503,24 @@ ${proxiedVideoUrl}`;
       memoryStore.set(doc, {
         ...existingMem,
         isLive,
-        streamUrl: streamUrl || existingMem.streamUrl || '',
+        streamUrl: streamUrl || (url.searchParams.has('url') ? streamUrl : existingMem.streamUrl || ''),
+        backupStreamUrl: backupStreamUrl || existingMem.backupStreamUrl || '',
         isTokenized: hasIsTokenized ? isTokenized : (existingMem.isTokenized !== undefined ? existingMem.isTokenized : false),
         updatedAt: Date.now()
       });
+
+      const activeUrl = streamUrl || (url.searchParams.has('url') ? streamUrl : existingMem.streamUrl || '');
+      const activeBackup = backupStreamUrl || existingMem.backupStreamUrl || '';
 
       const mockDoc = {
         name: `projects/jtbs-classic/databases/(default)/documents/streamState/${doc}`,
         fields: {
           isLive: { booleanValue: isLive },
-          streamUrl: { stringValue: streamUrl || existingMem.streamUrl || '' },
+          streamUrl: { stringValue: activeUrl },
+          backupStreamUrl: { stringValue: activeBackup },
           isTokenized: { booleanValue: hasIsTokenized ? isTokenized : !!existingMem.isTokenized },
           decoderIsLive: { booleanValue: isLive },
-          decoderStreamUrl: { stringValue: streamUrl || existingMem.streamUrl || '' },
+          decoderStreamUrl: { stringValue: activeUrl },
           mode: { stringValue: doc === 'decoder' ? 'different' : 'same' }
         }
       };
@@ -533,7 +539,7 @@ ${proxiedVideoUrl}`;
             status: 200,
             headers: {
               'Content-Type': 'application/json',
-              'Cache-Control': 'public, max-age=86400',
+              'Cache-Control': 'public, max-age=60',
               'Content-Length': bodyBytes.length.toString()
             }
           });
@@ -836,8 +842,10 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         } catch (e) {}
       }
 
-      if (!isMediaSegment && !targetUrl.includes('cookieCheck=')) {
-        targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'cookieCheck=1';
+      if (!isMediaSegment && (targetUrl.includes('.trycloudflare.com') || targetUrl.includes('.cfargotunnel.com'))) {
+        if (!targetUrl.includes('cookieCheck=')) {
+          targetUrl += (targetUrl.includes('?') ? '&' : '?') + 'cookieCheck=1';
+        }
       }
 
       let activeCookie = passedCookie;
@@ -846,16 +854,23 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         activeCookie = sessionData.cookie;
       }
 
-      let cookieHeader = deduplicateCookies([ 'cookieCheck=1', activeCookie ].filter(Boolean).join('; '));
+      const isInternalTunnel = targetUrl.includes('.trycloudflare.com') || targetUrl.includes('.cfargotunnel.com');
+      let cookieHeader = deduplicateCookies([ isInternalTunnel ? 'cookieCheck=1' : '', activeCookie ].filter(Boolean).join('; '));
 
       try {
+        const clientUA = request.headers.get('User-Agent') || '';
+        const fetchUA = (clientUA.includes('VLC') || clientUA.includes('Lavf') || clientUA.includes('ExoPlayer'))
+          ? clientUA 
+          : 'VLC/3.0.18 LibVLC/3.0.18';
+
         let proxyRes = await fetch(targetUrl, {
           redirect: 'follow',
           cf: isMediaSegment ? { cacheEverything: true, cacheTtl: 86400 } : undefined,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'User-Agent': fetchUA,
+            'Accept': '*/*',
             'cf-tunnel-skip-offline-page': 'true',
-            'Cookie': cookieHeader
+            ...(cookieHeader ? { 'Cookie': cookieHeader } : {})
           }
         });
 
@@ -1265,18 +1280,25 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
 
         let targetUrlWithCookie = cleanCandidate;
-        if (!targetUrlWithCookie.includes('cookieCheck=')) {
-          targetUrlWithCookie += (targetUrlWithCookie.includes('?') ? '&' : '?') + 'cookieCheck=1';
+        if (cleanCandidate.includes('.trycloudflare.com') || cleanCandidate.includes('.cfargotunnel.com')) {
+          if (!targetUrlWithCookie.includes('cookieCheck=')) {
+            targetUrlWithCookie += (targetUrlWithCookie.includes('?') ? '&' : '?') + 'cookieCheck=1';
+          }
         }
 
         let streamRes;
         try {
+          const clientUA = request.headers.get('User-Agent') || '';
+          const fetchUA = (clientUA.includes('VLC') || clientUA.includes('Lavf') || clientUA.includes('ExoPlayer')) 
+            ? clientUA 
+            : 'VLC/3.0.18 LibVLC/3.0.18';
+
           streamRes = await fetch(targetUrlWithCookie, {
             redirect: 'follow',
             headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'cf-tunnel-skip-offline-page': 'true',
-              'Cookie': 'cookieCheck=1'
+              'User-Agent': fetchUA,
+              'Accept': '*/*',
+              'cf-tunnel-skip-offline-page': 'true'
             }
           });
         } catch (e) {
