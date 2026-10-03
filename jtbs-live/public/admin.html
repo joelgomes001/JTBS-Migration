@@ -3870,6 +3870,11 @@ function loadStreamState(){
     const d=snap.exists?snap.data():{isLive:false};
     window.currentStreamStateData = d;
 
+    try {
+      queueSyncFeedToWorker('main', { isLive: d.isLive, streamUrl: d.streamUrl, backupStreamUrl: d.backupStreamUrl, offlineHlsUrl: d.offlineHlsUrl });
+      queueSyncFeedToWorker('decoder', { isLive: d.decoderIsLive, streamUrl: d.decoderStreamUrl, backupStreamUrl: d.decoderBackupStreamUrl, offlineHlsUrl: d.decoderOfflineHlsUrl });
+    } catch (e) {}
+
     // Check Feed Ownership / Lock status for Main Stream
     const curUser = auth.currentUser;
     const isGodfather = curUser && ((curUser.email || '').toLowerCase() === 'joel.s.gomes001@gmail.com');
@@ -4735,10 +4740,35 @@ function updateAdminTimers() {
   }
 }
 
-setInterval(updateAdminTimers, 1000);
+let _feedSyncBuffer = {};
+let _feedSyncTimeout = null;
+
+function queueSyncFeedToWorker(docName, feedData) {
+  if (!docName || !feedData) return;
+  _feedSyncBuffer[docName] = {
+    isLive: feedData.isLive !== false && feedData.isLive !== 'false',
+    streamUrl: feedData.streamUrl || '',
+    backupStreamUrl: feedData.backupStreamUrl || '',
+    isTokenized: !!feedData.isTokenized,
+    offlineHlsUrl: feedData.offlineHlsUrl || feedData.offlineVideoUrl || ''
+  };
+  
+  if (_feedSyncTimeout) clearTimeout(_feedSyncTimeout);
+  _feedSyncTimeout = setTimeout(async () => {
+    try {
+      const payload = { feeds: { ..._feedSyncBuffer } };
+      await fetch('https://jtbsclassic.dpdns.org/syncall', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {}
+  }, 1000);
+}
 
 function syncWorkerState(doc, url, isLive = true, backupUrl = '', isTokenized = false) {
   try {
+    queueSyncFeedToWorker(doc, { isLive, streamUrl: url, backupStreamUrl: backupUrl, isTokenized });
     let q = `https://jtbsclassic.dpdns.org/updateStreamState?doc=${encodeURIComponent(doc)}&url=${encodeURIComponent(url)}&isLive=${isLive}`;
     if (backupUrl) q += `&backupUrl=${encodeURIComponent(backupUrl)}`;
     if (isTokenized !== undefined) q += `&isTokenized=${isTokenized}`;
@@ -6704,6 +6734,9 @@ function loadOtherStreams() {
       if (feedOffHls) {
         window.checkOfflineHlsUrl(feedOffHls, `feed-offline-mp4-options-container-${i}`);
       }
+      try {
+        queueSyncFeedToWorker(scope, data);
+      } catch (e) {}
     });
 
     // Save button click

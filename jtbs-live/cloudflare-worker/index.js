@@ -88,6 +88,15 @@ async function refreshUpstreamSession(docName, streamUrl) {
 const memoryStore = new Map();
 const docCache = new Map();
 
+function isDirectIP(uStr) {
+  try {
+    const u = new URL(uStr);
+    return /^(\d{1,3}\.){3}\d{1,3}$/.test(u.hostname) || u.hostname.startsWith('[') || (u.hostname.includes(':') && !u.hostname.includes('.'));
+  } catch (e) {
+    return false;
+  }
+}
+
 function getCacheKeyUrl(firestoreUrl, workerOrigin) {
   try {
     const urlObj = new URL(firestoreUrl);
@@ -103,7 +112,8 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
   const now = Date.now();
   const cached = docCache.get(url);
   
-  if (cached && (now - cached.timestamp < 10000)) {
+  // 1. In-memory cache valid for 60s
+  if (cached && (now - cached.timestamp < 60000)) {
     return cached.data;
   }
 
@@ -111,6 +121,19 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
   const cacheKey = new Request(cacheKeyUrl);
   const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
 
+  // 2. Check Cloudflare Edge Cache
+  if (cache) {
+    try {
+      const cachedResponse = await cache.match(cacheKey);
+      if (cachedResponse) {
+        const data = await cachedResponse.json();
+        docCache.set(url, { timestamp: now, data: data });
+        return data;
+      }
+    } catch (e) {}
+  }
+
+  // 3. Query Firestore REST API
   try {
     const res = await fetch(url, {
       headers: { 'Accept': 'application/json' }
@@ -138,17 +161,7 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
     }
   } catch (e) {}
 
-  if (cache) {
-    try {
-      const cachedResponse = await cache.match(cacheKey);
-      if (cachedResponse) {
-        const data = await cachedResponse.json();
-        docCache.set(url, { timestamp: now, data: data });
-        return data;
-      }
-    } catch (e) {}
-  }
-
+  // 4. Graceful fallback on 429 quota exhaustion or network drop
   if (cached && cached.data) {
     cached.timestamp = now;
     return cached.data;
@@ -491,6 +504,119 @@ ${proxiedVideoUrl}`;
       } catch (e) {}
     }
 
+    if (path === '/syncall' || path === '/api/syncall') {
+      if (request.method === 'POST') {
+        try {
+          const payload = await request.json();
+          const feeds = payload.feeds || payload;
+          const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
+          
+          for (const docKey of Object.keys(feeds)) {
+            const fData = feeds[docKey];
+            if (!fData || typeof fData !== 'object') continue;
+            
+            const isLive = fData.isLive !== false && fData.isLive !== 'false';
+            const streamUrl = fData.streamUrl || '';
+            const backupStreamUrl = fData.backupStreamUrl || '';
+            const isTokenized = !!fData.isTokenized;
+            const offlineHlsUrl = fData.offlineHlsUrl || fData.offlineVideoUrl || '';
+            
+            memoryStore.set(docKey, {
+              isLive,
+              streamUrl,
+              backupStreamUrl,
+              isTokenized,
+              offlineHlsUrl,
+              updatedAt: Date.now()
+            });
+            
+            const mockDoc = {
+              name: `projects/jtbs-classic/databases/(default)/documents/streamState/${docKey}`,
+              fields: {
+                isLive: { booleanValue: isLive },
+                streamUrl: { stringValue: streamUrl },
+                backupStreamUrl: { stringValue: backupStreamUrl },
+                isTokenized: { booleanValue: isTokenized },
+                offlineHlsUrl: { stringValue: offlineHlsUrl },
+                decoderIsLive: { booleanValue: isLive },
+                decoderStreamUrl: { stringValue: streamUrl },
+                mode: { stringValue: docKey === 'decoder' ? 'different' : 'same' }
+              }
+            };
+            
+            const firestoreDocUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${docKey}`;
+            docCache.set(firestoreDocUrl, { timestamp: Date.now(), data: mockDoc });
+            
+            if (cache) {
+              try {
+                const cacheKeyUrl = getCacheKeyUrl(firestoreDocUrl, url.origin);
+                const cacheKey = new Request(cacheKeyUrl);
+                const bodyStr = JSON.stringify(mockDoc);
+                const bodyBytes = new TextEncoder().encode(bodyStr);
+                const cacheResponse = new Response(bodyBytes, {
+                  status: 200,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'public, max-age=86400',
+                    'Content-Length': bodyBytes.length.toString()
+                  }
+                });
+                await cache.put(cacheKey, cacheResponse);
+              } catch (e) {}
+            }
+          }
+          
+          if (payload.vipTokens) {
+            const vipDoc = {
+              name: `projects/jtbs-classic/databases/(default)/documents/config/vipTokens`,
+              fields: {
+                tokens: {
+                  mapValue: {
+                    fields: payload.vipTokens
+                  }
+                }
+              }
+            };
+            const firestoreVipUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/vipTokens`;
+            docCache.set(firestoreVipUrl, { timestamp: Date.now(), data: vipDoc });
+          }
+          
+          if (payload.masterOverride) {
+            const mDoc = {
+              name: `projects/jtbs-classic/databases/(default)/documents/config/masterOverride`,
+              fields: {
+                enabled: { booleanValue: !!payload.masterOverride.enabled },
+                streamUrl: { stringValue: payload.masterOverride.streamUrl || '' },
+                backupStreamUrl: { stringValue: payload.masterOverride.backupStreamUrl || '' },
+                scope: { stringValue: payload.masterOverride.scope || 'all' }
+              }
+            };
+            const firestoreMasterUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/masterOverride`;
+            docCache.set(firestoreMasterUrl, { timestamp: Date.now(), data: mDoc });
+          }
+
+          return new Response(JSON.stringify({ success: true, count: Object.keys(feeds).length }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+          });
+        } catch (err) {
+          return new Response(JSON.stringify({ error: err.message }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+          });
+        }
+      }
+      
+      const allState = {};
+      for (const [k, v] of memoryStore.entries()) {
+        allState[k] = v;
+      }
+      return new Response(JSON.stringify({ activeFeeds: allState }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      });
+    }
+
     if (path.startsWith('/updatestreamstate')) {
       const doc = url.searchParams.get('doc') || 'main';
       const streamUrl = url.searchParams.get('url') || '';
@@ -539,7 +665,7 @@ ${proxiedVideoUrl}`;
             status: 200,
             headers: {
               'Content-Type': 'application/json',
-              'Cache-Control': 'public, max-age=60',
+              'Cache-Control': 'public, max-age=86400',
               'Content-Length': bodyBytes.length.toString()
             }
           });
@@ -1058,56 +1184,49 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
       } catch (e) {}
 
-      // Fetch Firestore document for target.doc (main, feed1, feed2, feed3, feed4, feed5, feed6)
-      const data = await getCachedFirestoreDoc(firestoreUrl, url.origin);
-      const fields = data ? (data.fields || data) : {};
-
-      let backupStreamUrl = '';
-      if (target.type === 'decoder') {
-        const mode = parseFirestoreString(fields.mode) || 'same';
-        if (mode === 'different') {
-          isLive = parseFirestoreBool(fields.decoderIsLive);
-          streamUrl = parseFirestoreString(fields.decoderStreamUrl);
-          backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
-          offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
-        } else {
-          isLive = parseFirestoreBool(fields.isLive);
-          streamUrl = parseFirestoreString(fields.streamUrl);
-          backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
-          offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
-        }
-      } else {
-        // Public streams (main or feed1..feed20 or srinjana)
-        isLive = parseFirestoreBool(fields.isLive);
-        streamUrl = parseFirestoreString(fields.streamUrl);
-        backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
-        offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
-      }
-
-      // Check memoryStore overrides if saved via Admin Panel sync or worker memory
+      // 1. Check memoryStore first (fastest RAM path, avoids Firestore quota exhaustion)
       let memData = null;
       if (target.type === 'decoder') {
-        const mode = parseFirestoreString(fields.mode) || 'same';
-        if (mode === 'different') {
-          memData = memoryStore.get('decoder');
-        }
-        if (!memData) {
-          memData = memoryStore.get('main');
-        }
+        memData = memoryStore.get('decoder') || memoryStore.get('main');
       } else {
-        memData = memoryStore.get(target.doc);
-        if (!memData && target.doc === 'main') {
-          memData = memoryStore.get('main');
-        }
+        memData = memoryStore.get(target.doc) || (target.doc === 'main' ? memoryStore.get('main') : null);
       }
 
-      let isTokenized = parseFirestoreBool(fields.isTokenized);
+      let isTokenized = false;
+
       if (memData) {
         if (memData.isLive !== undefined) isLive = memData.isLive;
         if (memData.streamUrl) streamUrl = memData.streamUrl;
         if (memData.backupStreamUrl) backupStreamUrl = memData.backupStreamUrl;
         if (memData.offlineHlsUrl) offlineHlsUrl = memData.offlineHlsUrl;
         if (memData.isTokenized !== undefined) isTokenized = memData.isTokenized;
+      }
+
+      // 2. Fallback to Firestore / Edge Cache if memoryStore does not have streamUrl
+      if (!streamUrl) {
+        const data = await getCachedFirestoreDoc(firestoreUrl, url.origin);
+        const fields = data ? (data.fields || data) : {};
+
+        if (target.type === 'decoder') {
+          const mode = parseFirestoreString(fields.mode) || 'same';
+          if (mode === 'different') {
+            if (!isLive) isLive = parseFirestoreBool(fields.decoderIsLive);
+            if (!streamUrl) streamUrl = parseFirestoreString(fields.decoderStreamUrl);
+            if (!backupStreamUrl) backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
+            if (!offlineHlsUrl) offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
+          } else {
+            if (!isLive) isLive = parseFirestoreBool(fields.isLive);
+            if (!streamUrl) streamUrl = parseFirestoreString(fields.streamUrl);
+            if (!backupStreamUrl) backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
+            if (!offlineHlsUrl) offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
+          }
+        } else {
+          if (!isLive) isLive = parseFirestoreBool(fields.isLive);
+          if (!streamUrl) streamUrl = parseFirestoreString(fields.streamUrl);
+          if (!backupStreamUrl) backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
+          if (!offlineHlsUrl) offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
+        }
+        if (!isTokenized) isTokenized = parseFirestoreBool(fields.isTokenized);
       }
 
       // ── MASTER NETWORK TAKEOVER OVERRIDE (GODFATHER SUPREME) ────
