@@ -1169,13 +1169,14 @@ ${channelHeaderXml}${programmesXml}</tv>`;
     const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${target.doc}`;
     const mainConfigUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/main`;
 
-    try {
-      let isLive = false;
-      let streamUrl = '';
-      let offlineHlsUrl = '';
+    let isLive = false;
+    let streamUrl = '';
+    let backupStreamUrl = '';
+    let offlineHlsUrl = '';
+    let defaultOfflineHlsUrl = '';
 
+    try {
       // Get main config for global default offline URL
-      let defaultOfflineHlsUrl = '';
       try {
         const mainData = await getCachedFirestoreDoc(mainConfigUrl, url.origin);
         if (mainData) {
