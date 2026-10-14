@@ -140,6 +140,7 @@ textarea{resize:vertical;min-height:90px;}
 .tab-btn[data-tab="livecount"].active { background: linear-gradient(180deg, #06b6d4 0%, #0e7490 100%) !important; border-color: #a5f3fc !important; color: #fff !important; }
 .tab-btn[data-tab="decoders"].active { background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important; border-color: #bfdbfe !important; color: #fff !important; }
 .tab-btn[data-tab="otherstreams"].active { background: linear-gradient(180deg, #ec4899 0%, #be185d 100%) !important; border-color: #fbcfe8 !important; color: #fff !important; }
+.tab-btn[data-tab="rtmp"].active { background: linear-gradient(180deg, #f97316 0%, #c2410c 100%) !important; border-color: #fdba74 !important; color: #fff !important; }
 .tab-btn[data-tab="epg"].active { background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important; border-color: #a7f3d0 !important; color: #fff !important; }
 .tab-btn[data-tab="linkvault"].active { background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%) !important; border-color: #c7d2fe !important; color: #fff !important; }
 
@@ -1018,6 +1019,9 @@ tr:last-child td{border-bottom:none;}
     </button>
     <button class="tab-btn" data-tab="otherstreams">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M4.9 19.1C1.7 15.9 1.7 10.7 4.9 7.5M7.7 16.3C5.7 14.3 5.7 11.1 7.7 9.1M19.1 4.9C22.3 8.1 22.3 13.3 19.1 16.5M16.3 7.7C18.3 9.7 18.3 12.9 16.3 14.9M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/></svg>Other Streams
+    </button>
+    <button class="tab-btn" data-tab="rtmp">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>RTMP Relay
     </button>
     <button class="tab-btn" data-tab="linkvault">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px; margin-right:5px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link Vault
@@ -2356,6 +2360,186 @@ tr:last-child td{border-bottom:none;}
     </div>
   </div>
 
+  <!-- RTMP RELAY & STREAM HUB -->
+  <div class="tab-panel" id="tab-rtmp" style="max-width: 960px;">
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:18px; font-weight:700; color:#fff; font-family:var(--classic-title-font); display:flex; align-items:center; gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+          RTMP Ingest & Relay Hub
+        </span>
+        <span class="role-badge" style="background:rgba(249,115,22,0.2); border:1px solid rgba(249,115,22,0.6); color:#fdba74; font-size:10px;">PORT 1935 / TCP</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="btn-gold-sm" onclick="rtmpRefreshConfig()" style="padding:5px 12px; font-size:12px; display:inline-flex; align-items:center; gap:5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN RTMP ENDPOINT CARD -->
+    <div class="card" style="border: 1px solid rgba(249,115,22,0.35); background: linear-gradient(180deg, rgba(30, 22, 14, 0.95) 0%, rgba(14, 18, 28, 0.98) 100%); margin-bottom: 20px;">
+      <div class="card-title" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <span style="display:flex; align-items:center; gap:8px; color:#fdba74;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+          Active RTMP Server Configuration
+        </span>
+        <span style="font-size:11px; color:var(--sub); font-family:monospace;" id="rtmp-dns-indicator">DNS: rtmp.jtbsclassic.dpdns.org &rarr; 202.142.95.194</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-top:12px;">
+        <!-- Server Domain -->
+        <div>
+          <label style="font-size:11px; color:#fdba74; text-transform:uppercase; font-weight:700;">RTMP Host / Domain</label>
+          <div style="position:relative;">
+            <input type="text" id="rtmp-host-input" value="rtmp.jtbsclassic.dpdns.org" style="background:#0a0f1d; border:1px solid #374151; color:#fff; font-family:monospace; padding-right:75px;" oninput="updateRtmpPreviewUrls()">
+            <button class="btn-gold-sm" onclick="copyInputVal('rtmp-host-input')" style="position:absolute; right:4px; top:4px; padding:4px 9px; font-size:11px;">Copy</button>
+          </div>
+          <span style="font-size:10px; color:var(--sub); margin-top:3px; display:block;">Maps to public server IP (202.142.95.194:1935)</span>
+        </div>
+
+        <!-- Port & Application -->
+        <div style="display:grid; grid-template-columns: 100px 1fr; gap:10px;">
+          <div>
+            <label style="font-size:11px; color:#fdba74; text-transform:uppercase; font-weight:700;">Port</label>
+            <input type="text" id="rtmp-port-input" value="1935" style="background:#0a0f1d; border:1px solid #374151; color:#fff; font-family:monospace; text-align:center;" oninput="updateRtmpPreviewUrls()">
+          </div>
+          <div>
+            <label style="font-size:11px; color:#fdba74; text-transform:uppercase; font-weight:700;">App Name</label>
+            <input type="text" id="rtmp-app-input" value="live" style="background:#0a0f1d; border:1px solid #374151; color:#fff; font-family:monospace;" oninput="updateRtmpPreviewUrls()">
+          </div>
+        </div>
+
+        <!-- Stream Key -->
+        <div>
+          <label style="font-size:11px; color:#fdba74; text-transform:uppercase; font-weight:700;">Active Stream Key</label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="rtmp-key-input" value="ok" placeholder="e.g. ok, pineapple, main" style="background:#0a0f1d; border:1px solid #374151; color:#fde68a; font-family:monospace; font-weight:bold;" oninput="updateRtmpPreviewUrls()">
+            <select id="rtmp-key-presets" style="width:130px; background:#111827; border:1px solid #374151; color:#fff; font-size:12px;" onchange="onRtmpPresetSelect(this.value)">
+              <option value="">Presets...</option>
+              <option value="ok">ok (Default)</option>
+              <option value="pineapple">pineapple</option>
+              <option value="feed1">feed1</option>
+              <option value="backup">backup</option>
+            </select>
+          </div>
+          <span style="font-size:10px; color:var(--sub); margin-top:3px; display:block;">Change key anytime (e.g. pineapple) for instant key rotation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PUSH & PULL GENERATOR CARDS -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px; margin-bottom:20px;">
+      
+      <!-- PUSH (INGEST) CARD -->
+      <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.4); background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 15, 29, 0.98) 100%);">
+        <div class="card-title" style="display:flex; align-items:center; justify-content:space-between;">
+          <span style="display:flex; align-items:center; gap:6px; color:#60a5fa;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            Encoder Push Settings (OBS / vMix)
+          </span>
+          <span class="role-badge" style="background:rgba(59,130,246,0.2); border:1px solid rgba(59,130,246,0.5); color:#93c5fd; font-size:10px;">INGEST</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+          <div>
+            <label style="font-size:11px; color:var(--sub);">Server URL (OBS / Ingest)</label>
+            <div style="position:relative;">
+              <input type="text" id="rtmp-push-server-url" readonly value="rtmp://rtmp.jtbsclassic.dpdns.org:1935/live" style="background:#050914; border:1px solid #1e293b; color:#93c5fd; font-family:monospace; font-size:12px; padding-right:75px;">
+              <button class="btn-gold-sm" onclick="copyInputVal('rtmp-push-server-url')" style="position:absolute; right:4px; top:4px; padding:4px 9px; font-size:11px;">Copy</button>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:11px; color:var(--sub);">Stream Key</label>
+            <div style="position:relative;">
+              <input type="text" id="rtmp-push-key-display" readonly value="ok" style="background:#050914; border:1px solid #1e293b; color:#fde68a; font-family:monospace; font-size:12px; font-weight:bold; padding-right:75px;">
+              <button class="btn-gold-sm" onclick="copyInputVal('rtmp-push-key-display')" style="position:absolute; right:4px; top:4px; padding:4px 9px; font-size:11px;">Copy</button>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:11px; color:var(--sub);">Combined Full Push Target</label>
+            <div style="position:relative;">
+              <input type="text" id="rtmp-push-full-url" readonly value="rtmp://rtmp.jtbsclassic.dpdns.org:1935/live/ok" style="background:#050914; border:1px solid #1e293b; color:#e2e8f0; font-family:monospace; font-size:12px; padding-right:75px;">
+              <button class="btn-gold-sm" onclick="copyInputVal('rtmp-push-full-url')" style="position:absolute; right:4px; top:4px; padding:4px 9px; font-size:11px;">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PULL (PLAYBACK) CARD -->
+      <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(6, 30, 20, 0.95) 0%, rgba(10, 15, 29, 0.98) 100%);">
+        <div class="card-title" style="display:flex; align-items:center; justify-content:space-between;">
+          <span style="display:flex; align-items:center; gap:6px; color:#34d399;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            Playback Pull (VLC / IPTV / FFmpeg)
+          </span>
+          <span class="role-badge" style="background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.5); color:#6ee7b7; font-size:10px;">PLAYBACK</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+          <div>
+            <label style="font-size:11px; color:var(--sub);">RTMP Direct Playback URL</label>
+            <div style="position:relative;">
+              <input type="text" id="rtmp-pull-url" readonly value="rtmp://rtmp.jtbsclassic.dpdns.org:1935/live/ok" style="background:#050914; border:1px solid #064e3b; color:#a7f3d0; font-family:monospace; font-size:12px; padding-right:75px;">
+              <button class="btn-gold-sm" onclick="copyInputVal('rtmp-pull-url')" style="position:absolute; right:4px; top:4px; padding:4px 9px; font-size:11px;">Copy</button>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:11px; color:var(--sub);">Direct Server Fallback URL (IP Direct)</label>
+            <div style="position:relative;">
+              <input type="text" id="rtmp-ip-url" readonly value="rtmp://202.142.95.194:1935/live/ok" style="background:#050914; border:1px solid #1e293b; color:#cbd5e1; font-family:monospace; font-size:12px; padding-right:75px;">
+              <button class="btn-gold-sm" onclick="copyInputVal('rtmp-ip-url')" style="position:absolute; right:4px; top:4px; padding:4px 9px; font-size:11px;">Copy</button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <button class="btn-gold-sm" onclick="sendRtmpToLinkVault()" style="flex:1; padding:7px; font-size:11px; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Send to Link Vault
+            </button>
+            <button class="btn-gold-sm" onclick="saveRtmpConfiguration()" style="flex:1; padding:7px; font-size:11px; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:linear-gradient(180deg, #10b981 0%, #059669 100%); border-color:#059669; color:#fff;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save Settings
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK INSTRUCTIONS CARD -->
+    <div class="card" style="border: 1px solid rgba(255,255,255,0.1); background: rgba(10, 15, 29, 0.7);">
+      <div class="card-title" style="font-size:13px; color:#e2e8f0; display:flex; align-items:center; gap:6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Quick Reference Guide
+      </div>
+      <div style="font-size:12px; color:var(--sub); line-height:1.7; display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+        <div>
+          <strong style="color:#fdba74;">How to Push from OBS Studio:</strong>
+          <ol style="padding-left:18px; margin:4px 0 0 0;">
+            <li>In OBS, open <strong>Settings &rarr; Stream</strong>.</li>
+            <li>Select <strong>Service: Custom...</strong></li>
+            <li>Paste Server: <code style="color:#93c5fd;" id="guide-push-server">rtmp://rtmp.jtbsclassic.dpdns.org:1935/live</code></li>
+            <li>Paste Stream Key: <code style="color:#fde68a;" id="guide-push-key">ok</code></li>
+            <li>Click <strong>Start Streaming</strong>.</li>
+          </ol>
+        </div>
+        <div>
+          <strong style="color:#6ee7b7;">How to Pull / Play in VLC Media Player:</strong>
+          <ol style="padding-left:18px; margin:4px 0 0 0;">
+            <li>In VLC, press <kbd>Ctrl+N</kbd> (Open Network Stream).</li>
+            <li>Paste URL: <code style="color:#a7f3d0;" id="guide-pull-url">rtmp://rtmp.jtbsclassic.dpdns.org:1935/live/ok</code></li>
+            <li>Click <strong>Play</strong>.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- LINK VAULT & STREAM PREVIEWER -->
   <div class="tab-panel" id="tab-linkvault" style="max-width: 960px;">
     
@@ -3084,6 +3268,9 @@ function initDashboard(user,role){
       $('tab-'+btn.dataset.tab).classList.add('active');
       if (btn.dataset.tab === 'godfather' && typeof window.loadGodfatherSuite === 'function') {
         window.loadGodfatherSuite();
+      }
+      if (btn.dataset.tab === 'rtmp' && typeof window.rtmpRefreshConfig === 'function') {
+        window.rtmpRefreshConfig();
       }
     });
   });
@@ -8053,6 +8240,132 @@ function copyEpgUrl(url, btn) {
     prompt('Copy EPG URL:', url);
   }
 }
+
+// ── RTMP RELAY & STREAM HUB LOGIC ─────────────────────────────────
+window.updateRtmpPreviewUrls = function() {
+  const host = ($('rtmp-host-input') ? $('rtmp-host-input').value.trim() : '') || 'rtmp.jtbsclassic.dpdns.org';
+  const port = ($('rtmp-port-input') ? $('rtmp-port-input').value.trim() : '') || '1935';
+  const app = ($('rtmp-app-input') ? $('rtmp-app-input').value.trim() : '') || 'live';
+  const key = ($('rtmp-key-input') ? $('rtmp-key-input').value.trim() : '') || 'ok';
+  const portStr = (port && port !== '1935') ? (':' + port) : ':1935';
+
+  const serverUrl = `rtmp://${host}${portStr}/${app}`;
+  const fullPushUrl = `${serverUrl}/${key}`;
+  const directIpUrl = `rtmp://202.142.95.194:1935/${app}/${key}`;
+
+  if ($('rtmp-push-server-url')) $('rtmp-push-server-url').value = serverUrl;
+  if ($('rtmp-push-key-display')) $('rtmp-push-key-display').value = key;
+  if ($('rtmp-push-full-url')) $('rtmp-push-full-url').value = fullPushUrl;
+  if ($('rtmp-pull-url')) $('rtmp-pull-url').value = fullPushUrl;
+  if ($('rtmp-ip-url')) $('rtmp-ip-url').value = directIpUrl;
+
+  if ($('guide-push-server')) $('guide-push-server').textContent = serverUrl;
+  if ($('guide-push-key')) $('guide-push-key').textContent = key;
+  if ($('guide-pull-url')) $('guide-pull-url').textContent = fullPushUrl;
+};
+
+window.onRtmpPresetSelect = function(val) {
+  if (!val) return;
+  const keyInput = $('rtmp-key-input');
+  if (keyInput) {
+    keyInput.value = val;
+    window.updateRtmpPreviewUrls();
+  }
+};
+
+window.copyInputVal = function(inputId) {
+  const el = $(inputId);
+  if (!el) return;
+  const text = el.value || el.innerText || '';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✓ Copied to clipboard:\n\n' + text);
+    }).catch(() => {
+      prompt('Copy text:', text);
+    });
+  } else {
+    prompt('Copy text:', text);
+  }
+};
+
+window.saveRtmpConfiguration = async function() {
+  const host = ($('rtmp-host-input') ? $('rtmp-host-input').value.trim() : '') || 'rtmp.jtbsclassic.dpdns.org';
+  const port = ($('rtmp-port-input') ? $('rtmp-port-input').value.trim() : '') || '1935';
+  const app = ($('rtmp-app-input') ? $('rtmp-app-input').value.trim() : '') || 'live';
+  const key = ($('rtmp-key-input') ? $('rtmp-key-input').value.trim() : '') || 'ok';
+
+  try {
+    if (typeof db !== 'undefined' && db && db.doc) {
+      await db.doc('config/rtmpRelay').set({
+        host, port, app, streamKey: key,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy: (auth && auth.currentUser) ? auth.currentUser.email : 'Admin'
+      }, { merge: true });
+    }
+    localStorage.setItem('jtbs_rtmp_config', JSON.stringify({ host, port, app, key }));
+    alert('✓ RTMP Relay Configuration saved successfully!');
+  } catch (err) {
+    console.warn('Could not save RTMP config to cloud:', err);
+    localStorage.setItem('jtbs_rtmp_config', JSON.stringify({ host, port, app, key }));
+    alert('Saved locally. (Cloud sync: ' + err.message + ')');
+  }
+};
+
+window.rtmpRefreshConfig = async function() {
+  try {
+    if (typeof db !== 'undefined' && db && db.doc) {
+      const snap = await db.doc('config/rtmpRelay').get();
+      if (snap.exists) {
+        const d = snap.data();
+        if (d.host && $('rtmp-host-input')) $('rtmp-host-input').value = d.host;
+        if (d.port && $('rtmp-port-input')) $('rtmp-port-input').value = d.port;
+        if (d.app && $('rtmp-app-input')) $('rtmp-app-input').value = d.app;
+        if (d.streamKey && $('rtmp-key-input')) $('rtmp-key-input').value = d.streamKey;
+        window.updateRtmpPreviewUrls();
+        return;
+      }
+    }
+  } catch (e) {
+    console.warn('Could not fetch RTMP config from cloud:', e);
+  }
+
+  try {
+    const raw = localStorage.getItem('jtbs_rtmp_config');
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d.host && $('rtmp-host-input')) $('rtmp-host-input').value = d.host;
+      if (d.port && $('rtmp-port-input')) $('rtmp-port-input').value = d.port;
+      if (d.app && $('rtmp-app-input')) $('rtmp-app-input').value = d.app;
+      if (d.key && $('rtmp-key-input')) $('rtmp-key-input').value = d.key;
+    }
+  } catch (e) {}
+
+  window.updateRtmpPreviewUrls();
+};
+
+window.sendRtmpToLinkVault = function() {
+  const pullUrl = ($('rtmp-pull-url') ? $('rtmp-pull-url').value.trim() : '') || 'rtmp://rtmp.jtbsclassic.dpdns.org:1935/live/ok';
+  const key = ($('rtmp-key-input') ? $('rtmp-key-input').value.trim() : '') || 'ok';
+  const lineToAdd = `JTBS RTMP Relay (${key}) | ${pullUrl}`;
+
+  const vaultTextarea = $('vault-raw-textarea');
+  if (vaultTextarea) {
+    const current = vaultTextarea.value.trim();
+    if (!current.includes(pullUrl)) {
+      vaultTextarea.value = (current ? current + '\n\n' : '') + '# Added from RTMP Ingest Hub\n' + lineToAdd;
+      if (typeof window.onVaultTextareaInput === 'function') {
+        window.onVaultTextareaInput();
+      }
+    }
+  }
+
+  // Switch to linkvault tab
+  const linkVaultBtn = document.querySelector('[data-tab="linkvault"]');
+  if (linkVaultBtn) {
+    linkVaultBtn.click();
+    alert('✓ RTMP URL added to Link Vault:\n\n' + lineToAdd);
+  }
+};
 
 // ── LINK VAULT & STREAM PREVIEWER LOGIC ─────────────────────────────
 let vaultHls = null;
