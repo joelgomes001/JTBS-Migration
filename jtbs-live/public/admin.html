@@ -109,6 +109,16 @@ textarea{resize:vertical;min-height:90px;}
 .divider span{color:var(--sub);font-size:13px;white-space:nowrap;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.2);}
 #login-error{background:rgba(224,85,85,.25);border:1px solid rgba(224,85,85,.5);border-radius:4px;padding:10px 14px;font-size:13px;color:#ff9999;margin-bottom:16px;display:none;}
+.password-toggle-btn{
+  transition: color .15s ease, transform .1s ease;
+  user-select: none;
+}
+.password-toggle-btn:hover{
+  color: #fbbf24 !important;
+}
+.password-toggle-btn:active{
+  transform: scale(0.92);
+}
 
 /* DASHBOARD TOPBAR */
 #dashboard-page{display:none;}
@@ -944,7 +954,19 @@ tr:last-child td{border-bottom:none;}
     <div class="login-title">Admin Panel</div>
     <div id="login-error"></div>
     <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="admin@example.com" autocomplete="username"/></div>
-    <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"/></div>
+    <div class="field">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="margin:0;">Password</label>
+        <a href="javascript:void(0)" onclick="sendPasswordResetEmailFromLogin()" style="font-size:11px; color:#fbbf24; text-decoration:none; font-family:var(--classic-title-font); cursor:pointer;">Forgot?</a>
+      </div>
+      <div style="position:relative; display:flex; align-items:center;">
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" style="padding-right:42px; width:100%;" />
+        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('login-pass', this)" title="Show / Hide Password" style="position:absolute; right:10px; background:transparent; border:none; color:#9ca3af; cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center;">
+          <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+    </div>
     <button class="btn btn-primary" id="login-btn">Sign In</button>
     <div class="divider"><span>or</span></div>
     <button class="btn btn-google" id="google-btn">
@@ -1552,8 +1574,14 @@ tr:last-child td{border-bottom:none;}
             <select id="godfather-pw-target-admin" style="width:100%; padding:7px 10px; font-size:12px; background:var(--bg2); border:1px solid var(--border); border-radius:6px; color:var(--text);">
               <option value="">Select Admin to Change Password...</option>
             </select>
-            <div style="display:flex; gap:6px;">
-              <input type="text" id="godfather-pw-new-val" placeholder="New Password (min 8 chars)" style="flex:1; font-size:12px; padding:6px 10px; font-family:monospace;" />
+            <div style="display:flex; gap:6px; align-items:center;">
+              <div style="position:relative; flex:1; display:flex; align-items:center;">
+                <input type="password" id="godfather-pw-new-val" placeholder="New Password (min 8 chars)" style="width:100%; font-size:12px; padding:6px 34px 6px 10px; font-family:monospace;" />
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('godfather-pw-new-val', this)" title="Show / Hide Password" style="position:absolute; right:6px; background:transparent; border:none; color:#9ca3af; cursor:pointer; padding:3px; display:flex; align-items:center; justify-content:center;">
+                  <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
               <button class="btn-gold-sm" onclick="godfatherRandomizePassword()" title="Generate Random Secure Password" style="padding:6px 10px; font-size:12px; white-space:nowrap;">Random</button>
             </div>
             <button class="btn-gold-sm" onclick="godfatherDirectSetPassword()" style="padding:7px 12px; font-size:12px; width:100%; background:linear-gradient(180deg, #10b981 0%, #047857 100%); border-color:#6ee7b7; color:#fff;">
@@ -2864,7 +2892,16 @@ tr:last-child td{border-bottom:none;}
     <div class="modal-title">Add New Admin</div>
     <div class="field"><label>Display name</label><input type="text" id="new-admin-name" placeholder="John Doe"/></div>
     <div class="field"><label>Email</label><input type="email" id="new-admin-email" placeholder="admin@example.com"/></div>
-    <div class="field"><label>Password (min 8 chars)</label><input type="password" id="new-admin-pass" placeholder="Min 8 characters"/></div>
+    <div class="field">
+      <label>Password (min 8 chars)</label>
+      <div style="position:relative; display:flex; align-items:center;">
+        <input type="password" id="new-admin-pass" placeholder="Min 8 characters" style="padding-right:42px; width:100%;" />
+        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('new-admin-pass', this)" title="Show / Hide Password" style="position:absolute; right:10px; background:transparent; border:none; color:#9ca3af; cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center;">
+          <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+    </div>
     <div class="field">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <label style="margin:0;">Profile Picture</label>
@@ -2985,8 +3022,14 @@ tr:last-child td{border-bottom:none;}
       <div style="font-size:11px; color:#d1fae5; margin-bottom:8px;">
         Directly change this admin's password instantly without requiring them to check their email.
       </div>
-      <div style="display:flex; gap:6px; margin-bottom:8px;">
-        <input type="text" id="edit-godfather-new-pass" placeholder="New Password (min 8 chars)" style="flex:1; font-size:12px; padding:7px 10px; font-family:monospace;" />
+      <div style="display:flex; gap:6px; margin-bottom:8px; align-items:center;">
+        <div style="position:relative; flex:1; display:flex; align-items:center;">
+          <input type="password" id="edit-godfather-new-pass" placeholder="New Password (min 8 chars)" style="width:100%; font-size:12px; padding:7px 36px 7px 10px; font-family:monospace;" />
+          <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('edit-godfather-new-pass', this)" title="Show / Hide Password" style="position:absolute; right:8px; background:transparent; border:none; color:#9ca3af; cursor:pointer; padding:3px; display:flex; align-items:center; justify-content:center;">
+            <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
         <button class="btn-gold-sm" type="button" onclick="editModalRandomizePassword()" style="padding:6px 10px; font-size:12px; white-space:nowrap;">Random</button>
       </div>
       <button class="btn-gold-sm" type="button" id="edit-godfather-save-pw-btn" onclick="editModalDirectSetPassword()" style="width:100%; text-align:center; padding:7px 12px; font-size:12px; background:linear-gradient(180deg, #10b981 0%, #047857 100%); border-color:#6ee7b7; color:#fff;">
@@ -3020,6 +3063,33 @@ firebase.initializeApp(FIREBASE_CONFIG);
 const auth=firebase.auth(), db=firebase.firestore(), fns=firebase.functions();
 const googleProvider=new firebase.auth.GoogleAuthProvider();
 const $=id=>document.getElementById(id);
+
+window.togglePasswordVisibility = function(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const isPass = input.type === 'password';
+  input.type = isPass ? 'text' : 'password';
+  if (btn) {
+    const openSvg = btn.querySelector('.eye-open');
+    const closedSvg = btn.querySelector('.eye-closed');
+    if (openSvg) openSvg.style.display = isPass ? 'none' : 'block';
+    if (closedSvg) closedSvg.style.display = isPass ? 'block' : 'none';
+  }
+};
+
+window.sendPasswordResetEmailFromLogin = async function() {
+  const email = $('login-email') ? $('login-email').value.trim() : '';
+  if (!email) {
+    showLoginErr('Please enter your email above first, then click Forgot.');
+    return;
+  }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    alert('Password reset link has been sent to: ' + email + '\n\nPlease check your inbox and spam folder.');
+  } catch (err) {
+    showLoginErr('Failed to send reset link: ' + (err.message || 'Error'));
+  }
+};
 
 window.checkOfflineHlsUrl = function(inputEl, containerId) {
   if (!inputEl) return;
@@ -9230,12 +9300,32 @@ function generateSecureRandomPassword() {
 
 window.godfatherRandomizePassword = function() {
   const input = $('godfather-pw-new-val');
-  if (input) input.value = generateSecureRandomPassword();
+  if (input) {
+    input.value = generateSecureRandomPassword();
+    input.type = 'text';
+    const btn = input.parentElement ? input.parentElement.querySelector('.password-toggle-btn') : null;
+    if (btn) {
+      const openSvg = btn.querySelector('.eye-open');
+      const closedSvg = btn.querySelector('.eye-closed');
+      if (openSvg) openSvg.style.display = 'none';
+      if (closedSvg) closedSvg.style.display = 'block';
+    }
+  }
 };
 
 window.editModalRandomizePassword = function() {
   const input = $('edit-godfather-new-pass');
-  if (input) input.value = generateSecureRandomPassword();
+  if (input) {
+    input.value = generateSecureRandomPassword();
+    input.type = 'text';
+    const btn = input.parentElement ? input.parentElement.querySelector('.password-toggle-btn') : null;
+    if (btn) {
+      const openSvg = btn.querySelector('.eye-open');
+      const closedSvg = btn.querySelector('.eye-closed');
+      if (openSvg) openSvg.style.display = 'none';
+      if (closedSvg) closedSvg.style.display = 'block';
+    }
+  }
 };
 
 window.godfatherDirectSetPassword = async function() {
@@ -9265,8 +9355,12 @@ window.godfatherDirectSetPassword = async function() {
   }
 
   try {
-    const updateAdminPassword = firebase.functions().httpsCallable('updateAdminPassword');
-    await updateAdminPassword({ uid, newPassword: newPass });
+    if (auth.currentUser && auth.currentUser.uid === uid) {
+      await auth.currentUser.updatePassword(newPass);
+    } else {
+      const updateAdminPassword = firebase.functions().httpsCallable('updateAdminPassword');
+      await updateAdminPassword({ uid, newPassword: newPass });
+    }
 
     // Append to Godfather credentials notepad automatically
     const notepad = $('godfather-credentials-notepad');
@@ -9285,11 +9379,15 @@ window.godfatherDirectSetPassword = async function() {
     $('godfather-pw-new-val').value = '';
   } catch (err) {
     console.error('Direct set password error:', err);
+    let errMsg = err.message || 'Failed to update password';
+    if (err.code === 'auth/requires-recent-login') {
+      errMsg = 'For security, updating your password requires a recent login. Please re-sign in and try again.';
+    }
     if (msgEl) {
-      msgEl.textContent = 'Error: ' + (err.message || 'Failed to update password');
+      msgEl.textContent = 'Error: ' + errMsg;
       msgEl.className = 'save-msg show err';
     }
-    alert('Error setting password: ' + (err.message || 'Please check that Cloud Functions are running.'));
+    alert('Error setting password: ' + errMsg);
   }
 };
 
@@ -9314,8 +9412,12 @@ window.editModalDirectSetPassword = async function() {
   if (msgEl) msgEl.style.display = 'none';
 
   try {
-    const updateAdminPassword = firebase.functions().httpsCallable('updateAdminPassword');
-    await updateAdminPassword({ uid, newPassword: newPass });
+    if (auth.currentUser && auth.currentUser.uid === uid) {
+      await auth.currentUser.updatePassword(newPass);
+    } else {
+      const updateAdminPassword = firebase.functions().httpsCallable('updateAdminPassword');
+      await updateAdminPassword({ uid, newPassword: newPass });
+    }
 
     // Append to Godfather credentials notepad automatically
     const notepad = $('godfather-credentials-notepad');
@@ -9333,12 +9435,16 @@ window.editModalDirectSetPassword = async function() {
     $('edit-godfather-new-pass').value = '';
   } catch (err) {
     console.error('Edit modal password error:', err);
+    let errMsg = err.message || 'Failed to update password.';
+    if (err.code === 'auth/requires-recent-login') {
+      errMsg = 'For security, updating your password requires a recent login. Please re-sign in and try again.';
+    }
     if (msgEl) {
-      msgEl.textContent = 'Error: ' + (err.message || 'Failed to update password.');
+      msgEl.textContent = 'Error: ' + errMsg;
       msgEl.style.color = 'var(--red)';
       msgEl.style.display = 'block';
     }
-    alert('Error setting password: ' + err.message);
+    alert('Error setting password: ' + errMsg);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Set New Password Now';
