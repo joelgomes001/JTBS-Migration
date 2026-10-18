@@ -955,12 +955,13 @@ tr:last-child td{border-bottom:none;}
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard-page">
+<div id="dashboard-page" style="display:none;">
   <div class="topbar">
     <div class="topbar-left">
       <img class="topbar-logo loaded" id="topbar-logo" src="/logo.png" alt="JTBS Logo" onerror="this.style.display='none'"/>
       <span class="topbar-title" id="topbar-title">JTBS Classic Admin</span>
     </div>
+    <div class="topbar-right" style="display:flex; align-items:center; gap:10px;">
       <button class="btn-gold-sm" id="header-sync-edge-btn" onclick="window.syncAllFeedsNow()" style="padding:5px 12px; font-size:12px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="Sync feed configurations to Cloudflare Edge KV">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><polyline points="13 11 16 14 13 17"/><line x1="8" y1="14" x2="16" y2="14"/></svg>
         <span>Sync Feeds to Edge</span>
