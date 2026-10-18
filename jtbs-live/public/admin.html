@@ -3273,11 +3273,20 @@ function initDashboard(user,role){
       document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
-      $('tab-'+btn.dataset.tab).classList.add('active');
-      if (btn.dataset.tab === 'godfather' && typeof window.loadGodfatherSuite === 'function') {
+      const tabKey = btn.dataset.tab;
+      const targetPanel = $('tab-'+tabKey);
+      if (targetPanel) targetPanel.classList.add('active');
+      
+      // Persist active tab across page reloads
+      try {
+        localStorage.setItem('jtbs_active_admin_tab', tabKey);
+        history.replaceState(null, '', '#' + tabKey);
+      } catch(e){}
+
+      if (tabKey === 'godfather' && typeof window.loadGodfatherSuite === 'function') {
         window.loadGodfatherSuite();
       }
-      if (btn.dataset.tab === 'rtmp' && typeof window.rtmpRefreshConfig === 'function') {
+      if (tabKey === 'rtmp' && typeof window.rtmpRefreshConfig === 'function') {
         window.rtmpRefreshConfig();
       }
     });
@@ -3344,6 +3353,19 @@ function initDashboard(user,role){
   // Will be called from loadBranding when config loads
   window._updateIPTVLinks = updateIPTVLinks;
   updateIPTVLinks(null);
+
+  // Restore active tab on reload (via URL hash or localStorage)
+  try {
+    const hashTab = (window.location.hash || '').replace('#', '').trim().toLowerCase();
+    const storedTab = (localStorage.getItem('jtbs_active_admin_tab') || '').trim().toLowerCase();
+    const tabToRestore = hashTab || storedTab;
+    if (tabToRestore && tabToRestore !== 'stream') {
+      const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabToRestore}"]`);
+      if (targetBtn && targetBtn.style.display !== 'none') {
+        targetBtn.click();
+      }
+    }
+  } catch(e) {}
 }
 
 function copyIPTV(inputId) {
@@ -5703,6 +5725,7 @@ function loadUsers(currentUser,role){
       `;
 
         const isUserGoogleLinked = u.linkedGoogle || targetIsGodfather || (isMe && auth.currentUser && auth.currentUser.providerData && auth.currentUser.providerData.some(p => p.providerId === 'google.com'));
+        const tr = document.createElement('tr');
         tr.innerHTML=`
         <td>
           <div style="display:flex; align-items:center; gap:10px;">
