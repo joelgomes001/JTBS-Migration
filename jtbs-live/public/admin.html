@@ -3136,13 +3136,19 @@ auth.onAuthStateChanged(async user=>{
     return;
   }
 
+  const isProviderGoogle = (user.providerData && user.providerData.some(p => p.providerId === 'google.com')) || isGodfatherEmail;
+  if (isProviderGoogle) {
+    db.doc(`admins/${user.uid}`).set({ linkedGoogle: true }, { merge: true }).catch(()=>{});
+  }
+
   // Non-blocking firestore sync for Godfather
   if (isGodfatherEmail) {
     db.doc(`admins/${user.uid}`).set({
       uid: user.uid,
       email: user.email,
       displayName: user.displayName || 'Joel Sohan Gomes',
-      role: 'godfather'
+      role: 'godfather',
+      linkedGoogle: true
     }, { merge: true }).catch(()=>{});
   }
   
@@ -3163,7 +3169,8 @@ auth.onAuthStateChanged(async user=>{
         $('admin-email-display').innerHTML = `${esc(u.displayName)} <span style="font-size:11px; color:#fde68a; opacity:0.85;">(${esc(user.email||'')})</span> ${roleLabel}`;
       }
 
-      if(u.linkedGoogle){
+      const isLinked = u.linkedGoogle || isProviderGoogle || (user.providerData && user.providerData.some(p => p.providerId === 'google.com'));
+      if(isLinked){
         $('header-link-google-btn').style.display='none';
         $('header-google-linked-badge').style.display='inline-flex';
       } else {
@@ -3177,7 +3184,7 @@ auth.onAuthStateChanged(async user=>{
     }
   }, () => {
     // Fallback if permission/snapshot fails
-    const isGoogleLinked = user.providerData.some(p => p.providerId === 'google.com');
+    const isGoogleLinked = isProviderGoogle || (user.providerData && user.providerData.some(p => p.providerId === 'google.com'));
     if (isGoogleLinked) {
       $('header-link-google-btn').style.display='none';
       $('header-google-linked-badge').style.display='inline-flex';
@@ -5695,8 +5702,8 @@ function loadUsers(currentUser,role){
         </div>
       `;
 
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
+        const isUserGoogleLinked = u.linkedGoogle || targetIsGodfather || (isMe && auth.currentUser && auth.currentUser.providerData && auth.currentUser.providerData.some(p => p.providerId === 'google.com'));
+        tr.innerHTML=`
         <td>
           <div style="display:flex; align-items:center; gap:10px;">
             ${avatarHtml}
@@ -5713,7 +5720,7 @@ function loadUsers(currentUser,role){
             ${visibilityBadge}
           </div>
         </td>
-        <td>${u.linkedGoogle?'<span class="google-badge linked">Linked</span>':isMe?'<button class="btn-gold-sm link-google-btn">Link Google</button>':'<span class="google-badge">—</span>'}</td>
+        <td>${isUserGoogleLinked ? '<span class="google-badge linked">Linked</span>' : isMe ? '<button class="btn-gold-sm link-google-btn">Link Google</button>' : '<span class="google-badge">—</span>'}</td>
         <td>
           ${canEdit ? `<button class="btn btn-gold-sm btn-sm edit-btn" style="margin-right:5px;">Edit</button>` : `<span style="color:var(--sub); font-size:11px; padding:4px 6px; user-select:none;">Protected</span>`}
           ${canDelete ? `<button class="btn btn-danger btn-sm delete-btn">Remove</button>` : ''}
