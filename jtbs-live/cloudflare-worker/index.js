@@ -3,6 +3,7 @@ import { INDEX_HTML } from './indexPage.js';
 import { PLAYLIST_M3U } from './playlistPage.js';
 import { WORKER_JSON, CHANNELS_XML } from './epgPages.js';
 import { LOGO_BASE64 } from './logoPage.js';
+import { OFFLINE_SLATE_BASE64 } from './slatePage.js';
 
 function base64ToUint8Array(base64) {
   const binaryString = atob(base64);
@@ -95,6 +96,104 @@ function isDirectIP(uStr) {
   } catch (e) {
     return false;
   }
+}
+
+
+function generateSid(streamUrl, backupUrl, isLive, docName) {
+  if (!isLive || !streamUrl) return 'off';
+  const str = `${docName || ''}|${(streamUrl || '').trim()}|${(backupUrl || '').trim()}`;
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h * 0x01000193) >>> 0;
+  }
+  return h.toString(36);
+}
+
+async function getActiveChannelSid(docName, isDecoder, env, workerOrigin) {
+  try {
+    let masterData = null;
+    if (env && env.JTBS_DB) {
+      try {
+        masterData = await env.JTBS_DB.get('config:masterOverride', { type: 'json' });
+      } catch (e) {}
+    }
+    if (!masterData) {
+      const mDoc = await getCachedFirestoreDoc('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/masterOverride', workerOrigin);
+      if (mDoc && mDoc.fields) {
+        masterData = {
+          enabled: parseFirestoreBool(mDoc.fields.enabled),
+          streamUrl: parseFirestoreString(mDoc.fields.streamUrl),
+          backupStreamUrl: parseFirestoreString(mDoc.fields.backupStreamUrl),
+          scope: parseFirestoreString(mDoc.fields.scope) || 'all'
+        };
+      }
+    }
+    if (masterData && masterData.enabled && masterData.streamUrl) {
+      let applies = false;
+      if (masterData.scope === 'all' || !masterData.scope) applies = true;
+      else if (masterData.scope === 'feeds_only' && (docName.startsWith('feed') || docName === 'srinjana')) applies = true;
+      else if (masterData.scope === 'decoders_only' && isDecoder) applies = true;
+      else if (masterData.scope === 'main_only' && docName === 'main' && !isDecoder) applies = true;
+
+      if (applies) {
+        return generateSid(masterData.streamUrl, masterData.backupStreamUrl || '', true, (isDecoder ? 'decoder_' : '') + docName);
+      }
+    }
+  } catch (e) {}
+
+  let memData = null;
+  if (isDecoder) {
+    memData = memoryStore.get('decoder') || memoryStore.get('main');
+  } else {
+    memData = memoryStore.get(docName) || (docName === 'main' ? memoryStore.get('main') : null);
+  }
+
+  if ((!memData || !memData.streamUrl) && env && env.JTBS_DB) {
+    try {
+      const kvKey = 'streamState:' + (isDecoder ? 'decoder' : docName);
+      const kvData = await env.JTBS_DB.get(kvKey, { type: 'json' });
+      if (kvData && typeof kvData === 'object' && kvData.streamUrl) {
+        memData = kvData;
+        memoryStore.set(isDecoder ? 'decoder' : docName, kvData);
+      }
+    } catch (e) {}
+  }
+
+  if (!memData || !memData.streamUrl) {
+    try {
+      const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${docName}`;
+      const data = await getCachedFirestoreDoc(firestoreUrl, workerOrigin);
+      const fields = data ? (data.fields || data) : {};
+      if (fields) {
+        if (isDecoder) {
+          const mode = parseFirestoreString(fields.mode) || 'same';
+          if (mode === 'different') {
+            memData = {
+              isLive: parseFirestoreBool(fields.decoderIsLive),
+              streamUrl: parseFirestoreString(fields.decoderStreamUrl),
+              backupStreamUrl: parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl)
+            };
+          } else {
+            memData = {
+              isLive: parseFirestoreBool(fields.isLive),
+              streamUrl: parseFirestoreString(fields.streamUrl),
+              backupStreamUrl: parseFirestoreString(fields.backupStreamUrl)
+            };
+          }
+        } else {
+          memData = {
+            isLive: parseFirestoreBool(fields.isLive),
+            streamUrl: parseFirestoreString(fields.streamUrl),
+            backupStreamUrl: parseFirestoreString(fields.backupStreamUrl)
+          };
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (!memData) return 'off';
+  return generateSid(memData.streamUrl, memData.backupStreamUrl, memData.isLive, (isDecoder ? 'decoder_' : '') + docName);
 }
 
 function getCacheKeyUrl(firestoreUrl, workerOrigin) {
@@ -195,7 +294,7 @@ function parseFirestoreString(field) {
   return '';
 }
 
-function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, injectDiscontinuity = false, token = '') {
+function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, injectDiscontinuity = false, token = '', sid = '', isDecoder = false) {
   const targetBaseUrl = new URL(targetUrl);
   const baseUrl = targetBaseUrl.origin + targetBaseUrl.pathname.substring(0, targetBaseUrl.pathname.lastIndexOf('/') + 1);
 
@@ -243,11 +342,17 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
     try {
       const absoluteUrl = new URL(trimmed, baseUrl).href;
       let proxyUrl = `${workerOrigin}/proxy?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(absoluteUrl)}`;
+      if (isDecoder) {
+        proxyUrl += '&type=decoder';
+      }
       if (cleanCookie) {
         proxyUrl += `&cookie=${encodeURIComponent(cleanCookie)}`;
       }
       if (token) {
         proxyUrl += `&token=${encodeURIComponent(token)}`;
+      }
+      if (sid) {
+        proxyUrl += `&sid=${encodeURIComponent(sid)}`;
       }
       rewrittenLines.push(proxyUrl);
     } catch (e) {
@@ -277,17 +382,17 @@ export default {
     const path = url.pathname.toLowerCase();
 
     // Helper to generate a 5-segment HLS sliding window for MP4 / TS offline videos
-    const makeOfflinePlaylist = (offlineUrl, durationSec, workerOrigin, docName) => {
+    const makeOfflinePlaylist = (offlineUrl, durationSec, workerOrigin, docName, isDecoder = false) => {
       const dur = durationSec > 0 ? durationSec : 10;
       const currentSeq = Math.floor(Date.now() / (dur * 1000)) % 10000;
       const startSeq = Math.max(0, currentSeq - 3);
 
-      const cleanOfflineUrl = offlineUrl.split('?')[0];
+      const cleanOfflineUrl = (offlineUrl || '').split('?')[0];
 
       let proxiedVideoUrl = cleanOfflineUrl;
       try {
         if (!cleanOfflineUrl.startsWith(workerOrigin)) {
-          proxiedVideoUrl = `${workerOrigin}/proxy?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(cleanOfflineUrl)}`;
+          proxiedVideoUrl = `${workerOrigin}/proxy?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(cleanOfflineUrl)}&sid=off${isDecoder ? '&type=decoder' : ''}`;
         }
       } catch (e) {}
 
@@ -309,17 +414,15 @@ ${proxiedVideoUrl}
 ${proxiedVideoUrl}`;
     };
 
-    // Helper to handle off-air response seamlessly for HLS streams (.m3u8) and MP4/TS offline videos
-    const handleOffAirResponse = async (offlineHlsUrl, durationSec, workerOrigin, docName) => {
-      let targetOfflineUrl = offlineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
-
-      // 1. If offline video is an HLS playlist (.m3u8), proxy its TS segments directly!
-      if (targetOfflineUrl.includes('.m3u8') || targetOfflineUrl.includes('mpegurl')) {
+    // Helper to handle off-air response seamlessly with zero external dependencies
+    const handleOffAirResponse = async (offlineHlsUrl, durationSec, workerOrigin, docName, isDecoder = false) => {
+      // 1. If custom offline video/stream is explicitly configured, use it!
+      if (offlineHlsUrl && (offlineHlsUrl.includes('.m3u8') || offlineHlsUrl.includes('mpegurl'))) {
         try {
-          const offRes = await fetch(targetOfflineUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+          const offRes = await fetch(offlineHlsUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
           if (offRes.ok) {
             const rawM3u8 = await offRes.text();
-            const rewritten = rewriteM3u8(rawM3u8, targetOfflineUrl, workerOrigin, '', docName, true);
+            const rewritten = rewriteM3u8(rawM3u8, offlineHlsUrl, workerOrigin, '', docName, true, '', 'off', isDecoder);
             return new Response(rewritten, {
               status: 200,
               headers: {
@@ -330,20 +433,59 @@ ${proxiedVideoUrl}`;
             });
           }
         } catch (e) {}
+      } else if (offlineHlsUrl && (offlineHlsUrl.includes('.mp4') || offlineHlsUrl.includes('.ts'))) {
+        return new Response(makeOfflinePlaylist(offlineHlsUrl, durationSec, workerOrigin, docName, isDecoder), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/vnd.apple.mpegurl',
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
       }
 
-      // 2. Fallback to 5-segment sliding window for MP4 / TS offline videos
-      return new Response(makeOfflinePlaylist(targetOfflineUrl, durationSec, workerOrigin, docName), {
+      // 2. Self-contained in-memory broadcast slate served directly from memory without any external domain
+      const dur = 2;
+      const currentSeq = Math.floor(Date.now() / (dur * 1000));
+      const slateBody = `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-INDEPENDENT-SEGMENTS
+#EXT-X-TARGETDURATION:${dur}
+#EXT-X-MEDIA-SEQUENCE:${currentSeq}
+#EXT-X-DISCONTINUITY
+#EXTINF:${dur}.0,
+${workerOrigin}/offline-slate.ts?seq=${currentSeq}
+#EXTINF:${dur}.0,
+${workerOrigin}/offline-slate.ts?seq=${currentSeq + 1}
+#EXTINF:${dur}.0,
+${workerOrigin}/offline-slate.ts?seq=${currentSeq + 2}`;
+
+      return new Response(slateBody, {
         status: 200,
         headers: {
           'Content-Type': 'application/vnd.apple.mpegurl',
           'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-          'Access-Control-Allow-Origin': '*'
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'Access-Control-Allow-Origin': '*',
+          'X-JTBS-Tier': 'in-memory-slate'
         }
       });
     };
 
-    if (path === '/epg/worker.json' || path === '/worker.json') {
+        if (path === '/offline-slate.ts' || path === '/slate.ts') {
+      const slateBytes = base64ToUint8Array(OFFLINE_SLATE_BASE64);
+      return new Response(slateBytes, {
+        status: 200,
+        headers: {
+          'Content-Type': 'video/mp2t',
+          'Cache-Control': 'public, max-age=86400, s-maxage=31536000, immutable',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
+if (path === '/epg/worker.json' || path === '/worker.json') {
       return new Response(WORKER_JSON, {
         status: 200,
         headers: {
@@ -938,18 +1080,20 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       }
     }
 
-    // 1. PROXY HANDLER: Directly proxy any requested media URL with Edge Caching & 401 Session Auto-Recovery
+    // 1. PROXY HANDLER: Directly proxy media URLs with Edge Caching, On-The-Fly Invalidation & Session Auto-Recovery
     if (path.startsWith('/proxy')) {
       let targetUrl = url.searchParams.get('url') || '';
       const passedCookie = url.searchParams.get('cookie') || '';
       const docName = url.searchParams.get('doc') || 'main';
+      const passedSid = url.searchParams.get('sid') || '';
+      const isDecoder = url.searchParams.get('type') === 'decoder';
       
       if (!targetUrl) {
         const rawSearch = url.search;
         const urlIdx = rawSearch.indexOf('url=');
         if (urlIdx !== -1) {
           let extracted = rawSearch.substring(urlIdx + 4);
-          for (const stopParam of ['&cookie=', '&seq=', '&token=', '&doc=']) {
+          for (const stopParam of ['&cookie=', '&seq=', '&token=', '&doc=', '&sid=', '&type=']) {
             const stopIdx = extracted.indexOf(stopParam);
             if (stopIdx !== -1) extracted = extracted.substring(0, stopIdx);
           }
@@ -968,6 +1112,42 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       // Check if requested resource is an immutable video segment (.ts, .m4s, .mp4)
       const isMediaSegment = !targetUrl.includes('.m3u8') && !targetUrl.includes('mpegurl') &&
         (targetUrl.includes('.ts') || targetUrl.includes('.m4s') || targetUrl.includes('.mp4'));
+      const isPlaylistReq = !isMediaSegment && (targetUrl.includes('.m3u8') || targetUrl.includes('mpegurl'));
+
+      // ── ON-THE-FLY STREAM INVALIDATION ENGINE ─────────────────────────
+      // Instantly detects if the client player is asking for an older stream version
+      if (passedSid) {
+        const currentSid = await getActiveChannelSid(docName, isDecoder, env, url.origin);
+        if (currentSid && passedSid !== currentSid) {
+          // 1. Playlists: Signal immediate end of old sub-variant to force player back to master manifest
+          if (isPlaylistReq) {
+            return new Response('#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:1\n#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-ENDLIST\n', {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/vnd.apple.mpegurl',
+                'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'Access-Control-Allow-Origin': '*',
+                'X-JTBS-Switch': 'invalidated-playlist'
+              }
+            });
+          }
+
+          // 2. Chunks: Return 410 Gone for old segments so player buffer purges and does not mix codecs
+          if (isMediaSegment) {
+            return new Response('410 Gone: Stream transitioned to new source', {
+              status: 410,
+              headers: {
+                'Content-Type': 'text/plain',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Access-Control-Allow-Origin': '*',
+                'X-JTBS-Switch': 'stale-segment'
+              }
+            });
+          }
+        }
+      }
 
       // EDGE CACHE: Instant RAM delivery (<15ms) for video chunks
       const edgeCache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
@@ -1068,7 +1248,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         // If sub-playlist (.m3u8), rewrite relative URLs
         if (contentType.includes('mpegurl') || contentType.includes('m3u8') || targetUrl.includes('.m3u8')) {
           const rawText = await proxyRes.text();
-          const rewrittenPlaylist = rewriteM3u8(rawText, targetUrl, url.origin, combinedCookie, docName, false, passedToken);
+          const rewrittenPlaylist = rewriteM3u8(rawText, targetUrl, url.origin, combinedCookie, docName, false, passedToken, passedSid, isDecoder);
 
           return new Response(rewrittenPlaylist, {
             status: 200,
@@ -1131,6 +1311,9 @@ ${channelHeaderXml}${programmesXml}</tv>`;
     const pathToDoc = {
       '/live': { doc: 'main', type: 'public' },
       '/live.m3u8': { doc: 'main', type: 'public' },
+      '/main': { doc: 'main', type: 'public' },
+      '/main.m3u8': { doc: 'main', type: 'public' },
+      '/stream.m3u8': { doc: 'main', type: 'public' },
       '/decoder': { doc: 'main', type: 'decoder' },
       '/decoder.m3u8': { doc: 'main', type: 'decoder' },
       '/live1': { doc: 'feed1', type: 'public' },
@@ -1414,11 +1597,14 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
       }
 
-      const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
+      const isDecoderChannel = target.type === 'decoder';
+      const currentSid = generateSid(streamUrl, backupStreamUrl, isLive, (isDecoderChannel ? 'decoder_' : '') + target.doc);
 
-      // OFFLINE STATE: If isLive is false or streamUrl is empty, play offlineHlsUrl screen!
+      const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || '';
+
+      // OFFLINE STATE: If isLive is false or streamUrl is empty, play offline screen with on-the-fly sid!
       if (!isLive || !streamUrl) {
-        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
+        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc, isDecoderChannel);
       }
 
       // Helper to attempt fetching & proxying an HLS stream URL (with auto-discontinuity on backup switch)
@@ -1500,7 +1686,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
             return null; // Not valid HLS manifest
           }
 
-          const rewrittenBody = rewriteM3u8(rawBody, cleanCandidate, url.origin, sessionCookie, target.doc, isBackup, clientToken);
+          const rewrittenBody = rewriteM3u8(rawBody, cleanCandidate, url.origin, sessionCookie, target.doc, isBackup, clientToken, currentSid, isDecoderChannel);
           return new Response(rewrittenBody, {
             status: 200,
             headers: {
@@ -1509,7 +1695,8 @@ ${channelHeaderXml}${programmesXml}</tv>`;
               'Pragma': 'no-cache',
               'Expires': '0',
               'Access-Control-Allow-Origin': '*',
-              'X-JTBS-Tier': isBackup ? 'backup' : 'primary'
+              'X-JTBS-Tier': isBackup ? 'backup' : 'primary',
+              'X-JTBS-SID': currentSid
             }
           });
         } catch (e) {
@@ -1528,14 +1715,14 @@ ${channelHeaderXml}${programmesXml}</tv>`;
 
       // Tier 3: If both Primary & Backup failed, serve Infinite Offline HLS Slate
       if (!liveResponse) {
-        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
+        return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc, isDecoderChannel);
       }
 
       return liveResponse;
 
     } catch (e) {
-      const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || 'https://infinite-hls-stream.vercel.app/stream.m3u8';
-      return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc);
+      const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || '';
+      return await handleOffAirResponse(targetOffline, 10, url.origin, target.doc, target?.type === 'decoder');
     }
   }
 };
