@@ -144,9 +144,9 @@ async function getActiveChannelSid(docName, isDecoder, env, workerOrigin) {
 
   let memData = null;
   if (isDecoder) {
-    memData = memoryStore.get('decoder') || memoryStore.get('main');
+    memData = memoryStore.get('decoder');
   } else {
-    memData = memoryStore.get(docName) || (docName === 'main' ? memoryStore.get('main') : null);
+    memData = memoryStore.get(docName);
   }
 
   if ((!memData || !memData.streamUrl) && env && env.JTBS_DB) {
@@ -160,27 +160,19 @@ async function getActiveChannelSid(docName, isDecoder, env, workerOrigin) {
     } catch (e) {}
   }
 
-  if (!memData || !memData.streamUrl) {
-    try {
-      const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${docName}`;
-      const data = await getCachedFirestoreDoc(firestoreUrl, workerOrigin);
-      const fields = data ? (data.fields || data) : {};
-      if (fields) {
-        if (isDecoder) {
-          const mode = parseFirestoreString(fields.mode) || 'same';
-          if (mode === 'different') {
-            memData = {
-              isLive: parseFirestoreBool(fields.decoderIsLive),
-              streamUrl: parseFirestoreString(fields.decoderStreamUrl),
-              backupStreamUrl: parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl)
-            };
-          } else {
-            memData = {
-              isLive: parseFirestoreBool(fields.isLive),
-              streamUrl: parseFirestoreString(fields.streamUrl),
-              backupStreamUrl: parseFirestoreString(fields.backupStreamUrl)
-            };
-          }
+  try {
+    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${docName}`;
+    const data = await getCachedFirestoreDoc(firestoreUrl, workerOrigin);
+    const fields = data ? (data.fields || data) : {};
+    if (fields) {
+      if (isDecoder) {
+        const mode = parseFirestoreString(fields.mode) || 'same';
+        if (mode === 'different') {
+          memData = {
+            isLive: parseFirestoreBool(fields.decoderIsLive),
+            streamUrl: parseFirestoreString(fields.decoderStreamUrl),
+            backupStreamUrl: parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl)
+          };
         } else {
           memData = {
             isLive: parseFirestoreBool(fields.isLive),
@@ -188,9 +180,15 @@ async function getActiveChannelSid(docName, isDecoder, env, workerOrigin) {
             backupStreamUrl: parseFirestoreString(fields.backupStreamUrl)
           };
         }
+      } else {
+        memData = {
+          isLive: parseFirestoreBool(fields.isLive),
+          streamUrl: parseFirestoreString(fields.streamUrl),
+          backupStreamUrl: parseFirestoreString(fields.backupStreamUrl)
+        };
       }
-    } catch (e) {}
-  }
+    }
+  } catch (e) {}
 
   if (!memData) return 'off';
   return generateSid(memData.streamUrl, memData.backupStreamUrl, memData.isLive, (isDecoder ? 'decoder_' : '') + docName);
@@ -224,16 +222,22 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
   const cacheKey = new Request(cacheKeyUrl);
   const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
 
-  // 2. Check Cloudflare Edge Cache
+  // 2. Check Cloudflare Edge Cache (bypass for streamState to ensure real-time responsiveness)
   if (cache) {
-    try {
-      const cachedResponse = await cache.match(cacheKey);
-      if (cachedResponse) {
-        const data = await cachedResponse.json();
-        docCache.set(url, { timestamp: now, data: data });
-        return data;
-      }
-    } catch (e) {}
+    if (isStreamState) {
+      try {
+        await cache.delete(cacheKey);
+      } catch (e) {}
+    } else {
+      try {
+        const cachedResponse = await cache.match(cacheKey);
+        if (cachedResponse) {
+          const data = await cachedResponse.json();
+          docCache.set(url, { timestamp: now, data: data });
+          return data;
+        }
+      } catch (e) {}
+    }
   }
 
   // 3. Query Firestore REST API
@@ -1404,61 +1408,32 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
       } catch (e) {}
 
-      // 1. Check memoryStore first (fastest RAM path, avoids Firestore quota exhaustion)
-      let memData = null;
-      if (target.type === 'decoder') {
-        memData = memoryStore.get('decoder') || memoryStore.get('main');
-      } else {
-        memData = memoryStore.get(target.doc) || (target.doc === 'main' ? memoryStore.get('main') : null);
-      }
-
-      // 2. Check Cloudflare KV (JTBS_DB) globally replicated storage
-      if ((!memData || !memData.streamUrl) && env && env.JTBS_DB) {
-        try {
-          const kvData = await env.JTBS_DB.get('streamState:' + target.doc, { type: 'json' });
-          if (kvData && typeof kvData === 'object' && kvData.streamUrl) {
-            memData = kvData;
-            memoryStore.set(target.doc, kvData);
-          }
-        } catch (e) {}
-      }
+      // Fetch channel state from RAM/Firestore cache (fresh 2s TTL)
+      const data = await getCachedFirestoreDoc(firestoreUrl, url.origin);
+      const fields = data ? (data.fields || data) : {};
+      const channelMode = parseFirestoreString(fields.mode) || 'same';
 
       let isTokenized = false;
 
-      if (memData) {
-        if (memData.isLive !== undefined) isLive = memData.isLive;
-        if (memData.streamUrl) streamUrl = memData.streamUrl;
-        if (memData.backupStreamUrl) backupStreamUrl = memData.backupStreamUrl;
-        if (memData.offlineHlsUrl) offlineHlsUrl = memData.offlineHlsUrl;
-        if (memData.isTokenized !== undefined) isTokenized = memData.isTokenized;
-      }
-
-      // 3. Fallback to Firestore / Edge Cache if not found in KV or memory
-      if (!streamUrl) {
-        const data = await getCachedFirestoreDoc(firestoreUrl, url.origin);
-        const fields = data ? (data.fields || data) : {};
-
-        if (target.type === 'decoder') {
-          const mode = parseFirestoreString(fields.mode) || 'same';
-          if (mode === 'different') {
-            if (!isLive) isLive = parseFirestoreBool(fields.decoderIsLive);
-            if (!streamUrl) streamUrl = parseFirestoreString(fields.decoderStreamUrl);
-            if (!backupStreamUrl) backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
-            if (!offlineHlsUrl) offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
-          } else {
-            if (!isLive) isLive = parseFirestoreBool(fields.isLive);
-            if (!streamUrl) streamUrl = parseFirestoreString(fields.streamUrl);
-            if (!backupStreamUrl) backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
-            if (!offlineHlsUrl) offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
-          }
+      if (target.type === 'decoder') {
+        if (channelMode === 'different') {
+          isLive = parseFirestoreBool(fields.decoderIsLive);
+          streamUrl = parseFirestoreString(fields.decoderStreamUrl);
+          backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
+          offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
         } else {
-          if (!isLive) isLive = parseFirestoreBool(fields.isLive);
-          if (!streamUrl) streamUrl = parseFirestoreString(fields.streamUrl);
-          if (!backupStreamUrl) backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
-          if (!offlineHlsUrl) offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || parseFirestoreString(fields.offlineVideoUrl) || defaultOfflineHlsUrl;
+          isLive = parseFirestoreBool(fields.isLive);
+          streamUrl = parseFirestoreString(fields.streamUrl);
+          backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
+          offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
         }
-        if (!isTokenized) isTokenized = parseFirestoreBool(fields.isTokenized);
+      } else {
+        isLive = parseFirestoreBool(fields.isLive);
+        streamUrl = parseFirestoreString(fields.streamUrl);
+        backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
+        offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
       }
+      isTokenized = parseFirestoreBool(fields.isTokenized);
 
       // ── MASTER NETWORK TAKEOVER OVERRIDE (GODFATHER SUPREME) ────
       let masterOverrideActive = false;
@@ -1639,6 +1614,11 @@ ${channelHeaderXml}${programmesXml}</tv>`;
             return false;
           }
         };
+
+        // Never 302-redirect an HTTP/HLS request to RTMP (crashes VLC and all HLS players)
+        if (cleanCandidate.startsWith('rtmp://') || cleanCandidate.startsWith('rtmps://')) {
+          return null;
+        }
 
         // If candidate is a direct IP stream or non-HLS video file (MP4/TS/WebM), return 302 redirect
         if (isDirectIP(cleanCandidate) || (!cleanCandidate.includes('.m3u8') && !cleanCandidate.includes('mpegurl'))) {

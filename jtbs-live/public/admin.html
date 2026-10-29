@@ -5082,11 +5082,12 @@ window.syncAllFeedsNow = async function() {
         backupStreamUrl: d.backupStreamUrl || '',
         offlineHlsUrl: d.offlineHlsUrl || ''
       };
+      const isDiff = d.mode === 'different';
       payloadFeeds['decoder'] = {
-        isLive: d.decoderIsLive !== false,
-        streamUrl: d.decoderStreamUrl || d.streamUrl || '',
-        backupStreamUrl: d.decoderBackupStreamUrl || '',
-        offlineHlsUrl: d.decoderOfflineHlsUrl || ''
+        isLive: isDiff ? (d.decoderIsLive !== false) : (d.isLive !== false),
+        streamUrl: isDiff ? (d.decoderStreamUrl || '') : (d.streamUrl || ''),
+        backupStreamUrl: isDiff ? (d.decoderBackupStreamUrl || '') : (d.backupStreamUrl || ''),
+        offlineHlsUrl: isDiff ? (d.decoderOfflineHlsUrl || '') : (d.offlineHlsUrl || '')
       };
     }
 
