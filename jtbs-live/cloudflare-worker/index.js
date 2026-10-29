@@ -211,8 +211,12 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
   const now = Date.now();
   const cached = docCache.get(url);
   
-  // 1. In-memory cache valid for 60s
-  if (cached && (now - cached.timestamp < 60000)) {
+  // Stream state should be fresh so updates reflect immediately (2s RAM cache)
+  const isStreamState = url.includes('/streamState/');
+  const maxMemAge = isStreamState ? 2000 : 15000;
+
+  // 1. In-memory cache
+  if (cached && (now - cached.timestamp < maxMemAge)) {
     return cached.data;
   }
 
@@ -245,11 +249,12 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
         try {
           const bodyStr = JSON.stringify(data);
           const bodyBytes = new TextEncoder().encode(bodyStr);
+          const edgeTtl = isStreamState ? 2 : 15;
           const cacheResponse = new Response(bodyBytes, {
             status: 200,
             headers: {
               'Content-Type': 'application/json',
-              'Cache-Control': 'public, max-age=86400',
+              'Cache-Control': `public, max-age=${edgeTtl}`,
               'Content-Length': bodyBytes.length.toString()
             }
           });
@@ -341,7 +346,12 @@ function rewriteM3u8(m3u8Text, targetUrl, workerOrigin, cookieStr, docName, inje
 
     try {
       const absoluteUrl = new URL(trimmed, baseUrl).href;
-      let proxyUrl = `${workerOrigin}/proxy?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(absoluteUrl)}`;
+      const isPlaylist = absoluteUrl.includes('.m3u8') || absoluteUrl.includes('mpegurl');
+      const extPath = isPlaylist 
+        ? '/proxy/playlist.m3u8' 
+        : (absoluteUrl.includes('.mp4') ? '/proxy/video.mp4' : (absoluteUrl.includes('.m4s') ? '/proxy/segment.m4s' : '/proxy/segment.ts'));
+
+      let proxyUrl = `${workerOrigin}${extPath}?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(absoluteUrl)}`;
       if (isDecoder) {
         proxyUrl += '&type=decoder';
       }
@@ -389,10 +399,11 @@ export default {
 
       const cleanOfflineUrl = (offlineUrl || '').split('?')[0];
 
+      const extPath = cleanOfflineUrl.includes('.mp4') ? '/proxy/video.mp4' : '/proxy/segment.ts';
       let proxiedVideoUrl = cleanOfflineUrl;
       try {
         if (!cleanOfflineUrl.startsWith(workerOrigin)) {
-          proxiedVideoUrl = `${workerOrigin}/proxy?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(cleanOfflineUrl)}&sid=off${isDecoder ? '&type=decoder' : ''}`;
+          proxiedVideoUrl = `${workerOrigin}${extPath}?doc=${encodeURIComponent(docName)}&url=${encodeURIComponent(cleanOfflineUrl)}&sid=off${isDecoder ? '&type=decoder' : ''}`;
         }
       } catch (e) {}
 
@@ -832,7 +843,7 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
             status: 200,
             headers: {
               'Content-Type': 'application/json',
-              'Cache-Control': 'public, max-age=86400',
+              'Cache-Control': 'public, max-age=2',
               'Content-Length': bodyBytes.length.toString()
             }
           });
