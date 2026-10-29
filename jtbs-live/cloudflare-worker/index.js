@@ -209,9 +209,9 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
   const now = Date.now();
   const cached = docCache.get(url);
   
-  // Stream state and decoder controls should be real-time (bypass 24h edge cache)
+  // Stream state and decoder controls should be real-time (bypass 24h edge cache, 3s RAM cache)
   const isRealTime = url.includes('/streamState/') || url.includes('/decoderControl/') || url.includes('/decoderStatus/');
-  const maxMemAge = isRealTime ? 1000 : 15000;
+  const maxMemAge = isRealTime ? 3000 : 15000;
 
   // 1. In-memory cache
   if (cached && (now - cached.timestamp < maxMemAge)) {
@@ -279,6 +279,20 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
     return {
       fields: {
         enabled: { booleanValue: true }
+      }
+    };
+  }
+
+  if (url.includes('/streamState/main') || url.includes('/streamState/decoder')) {
+    return {
+      name: url,
+      fields: {
+        isLive: { booleanValue: true },
+        streamUrl: { stringValue: 'rtmp://139.59.48.129:1935/Mango/mango' },
+        decoderIsLive: { booleanValue: true },
+        decoderStreamUrl: { stringValue: 'rtmp://139.59.48.129:1935/Mango/mango' },
+        mode: { stringValue: 'same' },
+        playMode: { stringValue: 'live' }
       }
     };
   }
@@ -595,6 +609,28 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
             name: `projects/jtbs-classic/databases/(default)/documents/${subPath}`,
             fields: {
               enabled: { booleanValue: true }
+            }
+          }), {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
+        }
+
+        // Resilient fallback on 429 quota exhaustion: keep main stream & decoder running 24/7!
+        if (subPath.startsWith('streamState/main') || subPath.startsWith('streamState/decoder')) {
+          return new Response(JSON.stringify({
+            name: `projects/jtbs-classic/databases/(default)/documents/${subPath}`,
+            fields: {
+              isLive: { booleanValue: true },
+              streamUrl: { stringValue: 'rtmp://139.59.48.129:1935/Mango/mango' },
+              decoderIsLive: { booleanValue: true },
+              decoderStreamUrl: { stringValue: 'rtmp://139.59.48.129:1935/Mango/mango' },
+              mode: { stringValue: 'same' },
+              playMode: { stringValue: 'live' }
             }
           }), {
             status: 200,
