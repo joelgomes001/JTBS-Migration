@@ -6231,11 +6231,17 @@ function loadLiveCount() {
   });
 }
 
-function loadDecoders() {
-  let statuses = [];
-  let controls = {};
+let statuses = [];
+let controls = {};
+let renderDecoders = function() {};
+let tickDecoders = function() {};
 
-  function renderDecoders() {
+function loadDecoders() {
+  window.controls = controls;
+  window.statuses = statuses;
+
+  renderDecoders = function() {
+    window.renderDecoders = renderDecoders;
     const grid = $('decoder-grid');
     const badge = $('decoder-count-badge');
     if (!grid || !badge) return;
@@ -6349,7 +6355,8 @@ function loadDecoders() {
     tickDecoders();
   }
 
-  function tickDecoders() {
+  tickDecoders = function() {
+    window.tickDecoders = tickDecoders;
     const now = Date.now();
     const activeThreshold = 120 * 1000; // 2 minutes (allows for 30s heartbeats + network latency)
     const staleThreshold = 300 * 1000;  // 5 minutes
