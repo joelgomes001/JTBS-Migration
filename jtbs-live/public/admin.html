@@ -6510,12 +6510,16 @@ window.renameDecoder = function(id, currentName) {
 
 window.toggleDecoder = function(id, currentEnabled) {
   const newEnabled = !currentEnabled;
+  controls[id] = Object.assign(controls[id] || {}, { enabled: newEnabled });
+  renderDecoders();
   db.collection('decoderControl').doc(id).set({
     enabled: newEnabled,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true }).then(() => {
     console.log(`Decoder ${id} successfully toggled to enabled=${newEnabled}`);
   }).catch(err => {
+    controls[id] = Object.assign(controls[id] || {}, { enabled: currentEnabled });
+    renderDecoders();
     alert(`Error toggling remote switch: ${err.message}`);
   });
 };

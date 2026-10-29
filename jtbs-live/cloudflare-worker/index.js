@@ -209,9 +209,9 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
   const now = Date.now();
   const cached = docCache.get(url);
   
-  // Stream state should be fresh so updates reflect immediately (2s RAM cache)
-  const isStreamState = url.includes('/streamState/');
-  const maxMemAge = isStreamState ? 2000 : 15000;
+  // Stream state and decoder controls should be real-time (bypass 24h edge cache)
+  const isRealTime = url.includes('/streamState/') || url.includes('/decoderControl/') || url.includes('/decoderStatus/');
+  const maxMemAge = isRealTime ? 1000 : 15000;
 
   // 1. In-memory cache
   if (cached && (now - cached.timestamp < maxMemAge)) {
@@ -222,9 +222,9 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
   const cacheKey = new Request(cacheKeyUrl);
   const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
 
-  // 2. Check Cloudflare Edge Cache (bypass for streamState to ensure real-time responsiveness)
+  // 2. Check Cloudflare Edge Cache (bypass for real-time endpoints to ensure instant reactivity)
   if (cache) {
-    if (isStreamState) {
+    if (isRealTime) {
       try {
         await cache.delete(cacheKey);
       } catch (e) {}
@@ -589,6 +589,23 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
           });
         }
         
+        // If a decoderControl doc has not been explicitly toggled yet, default to enabled: true
+        if (subPath.startsWith('decoderControl')) {
+          return new Response(JSON.stringify({
+            name: `projects/jtbs-classic/databases/(default)/documents/${subPath}`,
+            fields: {
+              enabled: { booleanValue: true }
+            }
+          }), {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
+        }
+
         const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
         let cacheKeyUrl = '';
         let cacheMatchResult = 'no-cache';
