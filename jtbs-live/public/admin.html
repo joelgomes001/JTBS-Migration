@@ -6561,13 +6561,18 @@ window.toggleLockDecoder = function(id, isCurrentlyLocked) {
   const promptMsg = newLock ? `Freeze and lock decoder screen for "${id}"? (Prevents unauthorized local interaction).` : `Unlock decoder screen for "${id}"?`;
   if (!confirm(promptMsg)) return;
 
+  controls[id] = Object.assign(controls[id] || {}, { isLocked: newLock });
+  renderDecoders();
+
   db.collection('decoderControl').doc(id).set({
     isLocked: newLock,
     lockedAt: Date.now(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true }).then(() => {
-    alert(`Decoder "${id}" is now ${newLock ? 'LOCKED / SCREEN FROZEN' : 'UNLOCKED'}.`);
+    console.log(`Decoder "${id}" is now ${newLock ? 'LOCKED / SCREEN FROZEN' : 'UNLOCKED'}.`);
   }).catch(err => {
+    controls[id] = Object.assign(controls[id] || {}, { isLocked: isCurrentlyLocked });
+    renderDecoders();
     alert(`Error updating decoder lock status: ${err.message}`);
   });
 };

@@ -249,11 +249,11 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
       const data = await res.json();
       docCache.set(url, { timestamp: now, data: data });
       
-      if (cache) {
+      if (cache && !isRealTime) {
         try {
           const bodyStr = JSON.stringify(data);
           const bodyBytes = new TextEncoder().encode(bodyStr);
-          const edgeTtl = isStreamState ? 2 : 15;
+          const edgeTtl = 15;
           const cacheResponse = new Response(bodyBytes, {
             status: 200,
             headers: {
