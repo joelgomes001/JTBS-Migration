@@ -144,7 +144,7 @@ async function getActiveChannelSid(docName, isDecoder, env, workerOrigin) {
 
   let memData = null;
   if (isDecoder) {
-    memData = memoryStore.get('decoder');
+    memData = memoryStore.get('decoder') || memoryStore.get('main');
   } else {
     memData = memoryStore.get(docName);
   }
@@ -175,9 +175,9 @@ async function getActiveChannelSid(docName, isDecoder, env, workerOrigin) {
           };
         } else {
           memData = {
-            isLive: parseFirestoreBool(fields.isLive),
-            streamUrl: parseFirestoreString(fields.streamUrl),
-            backupStreamUrl: parseFirestoreString(fields.backupStreamUrl)
+            isLive: parseFirestoreBool(fields.decoderIsLive) || parseFirestoreBool(fields.isLive),
+            streamUrl: parseFirestoreString(fields.decoderStreamUrl) || parseFirestoreString(fields.streamUrl),
+            backupStreamUrl: parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl)
           };
         }
       } else {
@@ -1422,10 +1422,10 @@ ${channelHeaderXml}${programmesXml}</tv>`;
           backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
           offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
         } else {
-          isLive = parseFirestoreBool(fields.isLive);
-          streamUrl = parseFirestoreString(fields.streamUrl);
-          backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
-          offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
+          isLive = parseFirestoreBool(fields.decoderIsLive) || parseFirestoreBool(fields.isLive);
+          streamUrl = parseFirestoreString(fields.decoderStreamUrl) || parseFirestoreString(fields.streamUrl);
+          backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
+          offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
         }
       } else {
         isLive = parseFirestoreBool(fields.isLive);
@@ -1615,9 +1615,17 @@ ${channelHeaderXml}${programmesXml}</tv>`;
           }
         };
 
-        // Never 302-redirect an HTTP/HLS request to RTMP (crashes VLC and all HLS players)
+        // For raw RTMP/RTMPS streams, 302 redirect RTMP-capable players and hardware decoders directly
         if (cleanCandidate.startsWith('rtmp://') || cleanCandidate.startsWith('rtmps://')) {
-          return null;
+          return new Response(null, {
+            status: 302,
+            headers: {
+              'Location': cleanCandidate,
+              'Access-Control-Allow-Origin': '*',
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+              'X-JTBS-Tier': isBackup ? 'backup' : 'primary'
+            }
+          });
         }
 
         // If candidate is a direct IP stream or non-HLS video file (MP4/TS/WebM), return 302 redirect

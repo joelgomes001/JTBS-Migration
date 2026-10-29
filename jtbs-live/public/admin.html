@@ -5084,10 +5084,10 @@ window.syncAllFeedsNow = async function() {
       };
       const isDiff = d.mode === 'different';
       payloadFeeds['decoder'] = {
-        isLive: isDiff ? (d.decoderIsLive !== false) : (d.isLive !== false),
-        streamUrl: isDiff ? (d.decoderStreamUrl || '') : (d.streamUrl || ''),
-        backupStreamUrl: isDiff ? (d.decoderBackupStreamUrl || '') : (d.backupStreamUrl || ''),
-        offlineHlsUrl: isDiff ? (d.decoderOfflineHlsUrl || '') : (d.offlineHlsUrl || '')
+        isLive: isDiff ? (d.decoderIsLive !== false) : ((d.decoderStreamUrl && d.decoderIsLive !== false) ? true : (d.isLive !== false)),
+        streamUrl: (isDiff ? d.decoderStreamUrl : (d.decoderStreamUrl || d.streamUrl)) || '',
+        backupStreamUrl: (isDiff ? d.decoderBackupStreamUrl : (d.decoderBackupStreamUrl || d.backupStreamUrl)) || '',
+        offlineHlsUrl: (isDiff ? d.decoderOfflineHlsUrl : (d.decoderOfflineHlsUrl || d.offlineHlsUrl)) || ''
       };
     }
 
