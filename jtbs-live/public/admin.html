@@ -6351,27 +6351,34 @@ function loadDecoders() {
 
   function tickDecoders() {
     const now = Date.now();
-    const activeThreshold = 30 * 1000;
-    const staleThreshold = 60 * 1000;
+    const activeThreshold = 120 * 1000; // 2 minutes (allows for 30s heartbeats + network latency)
+    const staleThreshold = 300 * 1000;  // 5 minutes
     let activeCount = 0;
     
     statuses.forEach(d => {
       let lastSeenMs = 0;
       if (d.lastSeen) {
-        lastSeenMs = d.lastSeen.toMillis ? d.lastSeen.toMillis() : new Date(d.lastSeen).getTime();
+        if (typeof d.lastSeen.toMillis === 'function') {
+          lastSeenMs = d.lastSeen.toMillis();
+        } else if (d.lastSeen.seconds) {
+          lastSeenMs = d.lastSeen.seconds * 1000;
+        } else {
+          lastSeenMs = new Date(d.lastSeen).getTime();
+        }
       } else {
         lastSeenMs = now;
       }
       
       const diff = now - lastSeenMs;
+      const absDiff = diff < 0 ? 0 : diff;
       let status = 'offline';
       let statusLabel = 'Offline';
       
-      if (diff < activeThreshold) {
+      if (absDiff < activeThreshold) {
         status = 'online';
         statusLabel = 'Online';
         activeCount++;
-      } else if (diff < staleThreshold) {
+      } else if (absDiff < staleThreshold) {
         status = 'stale';
         statusLabel = 'Connecting/Stale';
       }

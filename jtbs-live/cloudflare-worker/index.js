@@ -618,15 +618,27 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
         });
       }
 
-      if (method === 'POST') {
+      if (method === 'POST' || method === 'PATCH') {
         const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/${subPath}${url.search}`;
         try {
-          const bodyText = await request.text();
+          let bodyText = await request.text();
+
+          // Enforce authoritative UTC timestamp for decoder status updates
+          // to eliminate false "Offline" status caused by TV box hardware clock drift
+          if (subPath.startsWith('decoderStatus')) {
+            try {
+              const bodyJson = JSON.parse(bodyText);
+              if (bodyJson && bodyJson.fields) {
+                bodyJson.fields.lastSeen = { timestampValue: new Date().toISOString() };
+                bodyText = JSON.stringify(bodyJson);
+              }
+            } catch (e) {}
+          }
+
           const fireRes = await fetch(firestoreUrl, {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
-              'Content-Type': 'application/json',
-              'X-HTTP-Method-Override': request.headers.get('X-HTTP-Method-Override') || 'PATCH'
+              'Content-Type': 'application/json'
             },
             body: bodyText
           });
