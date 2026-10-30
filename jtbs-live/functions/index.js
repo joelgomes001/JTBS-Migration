@@ -179,7 +179,10 @@ exports.liveStream = functions.https.onRequest(async (req, res) => {
 });
 
 exports.forceUpdateStream = functions.https.onRequest(async (req, res) => {
-  const urlParam = req.query.url || 'http://video1.mayapur.tv/allTemples/MayapurTV/MayapurTVHD/manifest.mpd';
+  const urlParam = req.query.url;
+  if (!urlParam) {
+    return res.status(400).send('Missing url parameter. Refusing to update stream state without an explicit URL.');
+  }
   try {
     const payload = {
       isLive: true,
@@ -193,6 +196,8 @@ exports.forceUpdateStream = functions.https.onRequest(async (req, res) => {
     for (let i = 1; i <= 6; i++) {
       await admin.firestore().doc(`streamState/feed${i}`).set(payload, { merge: true });
     }
+    return res.status(200).send('Stream state updated successfully.');
+  } catch (err) {
     return res.status(500).send('Error updating streamState: ' + err.message);
   }
 });
