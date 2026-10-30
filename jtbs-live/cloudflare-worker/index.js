@@ -4,6 +4,7 @@ import { PLAYLIST_M3U } from './playlistPage.js';
 import { WORKER_JSON, CHANNELS_XML } from './epgPages.js';
 import { LOGO_BASE64 } from './logoPage.js';
 import { OFFLINE_SLATE_BASE64 } from './slatePage.js';
+import { OFFLINE_IMAGE_BASE64 } from './offlineImagePage.js';
 
 function base64ToUint8Array(base64) {
   const binaryString = atob(base64);
@@ -891,6 +892,20 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
           status: 200,
           headers: {
             'Content-Type': 'image/png',
+            'Cache-Control': 'public, max-age=86400',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      } catch (e) {}
+    }
+
+    if (path === '/offline_image.jpg' || path === '/offline.jpg' || path === '/offline-image.jpg' || path === '/offline_image.png' || path === '/offline-image.png') {
+      try {
+        const imgBytes = base64ToUint8Array(OFFLINE_IMAGE_BASE64);
+        return new Response(imgBytes, {
+          status: 200,
+          headers: {
+            'Content-Type': 'image/jpeg',
             'Cache-Control': 'public, max-age=86400',
             'Access-Control-Allow-Origin': '*'
           }
