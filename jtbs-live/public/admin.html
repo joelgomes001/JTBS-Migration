@@ -4465,7 +4465,15 @@ document.querySelectorAll('input[name="stream-mode"]').forEach(radio => {
   radio.addEventListener('change', async function() {
     try {
       fetch('https://jtbsclassic.dpdns.org/updateStreamState?doc=main&mode=' + encodeURIComponent(this.value)).catch(()=>{});
-      await db.doc('streamState/main').set({ mode: this.value }, { merge: true });
+      const updateData = { mode: this.value };
+      if (this.value === 'same') {
+        const isLive = $('stream-toggle') ? $('stream-toggle').checked : false;
+        const mainUrl = $('stream-url-input') ? $('stream-url-input').value.trim() : '';
+        updateData.decoderIsLive = isLive;
+        updateData.decoderStreamUrl = isLive ? mainUrl : '';
+        syncWorkerState('decoder', isLive ? mainUrl : '', isLive);
+      }
+      await db.doc('streamState/main').set(updateData, { merge: true });
     } catch(e) {
       console.error(e);
     }

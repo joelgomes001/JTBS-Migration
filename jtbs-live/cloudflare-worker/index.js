@@ -89,6 +89,7 @@ async function refreshUpstreamSession(docName, streamUrl) {
 
 const memoryStore = new Map();
 const docCache = new Map();
+let firestoreBackoffUntil = 0;
 
 function isDirectIP(uStr) {
   try {
@@ -150,7 +151,13 @@ async function getActiveChannelSid(docName, isDecoder, env, workerOrigin) {
     memData = memoryStore.get(docName);
   }
 
-  if ((!memData || !memData.streamUrl) && env && env.JTBS_DB) {
+  // If in-memory state explicitly marks stream as offline, return 'off' immediately
+  // to prevent stale KV records or Firestore 429 retries from resurrecting old feeds
+  if (memData && (!memData.isLive || !memData.streamUrl)) {
+    return 'off';
+  }
+
+  if (!memData && env && env.JTBS_DB) {
     try {
       const kvKey = 'streamState:' + (isDecoder ? 'decoder' : docName);
       const kvData = await env.JTBS_DB.get(kvKey, { type: 'json' });
@@ -211,27 +218,34 @@ async function resolveStreamDoc(docName, env) {
   let decoderMem = memoryStore.get('decoder');
   const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
 
-  if (cache) {
-    if (!mainMem) {
-      try {
-        const mRes = await cache.match(new Request('https://jtbsclassic.dpdns.org/__internal_state__/streamState/main'));
-        if (mRes) {
-          mainMem = await mRes.json();
+  const isMemStale = !mainMem || !decoderMem || (Date.now() - (mainMem.updatedAt || 0) > 2000);
+
+  // 1. Check Cloudflare Edge Cache API (unlimited reads/writes across isolates in POP)
+  if (cache && isMemStale) {
+    try {
+      const mRes = await cache.match(new Request('https://jtbsclassic.dpdns.org/__internal_state__/streamState/main'));
+      if (mRes) {
+        const mData = await mRes.json();
+        if (!mainMem || (mData.updatedAt && mData.updatedAt >= (mainMem.updatedAt || 0))) {
+          mainMem = mData;
           memoryStore.set('main', mainMem);
         }
-      } catch (e) {}
-    }
-    if (!decoderMem) {
-      try {
-        const dRes = await cache.match(new Request('https://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder'));
-        if (dRes) {
-          decoderMem = await dRes.json();
+      }
+    } catch (e) {}
+
+    try {
+      const dRes = await cache.match(new Request('https://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder'));
+      if (dRes) {
+        const dData = await dRes.json();
+        if (!decoderMem || (dData.updatedAt && dData.updatedAt >= (decoderMem.updatedAt || 0))) {
+          decoderMem = dData;
           memoryStore.set('decoder', decoderMem);
         }
-      } catch (e) {}
-    }
+      }
+    } catch (e) {}
   }
 
+  // 2. Check Cloudflare KV if memory is still empty
   if (env && env.JTBS_DB) {
     if (!mainMem) {
       try {
@@ -253,12 +267,18 @@ async function resolveStreamDoc(docName, env) {
     }
   }
 
+  // 3. Query Firestore REST API if stale and not circuit-broken by 429 quota exhaustion
   if (docName === 'main' || docName === 'decoder') {
     const isStale = !mainMem || !decoderMem || (Date.now() - (mainMem.updatedAt || 0) > 3000);
-    if (isStale) {
+    const canQueryFirestore = Date.now() > firestoreBackoffUntil;
+    if (isStale && canQueryFirestore) {
       try {
         const fsRes = await fetch('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/main', { headers: { 'Accept': 'application/json' } });
-        if (fsRes.ok) {
+        if (fsRes.status === 429) {
+          // Circuit breaker: backoff 60s so worker stops hammering quota-exhausted Firestore
+          firestoreBackoffUntil = Date.now() + 60000;
+        } else if (fsRes.ok) {
+          firestoreBackoffUntil = 0;
           const fsData = await fsRes.json();
           const f = fsData.fields || {};
           const fsMode = parseFirestoreString(f.mode) || 'same';
@@ -274,28 +294,33 @@ async function resolveStreamDoc(docName, env) {
             ? (parseFirestoreBool(f.decoderIsLive) && !!fsDecUrl && (!fsDecIsYT || parseFirestoreString(f.decoderPlayMode) !== 'offair'))
             : fsIsMainLive;
 
-          mainMem = {
-            isLive: fsIsMainLive,
-            streamUrl: fsIsMainLive ? fsMainUrl : '',
-            backupStreamUrl: parseFirestoreString(f.backupStreamUrl),
-            isTokenized: parseFirestoreBool(f.isTokenized),
-            offlineHlsUrl: parseFirestoreString(f.offlineHlsUrl),
-            mode: fsMode,
-            playMode: fsIsMainLive ? (parseFirestoreString(f.playMode) || 'live') : 'offair',
-            updatedAt: Date.now()
-          };
-          memoryStore.set('main', mainMem);
+          const fsUpdatedAt = Date.now();
+          if (!mainMem || (fsUpdatedAt >= (mainMem.updatedAt || 0))) {
+            mainMem = {
+              isLive: fsIsMainLive,
+              streamUrl: fsIsMainLive ? fsMainUrl : '',
+              backupStreamUrl: parseFirestoreString(f.backupStreamUrl),
+              isTokenized: parseFirestoreBool(f.isTokenized),
+              offlineHlsUrl: parseFirestoreString(f.offlineHlsUrl),
+              mode: fsMode,
+              playMode: fsIsMainLive ? (parseFirestoreString(f.playMode) || 'live') : 'offair',
+              updatedAt: fsUpdatedAt
+            };
+            memoryStore.set('main', mainMem);
+          }
 
-          decoderMem = {
-            isLive: fsIsDecLive,
-            streamUrl: fsIsDecLive ? fsDecUrl : '',
-            backupStreamUrl: parseFirestoreString(f.decoderBackupStreamUrl),
-            isTokenized: false,
-            offlineHlsUrl: parseFirestoreString(f.decoderOfflineHlsUrl),
-            playMode: fsIsDecLive ? (parseFirestoreString(f.decoderPlayMode) || 'live') : 'offair',
-            updatedAt: Date.now()
-          };
-          memoryStore.set('decoder', decoderMem);
+          if (!decoderMem || (fsUpdatedAt >= (decoderMem.updatedAt || 0))) {
+            decoderMem = {
+              isLive: fsIsDecLive,
+              streamUrl: fsIsDecLive ? fsDecUrl : '',
+              backupStreamUrl: parseFirestoreString(f.decoderBackupStreamUrl),
+              isTokenized: false,
+              offlineHlsUrl: parseFirestoreString(f.decoderOfflineHlsUrl),
+              playMode: fsIsDecLive ? (parseFirestoreString(f.decoderPlayMode) || 'live') : 'offair',
+              updatedAt: fsUpdatedAt
+            };
+            memoryStore.set('decoder', decoderMem);
+          }
         }
       } catch (e) {}
     }
@@ -1056,11 +1081,13 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
 
       const now = Date.now();
       const existingMem = memoryStore.get(doc) || {};
+      const effectiveUrl = isLive ? (streamUrl || (url.searchParams.has('url') ? streamUrl : existingMem.streamUrl || '')) : '';
+      const effectiveBackup = isLive ? (backupStreamUrl || existingMem.backupStreamUrl || '') : '';
       const updatedMem = {
         ...existingMem,
         isLive,
-        streamUrl: streamUrl || (url.searchParams.has('url') ? streamUrl : existingMem.streamUrl || ''),
-        backupStreamUrl: backupStreamUrl || existingMem.backupStreamUrl || '',
+        streamUrl: effectiveUrl,
+        backupStreamUrl: effectiveBackup,
         isTokenized: hasIsTokenized ? isTokenized : (existingMem.isTokenized !== undefined ? existingMem.isTokenized : false),
         offlineHlsUrl: offlineHlsUrl || existingMem.offlineHlsUrl || '',
         updatedAt: now
@@ -1096,10 +1123,32 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
         kvError = 'env.JTBS_DB is undefined';
       }
 
-      // If updating 'main', keep 'decoder' in sync if mode is same or decoderUrl is provided
+      // If updating 'main', keep 'decoder' strictly synchronized
       if (doc === 'main') {
         const isSameMode = modeParam === 'same' || (!decoderUrl && modeParam !== 'different');
-        if (decoderUrl) {
+        if (!isLive) {
+          // If main stream goes offline, force decoder offline too in same mode
+          const decMem = {
+            ...updatedMem,
+            isLive: false,
+            streamUrl: '',
+            backupStreamUrl: '',
+            updatedAt: now
+          };
+          memoryStore.set('decoder', decMem);
+          if (cache) {
+            try {
+              const dReq = new Request(`https://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder`);
+              const dRes = new Response(JSON.stringify(decMem), {
+                headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400' }
+              });
+              await cache.put(dReq, dRes);
+            } catch (e) {}
+          }
+          if (env && env.JTBS_DB) {
+            try { await env.JTBS_DB.put('streamState:decoder', JSON.stringify(decMem)); } catch (e) {}
+          }
+        } else if (decoderUrl) {
           const decMem = {
             isLive,
             streamUrl: decoderUrl,
