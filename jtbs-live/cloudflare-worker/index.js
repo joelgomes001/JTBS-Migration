@@ -262,14 +262,21 @@ async function resolveStreamDoc(docName, env) {
           const fsData = await fsRes.json();
           const f = fsData.fields || {};
           const fsMode = parseFirestoreString(f.mode) || 'same';
-          const fsIsMainLive = parseFirestoreBool(f.isLive) && !!parseFirestoreString(f.streamUrl) && parseFirestoreString(f.playMode) !== 'offair';
+          const fsMainUrl = parseFirestoreString(f.streamUrl) || '';
+          const fsMainType = parseFirestoreString(f.streamType) || '';
+          const fsMainIsYT = fsMainType === 'youtube' || fsMainUrl.includes('youtube.com') || fsMainUrl.includes('youtu.be');
+          const fsIsMainLive = parseFirestoreBool(f.isLive) && !!fsMainUrl && (!fsMainIsYT || parseFirestoreString(f.playMode) !== 'offair');
+
+          const fsDecUrl = parseFirestoreString(f.decoderStreamUrl) || '';
+          const fsDecType = parseFirestoreString(f.decoderStreamType) || '';
+          const fsDecIsYT = fsDecType === 'youtube' || fsDecUrl.includes('youtube.com') || fsDecUrl.includes('youtu.be');
           const fsIsDecLive = (fsMode === 'different')
-            ? (parseFirestoreBool(f.decoderIsLive) && !!parseFirestoreString(f.decoderStreamUrl) && parseFirestoreString(f.decoderPlayMode) !== 'offair')
+            ? (parseFirestoreBool(f.decoderIsLive) && !!fsDecUrl && (!fsDecIsYT || parseFirestoreString(f.decoderPlayMode) !== 'offair'))
             : fsIsMainLive;
 
           mainMem = {
             isLive: fsIsMainLive,
-            streamUrl: fsIsMainLive ? parseFirestoreString(f.streamUrl) : '',
+            streamUrl: fsIsMainLive ? fsMainUrl : '',
             backupStreamUrl: parseFirestoreString(f.backupStreamUrl),
             isTokenized: parseFirestoreBool(f.isTokenized),
             offlineHlsUrl: parseFirestoreString(f.offlineHlsUrl),
@@ -281,7 +288,7 @@ async function resolveStreamDoc(docName, env) {
 
           decoderMem = {
             isLive: fsIsDecLive,
-            streamUrl: fsIsDecLive ? parseFirestoreString(f.decoderStreamUrl) : '',
+            streamUrl: fsIsDecLive ? fsDecUrl : '',
             backupStreamUrl: parseFirestoreString(f.decoderBackupStreamUrl),
             isTokenized: false,
             offlineHlsUrl: parseFirestoreString(f.decoderOfflineHlsUrl),
@@ -293,8 +300,8 @@ async function resolveStreamDoc(docName, env) {
       } catch (e) {}
     }
 
-    const isMainLive = mainMem ? (mainMem.isLive === true && !!mainMem.streamUrl && mainMem.playMode !== 'offair') : false;
-    const isDecLive = decoderMem ? (decoderMem.isLive === true && !!decoderMem.streamUrl && decoderMem.playMode !== 'offair') : (mainMem?.mode === 'different' ? false : isMainLive);
+    const isMainLive = mainMem ? (mainMem.isLive === true && !!mainMem.streamUrl) : false;
+    const isDecLive = decoderMem ? (decoderMem.isLive === true && !!decoderMem.streamUrl) : (mainMem?.mode === 'different' ? false : isMainLive);
 
     const mainStreamUrl = isMainLive ? (mainMem?.streamUrl || '') : '';
     const decStreamUrl = isDecLive ? (decoderMem?.streamUrl || (mainMem?.mode === 'different' ? '' : mainStreamUrl)) : '';

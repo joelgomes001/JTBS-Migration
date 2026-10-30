@@ -5146,10 +5146,11 @@ window.syncAllFeedsNow = async function() {
 function saveStreamState(url, duration) {
   const isYT = detectType(url) === 'youtube';
   const isYTLive = isYT && (isLiveStreamUrl(url) || window.currentVideoIsLive === true);
-  const playModeEl = document.querySelector('input[name="yt-play-mode"]:checked');
-  let playMode = playModeEl ? playModeEl.value : '';
-  if (isYTLive) {
-    playMode = 'live';
+  let playMode = 'live';
+  if (isYT) {
+    const playModeEl = document.querySelector('input[name="yt-play-mode"]:checked');
+    playMode = playModeEl ? playModeEl.value : 'offair';
+    if (isYTLive) playMode = 'live';
   }
   const mp4PlayModeEl = document.querySelector('input[name="mp4-play-mode"]:checked');
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
@@ -5217,10 +5218,11 @@ function saveStreamState(url, duration) {
 function savePublicStreamState(url, duration) {
   const isYT = detectType(url) === 'youtube';
   const isYTLive = isYT && (isLiveStreamUrl(url) || window.currentPublicVideoIsLive === true);
-  const playModeEl = document.querySelector('input[name="public-yt-play-mode"]:checked');
-  let playMode = playModeEl ? playModeEl.value : '';
-  if (isYTLive) {
-    playMode = 'live';
+  let playMode = 'live';
+  if (isYT) {
+    const playModeEl = document.querySelector('input[name="public-yt-play-mode"]:checked');
+    playMode = playModeEl ? playModeEl.value : 'offair';
+    if (isYTLive) playMode = 'live';
   }
   const mp4PlayModeEl = document.querySelector('input[name="public-mp4-play-mode"]:checked');
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
@@ -5282,10 +5284,11 @@ function savePublicStreamState(url, duration) {
 function saveDecoderStreamState(url, duration) {
   const isYT = detectType(url) === 'youtube';
   const isYTLive = isYT && (isLiveStreamUrl(url) || window.currentDecoderVideoIsLive === true);
-  const playModeEl = document.querySelector('input[name="decoder-yt-play-mode"]:checked');
-  let playMode = playModeEl ? playModeEl.value : '';
-  if (isYTLive) {
-    playMode = 'live';
+  let playMode = 'live';
+  if (isYT) {
+    const playModeEl = document.querySelector('input[name="decoder-yt-play-mode"]:checked');
+    playMode = playModeEl ? playModeEl.value : 'offair';
+    if (isYTLive) playMode = 'live';
   }
   const mp4PlayModeEl = document.querySelector('input[name="decoder-mp4-play-mode"]:checked');
   const mp4PlayMode = mp4PlayModeEl ? mp4PlayModeEl.value : 'repeat';
