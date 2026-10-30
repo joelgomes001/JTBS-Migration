@@ -4414,7 +4414,9 @@ function updateDecoderUI(live,url){
 
 $('stream-toggle').addEventListener('change',async function(){
   if(!this.checked){
-    try{await db.doc('streamState/main').set({isLive:false,streamUrl:'',streamType:'',playMode:'',mp4PlayMode:'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
+    syncWorkerState('main', '', false);
+    syncWorkerState('decoder', '', false);
+    try{await db.doc('streamState/main').set({isLive:false,streamUrl:'',decoderIsLive:false,decoderStreamUrl:'',streamType:'',playMode:'',mp4PlayMode:'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
     catch(e){console.error(e);}
   } else updateStreamUI(true,$('stream-url-input').value);
 });
@@ -4429,6 +4431,7 @@ $('stream-url-input').addEventListener('input',function(){
 
 $('public-toggle').addEventListener('change',async function(){
   if(!this.checked){
+    syncWorkerState('main', '', false);
     try{await db.doc('streamState/main').set({isLive:false,streamUrl:'',streamType:'',playMode:'',mp4PlayMode:'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
     catch(e){console.error(e);}
   } else updatePublicUI(true,$('public-url-input').value);
@@ -4444,6 +4447,7 @@ $('public-url-input').addEventListener('input',function(){
 
 $('decoder-toggle').addEventListener('change',async function(){
   if(!this.checked){
+    syncWorkerState('decoder', '', false);
     try{await db.doc('streamState/main').set({decoderIsLive:false,decoderStreamUrl:'',decoderStreamType:'',decoderPlayMode:'',decoderMp4PlayMode:'',decoderUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
     catch(e){console.error(e);}
   } else updateDecoderUI(true,$('decoder-url-input').value);
@@ -4460,6 +4464,7 @@ $('decoder-url-input').addEventListener('input',function(){
 document.querySelectorAll('input[name="stream-mode"]').forEach(radio => {
   radio.addEventListener('change', async function() {
     try {
+      fetch('https://jtbsclassic.dpdns.org/updateStreamState?doc=main&mode=' + encodeURIComponent(this.value)).catch(()=>{});
       await db.doc('streamState/main').set({ mode: this.value }, { merge: true });
     } catch(e) {
       console.error(e);
@@ -5084,10 +5089,10 @@ window.syncAllFeedsNow = async function() {
       };
       const isDiff = d.mode === 'different';
       payloadFeeds['decoder'] = {
-        isLive: isDiff ? (d.decoderIsLive !== false) : ((d.decoderStreamUrl && d.decoderIsLive !== false) ? true : (d.isLive !== false)),
-        streamUrl: (isDiff ? d.decoderStreamUrl : (d.decoderStreamUrl || d.streamUrl)) || '',
-        backupStreamUrl: (isDiff ? d.decoderBackupStreamUrl : (d.decoderBackupStreamUrl || d.backupStreamUrl)) || '',
-        offlineHlsUrl: (isDiff ? d.decoderOfflineHlsUrl : (d.decoderOfflineHlsUrl || d.offlineHlsUrl)) || ''
+        isLive: isDiff ? (d.decoderIsLive !== false) : (d.isLive !== false),
+        streamUrl: (isDiff ? d.decoderStreamUrl : d.streamUrl) || '',
+        backupStreamUrl: (isDiff ? d.decoderBackupStreamUrl : d.backupStreamUrl) || '',
+        offlineHlsUrl: (isDiff ? d.decoderOfflineHlsUrl : d.offlineHlsUrl) || ''
       };
     }
 
@@ -5151,17 +5156,27 @@ function saveStreamState(url, duration) {
   const backupUrl = $('backup-stream-url-input') ? $('backup-stream-url-input').value.trim() : '';
 
   syncWorkerState('main', url, true, backupUrl);
+  syncWorkerState('decoder', url, true, backupUrl);
   syncWorkerState('feed1', url, true, backupUrl);
 
   const data = {
     isLive: true,
     streamUrl: url,
+    decoderIsLive: true,
+    decoderStreamUrl: url,
+    mode: 'same',
     backupStreamUrl: backupUrl,
+    decoderBackupStreamUrl: backupUrl,
     streamType: detectType(url),
+    decoderStreamType: detectType(url),
     duration: duration || 0,
+    decoderDuration: duration || 0,
     playMode: playMode,
+    decoderPlayMode: playMode,
     mp4PlayMode: mp4PlayMode,
+    decoderMp4PlayMode: mp4PlayMode,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    decoderUpdatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     updatedBy: auth.currentUser ? auth.currentUser.uid : ''
   };
 
@@ -5280,6 +5295,7 @@ function saveDecoderStreamState(url, duration) {
   const data = {
     decoderIsLive: true,
     decoderStreamUrl: url,
+    mode: 'different',
     decoderBackupStreamUrl: backupUrl,
     decoderStreamType: detectType(url),
     decoderDuration: duration || 0,
@@ -7172,8 +7188,8 @@ function loadOtherStreams() {
         };
 
         try {
-          await docRef.set(payload, { merge: true });
           syncWorkerState(scope, streamUrl, isLive, backupStreamUrl, isTokenized);
+          await docRef.set(payload, { merge: true });
           flash(`feed-save-msg-${i}`);
           logAdminAction('update_feed', scope, `Updated ${feed.name} URL: ${streamUrl || '(empty)'} (Live: ${isLive})`, checkData, payload);
         } catch (err) {
@@ -7201,11 +7217,11 @@ function loadOtherStreams() {
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         try {
-          await docRef.set(togglePayload, { merge: true });
           const currentUrl = $(`feed-url-input-${i}`) ? $(`feed-url-input-${i}`).value.trim() : '';
           const currentBackup = $(`feed-backup-url-${i}`) ? $(`feed-backup-url-${i}`).value.trim() : '';
           const currentIsTokenized = $(`feed-token-toggle-${i}`) ? $(`feed-token-toggle-${i}`).checked : false;
           syncWorkerState(scope, currentUrl, isLive, currentBackup, currentIsTokenized);
+          await docRef.set(togglePayload, { merge: true });
           logAdminAction('toggle_feed', scope, `Toggled ${feed.name} status to ${isLive ? 'LIVE' : 'OFFLINE'}`, checkData, togglePayload);
         } catch (err) {
           alert(`Error toggling ${feed.name}: ` + err.message);

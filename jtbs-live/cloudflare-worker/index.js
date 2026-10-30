@@ -205,7 +205,105 @@ function getCacheKeyUrl(firestoreUrl, workerOrigin) {
   }
 }
 
-async function getCachedFirestoreDoc(url, workerOrigin) {
+async function resolveStreamDoc(docName, env) {
+  let mainMem = memoryStore.get('main');
+  let decoderMem = memoryStore.get('decoder');
+
+  if (env && env.JTBS_DB) {
+    if (!mainMem || !mainMem.streamUrl) {
+      try {
+        const kvMain = await env.JTBS_DB.get('streamState:main', { type: 'json' });
+        if (kvMain) {
+          mainMem = kvMain;
+          memoryStore.set('main', kvMain);
+        }
+      } catch (e) {}
+    }
+    if (!decoderMem || !decoderMem.streamUrl) {
+      try {
+        const kvDec = await env.JTBS_DB.get('streamState:decoder', { type: 'json' });
+        if (kvDec) {
+          decoderMem = kvDec;
+          memoryStore.set('decoder', kvDec);
+        }
+      } catch (e) {}
+    }
+  }
+
+  const defaultStream = 'rtmp://139.59.48.129:1935/Mango/mango';
+
+  if (docName === 'main' || docName === 'decoder') {
+    const mainStreamUrl = mainMem?.streamUrl || '';
+    const decStreamUrl = decoderMem?.streamUrl || '';
+    
+    // Determine effective stream URLs (preserve dynamic channel switches!)
+    const effectiveMainUrl = mainStreamUrl || decStreamUrl || defaultStream;
+    const effectiveDecUrl = decStreamUrl || mainStreamUrl || defaultStream;
+    
+    const isMainLive = mainMem ? (mainMem.isLive !== false) : true;
+    const isDecLive = decoderMem ? (decoderMem.isLive !== false) : isMainLive;
+    
+    const isDiff = !!(decStreamUrl && decStreamUrl !== mainStreamUrl);
+    const mode = isDiff ? 'different' : 'same';
+    
+    return {
+      name: `projects/jtbs-classic/databases/(default)/documents/streamState/${docName}`,
+      fields: {
+        isLive: { booleanValue: isMainLive },
+        streamUrl: { stringValue: effectiveMainUrl },
+        backupStreamUrl: { stringValue: mainMem?.backupStreamUrl || '' },
+        isTokenized: { booleanValue: !!mainMem?.isTokenized },
+        offlineHlsUrl: { stringValue: mainMem?.offlineHlsUrl || 'http://jtbsclassic.dpdns.org/offline_image.jpg' },
+        decoderIsLive: { booleanValue: isDecLive },
+        decoderStreamUrl: { stringValue: effectiveDecUrl },
+        decoderBackupStreamUrl: { stringValue: decoderMem?.backupStreamUrl || mainMem?.backupStreamUrl || '' },
+        decoderOfflineHlsUrl: { stringValue: decoderMem?.offlineHlsUrl || mainMem?.offlineHlsUrl || 'http://jtbsclassic.dpdns.org/offline_image.jpg' },
+        mode: { stringValue: mode },
+        playMode: { stringValue: 'live' },
+        decoderPlayMode: { stringValue: 'live' },
+        offlineImageUrl: { stringValue: 'http://jtbsclassic.dpdns.org/offline_image.jpg' },
+        decoderOfflineImageUrl: { stringValue: 'http://jtbsclassic.dpdns.org/offline_image.jpg' }
+      }
+    };
+  }
+
+  let feedMem = memoryStore.get(docName);
+  if ((!feedMem || !feedMem.streamUrl) && env && env.JTBS_DB) {
+    try {
+      const kvFeed = await env.JTBS_DB.get('streamState:' + docName, { type: 'json' });
+      if (kvFeed) {
+        feedMem = kvFeed;
+        memoryStore.set(docName, kvFeed);
+      }
+    } catch (e) {}
+  }
+
+  const isLive = feedMem ? (feedMem.isLive !== false) : false;
+  const streamUrl = feedMem?.streamUrl || '';
+  const backupStreamUrl = feedMem?.backupStreamUrl || '';
+  const isTokenized = !!feedMem?.isTokenized;
+  const offlineHlsUrl = feedMem?.offlineHlsUrl || 'http://jtbsclassic.dpdns.org/offline_image.jpg';
+
+  return {
+    name: `projects/jtbs-classic/databases/(default)/documents/streamState/${docName}`,
+    fields: {
+      isLive: { booleanValue: isLive },
+      streamUrl: { stringValue: streamUrl },
+      backupStreamUrl: { stringValue: backupStreamUrl },
+      isTokenized: { booleanValue: isTokenized },
+      offlineHlsUrl: { stringValue: offlineHlsUrl },
+      decoderIsLive: { booleanValue: isLive },
+      decoderStreamUrl: { stringValue: streamUrl },
+      mode: { stringValue: 'same' },
+      playMode: { stringValue: 'live' },
+      decoderPlayMode: { stringValue: 'live' },
+      offlineImageUrl: { stringValue: 'http://jtbsclassic.dpdns.org/offline_image.jpg' },
+      decoderOfflineImageUrl: { stringValue: 'http://jtbsclassic.dpdns.org/offline_image.jpg' }
+    }
+  };
+}
+
+async function getCachedFirestoreDoc(url, workerOrigin, env) {
   const now = Date.now();
   const cached = docCache.get(url);
   
@@ -269,7 +367,18 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
     }
   } catch (e) {}
 
-  // 4. Graceful fallback on 429 quota exhaustion or network drop
+  // 4. Graceful fallback on 429 quota exhaustion or network drop:
+  // Dynamically resolve streamState from memoryStore & KV
+  if (url.includes('/streamState/')) {
+    const parts = url.split('/streamState/');
+    const docName = (parts[1] || 'main').split('?')[0];
+    const resolved = await resolveStreamDoc(docName, env);
+    if (resolved) {
+      docCache.set(url, { timestamp: now, data: resolved });
+      return resolved;
+    }
+  }
+
   if (cached && cached.data) {
     cached.timestamp = now;
     return cached.data;
@@ -279,20 +388,6 @@ async function getCachedFirestoreDoc(url, workerOrigin) {
     return {
       fields: {
         enabled: { booleanValue: true }
-      }
-    };
-  }
-
-  if (url.includes('/streamState/main') || url.includes('/streamState/decoder')) {
-    return {
-      name: url,
-      fields: {
-        isLive: { booleanValue: true },
-        streamUrl: { stringValue: 'rtmp://139.59.48.129:1935/Mango/mango' },
-        decoderIsLive: { booleanValue: true },
-        decoderStreamUrl: { stringValue: 'rtmp://139.59.48.129:1935/Mango/mango' },
-        mode: { stringValue: 'same' },
-        playMode: { stringValue: 'live' }
       }
     };
   }
@@ -591,7 +686,7 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
 
       if (method === 'GET' || method === 'HEAD') {
         const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/${subPath}`;
-        const data = await getCachedFirestoreDoc(firestoreUrl, url.origin);
+        const data = await getCachedFirestoreDoc(firestoreUrl, url.origin, env);
         if (data) {
           return new Response(JSON.stringify(data), {
             status: 200,
@@ -620,19 +715,11 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
           });
         }
 
-        // Resilient fallback on 429 quota exhaustion: keep main stream & decoder running 24/7!
-        if (subPath.startsWith('streamState/main') || subPath.startsWith('streamState/decoder')) {
-          return new Response(JSON.stringify({
-            name: `projects/jtbs-classic/databases/(default)/documents/${subPath}`,
-            fields: {
-              isLive: { booleanValue: true },
-              streamUrl: { stringValue: 'rtmp://139.59.48.129:1935/Mango/mango' },
-              decoderIsLive: { booleanValue: true },
-              decoderStreamUrl: { stringValue: 'rtmp://139.59.48.129:1935/Mango/mango' },
-              mode: { stringValue: 'same' },
-              playMode: { stringValue: 'live' }
-            }
-          }), {
+        // Resilient dynamic resolution on 429 quota exhaustion from memoryStore / KV
+        if (subPath.startsWith('streamState/')) {
+          const docName = subPath.substring(12);
+          const resolved = await resolveStreamDoc(docName, env);
+          return new Response(JSON.stringify(resolved), {
             status: 200,
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
@@ -759,40 +846,18 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
                 await env.JTBS_DB.put('streamState:' + docKey, JSON.stringify(feedObj));
               } catch (e) {}
             }
-            
-            const mockDoc = {
-              name: `projects/jtbs-classic/databases/(default)/documents/streamState/${docKey}`,
-              fields: {
-                isLive: { booleanValue: isLive },
-                streamUrl: { stringValue: streamUrl },
-                backupStreamUrl: { stringValue: backupStreamUrl },
-                isTokenized: { booleanValue: isTokenized },
-                offlineHlsUrl: { stringValue: offlineHlsUrl },
-                decoderIsLive: { booleanValue: isLive },
-                decoderStreamUrl: { stringValue: streamUrl },
-                mode: { stringValue: docKey === 'decoder' ? 'different' : 'same' }
-              }
-            };
-            
-            const firestoreDocUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${docKey}`;
-            docCache.set(firestoreDocUrl, { timestamp: Date.now(), data: mockDoc });
-            
-            if (cache) {
-              try {
-                const cacheKeyUrl = getCacheKeyUrl(firestoreDocUrl, url.origin);
-                const cacheKey = new Request(cacheKeyUrl);
-                const bodyStr = JSON.stringify(mockDoc);
-                const bodyBytes = new TextEncoder().encode(bodyStr);
-                const cacheResponse = new Response(bodyBytes, {
-                  status: 200,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'public, max-age=86400',
-                    'Content-Length': bodyBytes.length.toString()
-                  }
-                });
-                await cache.put(cacheKey, cacheResponse);
-              } catch (e) {}
+          }
+          
+          // Build unified main & decoder docCache
+          const mockMain = await resolveStreamDoc('main', env);
+          docCache.set('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/main', { timestamp: Date.now(), data: mockMain });
+          const mockDec = await resolveStreamDoc('decoder', env);
+          docCache.set('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/decoder', { timestamp: Date.now(), data: mockDec });
+
+          for (const docKey of Object.keys(feeds)) {
+            if (docKey !== 'main' && docKey !== 'decoder') {
+              const mockDoc = await resolveStreamDoc(docKey, env);
+              docCache.set(`https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${docKey}`, { timestamp: Date.now(), data: mockDoc });
             }
           }
           
@@ -860,11 +925,15 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
     if (path.startsWith('/updatestreamstate')) {
       const doc = url.searchParams.get('doc') || 'main';
       const streamUrl = url.searchParams.get('url') || '';
+      const decoderUrl = url.searchParams.get('decoderUrl') || '';
       const backupStreamUrl = url.searchParams.get('backupUrl') || '';
       const isLive = url.searchParams.get('isLive') !== 'false';
+      const modeParam = url.searchParams.get('mode') || '';
       const hasIsTokenized = url.searchParams.has('isTokenized');
       const isTokenized = url.searchParams.get('isTokenized') === 'true';
+      const offlineHlsUrl = url.searchParams.get('offlineHlsUrl') || '';
 
+      const now = Date.now();
       const existingMem = memoryStore.get(doc) || {};
       const updatedMem = {
         ...existingMem,
@@ -872,7 +941,8 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
         streamUrl: streamUrl || (url.searchParams.has('url') ? streamUrl : existingMem.streamUrl || ''),
         backupStreamUrl: backupStreamUrl || existingMem.backupStreamUrl || '',
         isTokenized: hasIsTokenized ? isTokenized : (existingMem.isTokenized !== undefined ? existingMem.isTokenized : false),
-        updatedAt: Date.now()
+        offlineHlsUrl: offlineHlsUrl || existingMem.offlineHlsUrl || '',
+        updatedAt: now
       };
       memoryStore.set(doc, updatedMem);
 
@@ -882,52 +952,55 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
         } catch (e) {}
       }
 
-      const activeUrl = streamUrl || (url.searchParams.has('url') ? streamUrl : existingMem.streamUrl || '');
-      const activeBackup = backupStreamUrl || existingMem.backupStreamUrl || '';
-
-      const mockDoc = {
-        name: `projects/jtbs-classic/databases/(default)/documents/streamState/${doc}`,
-        fields: {
-          isLive: { booleanValue: isLive },
-          streamUrl: { stringValue: activeUrl },
-          backupStreamUrl: { stringValue: activeBackup },
-          isTokenized: { booleanValue: hasIsTokenized ? isTokenized : !!existingMem.isTokenized },
-          decoderIsLive: { booleanValue: isLive },
-          decoderStreamUrl: { stringValue: activeUrl },
-          mode: { stringValue: doc === 'decoder' ? 'different' : 'same' }
+      // If updating 'main', keep 'decoder' in sync if mode is same or decoderUrl is provided
+      if (doc === 'main') {
+        const isSameMode = modeParam === 'same' || (!decoderUrl && modeParam !== 'different');
+        if (decoderUrl) {
+          const decMem = {
+            isLive,
+            streamUrl: decoderUrl,
+            backupStreamUrl: backupStreamUrl || '',
+            isTokenized: false,
+            offlineHlsUrl: offlineHlsUrl || '',
+            updatedAt: now
+          };
+          memoryStore.set('decoder', decMem);
+          if (env && env.JTBS_DB) {
+            try { await env.JTBS_DB.put('streamState:decoder', JSON.stringify(decMem)); } catch (e) {}
+          }
+        } else if (isSameMode) {
+          const decMem = { ...updatedMem };
+          memoryStore.set('decoder', decMem);
+          if (env && env.JTBS_DB) {
+            try { await env.JTBS_DB.put('streamState:decoder', JSON.stringify(decMem)); } catch (e) {}
+          }
         }
-      };
-
-      const firestoreDocUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${doc}`;
-      const cacheKeyUrl = getCacheKeyUrl(firestoreDocUrl, url.origin);
-      const cacheKey = new Request(cacheKeyUrl);
-      const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
-      let cacheDebug = 'no-cache';
-
-      if (cache) {
-        try {
-          const bodyStr = JSON.stringify(mockDoc);
-          const bodyBytes = new TextEncoder().encode(bodyStr);
-          const cacheResponse = new Response(bodyBytes, {
-            status: 200,
-            headers: {
-              'Content-Type': 'application/json',
-              'Cache-Control': 'public, max-age=2',
-              'Content-Length': bodyBytes.length.toString()
-            }
-          });
-          await cache.put(cacheKey, cacheResponse);
-          cacheDebug = 'put-success';
-        } catch (e) {
-          cacheDebug = 'put-error: ' + e.message;
-        }
-      } else {
-        cacheDebug = 'caches-default-undefined';
       }
 
-      docCache.set(firestoreDocUrl, { timestamp: Date.now(), data: mockDoc });
+      // If updating 'decoder', ensure memoryStore has 'decoder' and update main docCache
+      if (doc === 'decoder') {
+        const mainMem = memoryStore.get('main') || {};
+        memoryStore.set('main', { ...mainMem, updatedAt: now });
+      }
 
-      return new Response(JSON.stringify({ success: true, doc, isLive, streamUrl, cacheDebug, cacheKeyUrl }), {
+      // Re-resolve mock documents and update docCache
+      const mockMain = await resolveStreamDoc('main', env);
+      const firestoreMainUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/main`;
+      docCache.set(firestoreMainUrl, { timestamp: now, data: mockMain });
+
+      if (doc !== 'main') {
+        const mockThisDoc = await resolveStreamDoc(doc, env);
+        const firestoreThisUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${doc}`;
+        docCache.set(firestoreThisUrl, { timestamp: now, data: mockThisDoc });
+      }
+
+      return new Response(JSON.stringify({ 
+        success: true, 
+        doc, 
+        isLive, 
+        streamUrl: updatedMem.streamUrl,
+        decoderStreamUrl: memoryStore.get('decoder')?.streamUrl || updatedMem.streamUrl
+      }), {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
@@ -1394,8 +1467,12 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       '/main': { doc: 'main', type: 'public' },
       '/main.m3u8': { doc: 'main', type: 'public' },
       '/stream.m3u8': { doc: 'main', type: 'public' },
+      '/channel': { doc: 'main', type: 'public' },
+      '/channel.m3u8': { doc: 'main', type: 'public' },
       '/decoder': { doc: 'main', type: 'decoder' },
       '/decoder.m3u8': { doc: 'main', type: 'decoder' },
+      '/channel-decoder': { doc: 'main', type: 'decoder' },
+      '/channel-decoder.m3u8': { doc: 'main', type: 'decoder' },
       '/live1': { doc: 'feed1', type: 'public' },
       '/live1.m3u8': { doc: 'feed1', type: 'public' },
       '/live2': { doc: 'feed2', type: 'public' },
@@ -1454,7 +1531,13 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       });
     }
 
-    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${target.doc}`;
+    let targetDoc = target.doc;
+    const requestedChannel = url.searchParams.get('channel') || url.searchParams.get('feed');
+    if (requestedChannel && (requestedChannel === 'main' || requestedChannel.startsWith('feed') || requestedChannel === 'srinjana' || requestedChannel === 'decoder')) {
+      targetDoc = requestedChannel;
+    }
+
+    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${targetDoc}`;
     const mainConfigUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/main`;
 
     let isLive = false;
@@ -1462,36 +1545,28 @@ ${channelHeaderXml}${programmesXml}</tv>`;
     let backupStreamUrl = '';
     let offlineHlsUrl = '';
     let defaultOfflineHlsUrl = '';
+    let isTokenized = false;
 
     try {
       // Get main config for global default offline URL
       try {
-        const mainData = await getCachedFirestoreDoc(mainConfigUrl, url.origin);
+        const mainData = await getCachedFirestoreDoc(mainConfigUrl, url.origin, env);
         if (mainData) {
           const mainFields = mainData.fields || {};
           defaultOfflineHlsUrl = parseFirestoreString(mainFields.offlineHlsUrl) || parseFirestoreString(mainFields.offlineVideoUrl);
         }
       } catch (e) {}
 
-      // Fetch channel state from RAM/Firestore cache (fresh 2s TTL)
-      const data = await getCachedFirestoreDoc(firestoreUrl, url.origin);
-      const fields = data ? (data.fields || data) : {};
-      const channelMode = parseFirestoreString(fields.mode) || 'same';
+      // Fetch channel state from RAM/KV/Firestore with full resilience
+      const isDecoderChannel = target.type === 'decoder';
+      const resolvedDoc = await resolveStreamDoc(targetDoc, env);
+      const fields = resolvedDoc ? (resolvedDoc.fields || resolvedDoc) : {};
 
-      let isTokenized = false;
-
-      if (target.type === 'decoder') {
-        if (channelMode === 'different') {
-          isLive = parseFirestoreBool(fields.decoderIsLive);
-          streamUrl = parseFirestoreString(fields.decoderStreamUrl);
-          backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
-          offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
-        } else {
-          isLive = parseFirestoreBool(fields.decoderIsLive) || parseFirestoreBool(fields.isLive);
-          streamUrl = parseFirestoreString(fields.decoderStreamUrl) || parseFirestoreString(fields.streamUrl);
-          backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
-          offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
-        }
+      if (isDecoderChannel) {
+        isLive = parseFirestoreBool(fields.decoderIsLive);
+        streamUrl = parseFirestoreString(fields.decoderStreamUrl);
+        backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
+        offlineHlsUrl = parseFirestoreString(fields.decoderOfflineHlsUrl) || parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
       } else {
         isLive = parseFirestoreBool(fields.isLive);
         streamUrl = parseFirestoreString(fields.streamUrl);
@@ -1499,6 +1574,10 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         offlineHlsUrl = parseFirestoreString(fields.offlineHlsUrl) || defaultOfflineHlsUrl;
       }
       isTokenized = parseFirestoreBool(fields.isTokenized);
+
+      if (streamUrl && streamUrl.includes(url.hostname) && (streamUrl.includes('/decoder') || streamUrl.includes('/live') || streamUrl.includes('/channel') || streamUrl.includes('/stream'))) {
+        return new Response('Recursive Stream Loop Detected', { status: 400 });
+      }
 
       // ── MASTER NETWORK TAKEOVER OVERRIDE (GODFATHER SUPREME) ────
       let masterOverrideActive = false;
@@ -1510,7 +1589,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
           } catch (e) {}
         }
         if (!masterData) {
-          const mDoc = await getCachedFirestoreDoc('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/masterOverride', url.origin);
+          const mDoc = await getCachedFirestoreDoc('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/masterOverride', url.origin, env);
           if (mDoc && mDoc.fields) {
             masterData = {
               enabled: parseFirestoreBool(mDoc.fields.enabled),
@@ -1572,7 +1651,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         // 2. Check config/vipTokens master registry in Firestore
         if (!tokenObj) {
           const vipConfigUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/config/vipTokens`;
-          const vipConfigDoc = await getCachedFirestoreDoc(vipConfigUrl, url.origin);
+          const vipConfigDoc = await getCachedFirestoreDoc(vipConfigUrl, url.origin, env);
           if (vipConfigDoc && vipConfigDoc.fields && vipConfigDoc.fields.tokens && vipConfigDoc.fields.tokens.mapValue && vipConfigDoc.fields.tokens.mapValue.fields) {
             const tMap = vipConfigDoc.fields.tokens.mapValue.fields;
             if (tMap[clientToken] && tMap[clientToken].mapValue && tMap[clientToken].mapValue.fields) {
@@ -1589,7 +1668,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         // 2. Fallback to tokens collection if not in config/vipTokens
         if (!tokenObj) {
           const tokenDocUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/tokens/${encodeURIComponent(clientToken)}`;
-          const tokenData = await getCachedFirestoreDoc(tokenDocUrl, url.origin);
+          const tokenData = await getCachedFirestoreDoc(tokenDocUrl, url.origin, env);
           if (tokenData && tokenData.fields) {
             const tf = tokenData.fields;
             tokenObj = {
@@ -1648,7 +1727,6 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
       }
 
-      const isDecoderChannel = target.type === 'decoder';
       const currentSid = generateSid(streamUrl, backupStreamUrl, isLive, (isDecoderChannel ? 'decoder_' : '') + target.doc);
 
       const targetOffline = offlineHlsUrl || defaultOfflineHlsUrl || '';
@@ -1714,25 +1792,32 @@ ${channelHeaderXml}${programmesXml}</tv>`;
         }
 
         let streamRes;
+        let failReason = '';
         try {
           const clientUA = request.headers.get('User-Agent') || '';
           const fetchUA = (clientUA.includes('VLC') || clientUA.includes('Lavf') || clientUA.includes('ExoPlayer')) 
             ? clientUA 
-            : 'VLC/3.0.18 LibVLC/3.0.18';
+            : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+          const reqHeaders = {
+            'User-Agent': fetchUA,
+            'Accept': '*/*'
+          };
+          if (cleanCandidate.includes('.trycloudflare.com') || cleanCandidate.includes('.cfargotunnel.com')) {
+            reqHeaders['cf-tunnel-skip-offline-page'] = 'true';
+          }
 
           streamRes = await fetch(targetUrlWithCookie, {
             redirect: 'follow',
-            headers: {
-              'User-Agent': fetchUA,
-              'Accept': '*/*',
-              'cf-tunnel-skip-offline-page': 'true'
-            }
+            headers: reqHeaders
           });
         } catch (e) {
+          failReason = 'fetch-ex: ' + e.message;
           return null; // Network drop / connection refused / DNS failure
         }
 
         if (!streamRes || !streamRes.ok) {
+          failReason = 'status-' + (streamRes ? streamRes.status : 'null');
           return null; // HTTP 404 / 502 / 530 / timeout
         }
 
@@ -1747,6 +1832,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
           }
           const rawBody = await streamRes.text();
           if (!rawBody || (!rawBody.includes('#EXTM3U') && !rawBody.includes('#EXTINF'))) {
+            failReason = 'not-valid-hls';
             return null; // Not valid HLS manifest
           }
 
@@ -1764,6 +1850,7 @@ ${channelHeaderXml}${programmesXml}</tv>`;
             }
           });
         } catch (e) {
+          failReason = 'rewrite-ex: ' + e.message;
           return null;
         }
       };
