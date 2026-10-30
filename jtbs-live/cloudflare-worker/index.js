@@ -213,7 +213,7 @@ async function resolveStreamDoc(docName, env) {
   if (cache) {
     if (!mainMem) {
       try {
-        const mRes = await cache.match(new Request('http://jtbsclassic.dpdns.org/__internal_state__/streamState/main'));
+        const mRes = await cache.match(new Request('https://jtbsclassic.dpdns.org/__internal_state__/streamState/main'));
         if (mRes) {
           mainMem = await mRes.json();
           memoryStore.set('main', mainMem);
@@ -222,7 +222,7 @@ async function resolveStreamDoc(docName, env) {
     }
     if (!decoderMem) {
       try {
-        const dRes = await cache.match(new Request('http://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder'));
+        const dRes = await cache.match(new Request('https://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder'));
         if (dRes) {
           decoderMem = await dRes.json();
           memoryStore.set('decoder', decoderMem);
@@ -253,32 +253,55 @@ async function resolveStreamDoc(docName, env) {
   }
 
   if (docName === 'main' || docName === 'decoder') {
-    if (!mainMem) {
+    const isStale = !mainMem || !decoderMem || (Date.now() - (mainMem.updatedAt || 0) > 3000);
+    if (isStale) {
       try {
         const fsRes = await fetch('https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/main', { headers: { 'Accept': 'application/json' } });
         if (fsRes.ok) {
           const fsData = await fsRes.json();
           const f = fsData.fields || {};
+          const fsMode = parseFirestoreString(f.mode) || 'same';
+          const fsIsMainLive = parseFirestoreBool(f.isLive) && !!parseFirestoreString(f.streamUrl) && parseFirestoreString(f.playMode) !== 'offair';
+          const fsIsDecLive = (fsMode === 'different')
+            ? (parseFirestoreBool(f.decoderIsLive) && !!parseFirestoreString(f.decoderStreamUrl) && parseFirestoreString(f.decoderPlayMode) !== 'offair')
+            : fsIsMainLive;
+
           mainMem = {
-            isLive: parseFirestoreBool(f.isLive),
-            streamUrl: parseFirestoreString(f.streamUrl),
+            isLive: fsIsMainLive,
+            streamUrl: fsIsMainLive ? parseFirestoreString(f.streamUrl) : '',
             backupStreamUrl: parseFirestoreString(f.backupStreamUrl),
             isTokenized: parseFirestoreBool(f.isTokenized),
             offlineHlsUrl: parseFirestoreString(f.offlineHlsUrl),
+            mode: fsMode,
+            playMode: fsIsMainLive ? (parseFirestoreString(f.playMode) || 'live') : 'offair',
             updatedAt: Date.now()
           };
           memoryStore.set('main', mainMem);
+
+          decoderMem = {
+            isLive: fsIsDecLive,
+            streamUrl: fsIsDecLive ? parseFirestoreString(f.decoderStreamUrl) : '',
+            backupStreamUrl: parseFirestoreString(f.decoderBackupStreamUrl),
+            isTokenized: false,
+            offlineHlsUrl: parseFirestoreString(f.decoderOfflineHlsUrl),
+            playMode: fsIsDecLive ? (parseFirestoreString(f.decoderPlayMode) || 'live') : 'offair',
+            updatedAt: Date.now()
+          };
+          memoryStore.set('decoder', decoderMem);
         }
       } catch (e) {}
     }
 
-    const isMainLive = mainMem ? (mainMem.isLive === true && !!mainMem.streamUrl) : false;
-    const isDecLive = decoderMem ? (decoderMem.isLive === true && !!decoderMem.streamUrl) : isMainLive;
+    const isMainLive = mainMem ? (mainMem.isLive === true && !!mainMem.streamUrl && mainMem.playMode !== 'offair') : false;
+    const isDecLive = decoderMem ? (decoderMem.isLive === true && !!decoderMem.streamUrl && decoderMem.playMode !== 'offair') : (mainMem?.mode === 'different' ? false : isMainLive);
 
     const mainStreamUrl = isMainLive ? (mainMem?.streamUrl || '') : '';
-    const decStreamUrl = isDecLive ? (decoderMem?.streamUrl || mainStreamUrl) : '';
+    const decStreamUrl = isDecLive ? (decoderMem?.streamUrl || (mainMem?.mode === 'different' ? '' : mainStreamUrl)) : '';
 
-    const isDiff = !!(decoderMem?.streamUrl && decoderMem.streamUrl !== mainMem?.streamUrl);
+    const isDiff = (mainMem?.mode === 'different') || !!(
+      (decoderMem && decoderMem.isLive !== undefined && decoderMem.isLive !== isMainLive) ||
+      (decoderMem?.streamUrl && decoderMem.streamUrl !== mainStreamUrl)
+    );
     const mode = isDiff ? 'different' : 'same';
 
     return {
@@ -305,7 +328,7 @@ async function resolveStreamDoc(docName, env) {
   let feedMem = memoryStore.get(docName);
   if (!feedMem && cache) {
     try {
-      const fRes = await cache.match(new Request(`http://jtbsclassic.dpdns.org/__internal_state__/streamState/${docName}`));
+      const fRes = await cache.match(new Request(`https://jtbsclassic.dpdns.org/__internal_state__/streamState/${docName}`));
       if (fRes) {
         feedMem = await fRes.json();
         memoryStore.set(docName, feedMem);
@@ -742,32 +765,6 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
     }
 
 
-    if (path === '/api/test-cache') {
-      const cache = (typeof caches !== 'undefined' && caches.default) ? caches.default : null;
-      if (!cache) return new Response('No Cache API');
-      
-      const firestoreUrl = 'https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/main';
-      const localUrl = `${url.origin}/api-cache/streamState/main`;
-      
-      const resFirestore = await cache.match(new Request(firestoreUrl));
-      const resLocal = await cache.match(new Request(localUrl));
-      
-      let out = '';
-      if (resFirestore) {
-        out += 'Firestore Match Success: ' + (await resFirestore.text()) + '\n';
-      } else {
-        out += 'Firestore Match Null for: ' + firestoreUrl + '\n';
-      }
-      
-      if (resLocal) {
-        out += 'Local Match Success: ' + (await resLocal.text()) + '\n';
-      } else {
-        out += 'Local Match Null for: ' + localUrl + '\n';
-      }
-      
-      return new Response(out, { headers: { 'Access-Control-Allow-Origin': '*' } });
-    }
-
     if (path.startsWith('/api/')) {
       const subPath = url.pathname.substring(5);
       const method = request.method;
@@ -931,7 +928,7 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
 
             if (cache) {
               try {
-                const req = new Request(`http://jtbsclassic.dpdns.org/__internal_state__/streamState/${docKey}`);
+                const req = new Request(`https://jtbsclassic.dpdns.org/__internal_state__/streamState/${docKey}`);
                 const res = new Response(JSON.stringify(feedObj), {
                   headers: {
                     'Content-Type': 'application/json',
@@ -1048,9 +1045,10 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
       };
       memoryStore.set(doc, updatedMem);
 
+      let cacheError = null;
       if (cache) {
         try {
-          const sReq = new Request(`http://jtbsclassic.dpdns.org/__internal_state__/streamState/${doc}`);
+          const sReq = new Request(`https://jtbsclassic.dpdns.org/__internal_state__/streamState/${doc}`);
           const sRes = new Response(JSON.stringify(updatedMem), {
             headers: {
               'Content-Type': 'application/json',
@@ -1058,7 +1056,11 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
             }
           });
           await cache.put(sReq, sRes);
-        } catch (e) {}
+        } catch (e) {
+          cacheError = e.message;
+        }
+      } else {
+        cacheError = 'No Cache API';
       }
 
       let kvError = null;
@@ -1087,7 +1089,7 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
           memoryStore.set('decoder', decMem);
           if (cache) {
             try {
-              const dReq = new Request(`http://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder`);
+              const dReq = new Request(`https://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder`);
               const dRes = new Response(JSON.stringify(decMem), {
                 headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400' }
               });
@@ -1102,7 +1104,7 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
           memoryStore.set('decoder', decMem);
           if (cache) {
             try {
-              const dReq = new Request(`http://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder`);
+              const dReq = new Request(`https://jtbsclassic.dpdns.org/__internal_state__/streamState/decoder`);
               const dRes = new Response(JSON.stringify(decMem), {
                 headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400' }
               });
@@ -1138,7 +1140,8 @@ if (path === '/epg/worker.json' || path === '/worker.json') {
         isLive, 
         streamUrl: updatedMem.streamUrl,
         decoderStreamUrl: memoryStore.get('decoder')?.streamUrl || updatedMem.streamUrl,
-        kvError
+        kvError,
+        cacheError
       }), {
         status: 200,
         headers: {

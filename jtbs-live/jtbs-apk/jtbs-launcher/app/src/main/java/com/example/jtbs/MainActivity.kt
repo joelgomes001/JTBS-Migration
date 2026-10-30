@@ -817,22 +817,26 @@ class MainActivity : Activity() {
         
         if (!isOffline && url != null) {
             val isYouTube = url.contains("youtube.com") || url.contains("youtu.be")
-            if (isYouTube && mode == "offair") {
-                val now = System.currentTimeMillis()
-                val updatedAtMs = state.updatedAtMs ?: now
-                val elapsed = Math.max(0L, (now - updatedAtMs) / 1000)
-                
-                val hasCustomPlaylist = state.selectedVideos.isNotEmpty() && state.videoDurations.isNotEmpty()
-                if (hasCustomPlaylist) {
-                    val totalD = state.videoDurations.sum()
-                    if (elapsed >= totalD) {
-                        isOffline = true
+            if (mode == "offair") {
+                if (isYouTube) {
+                    val now = System.currentTimeMillis()
+                    val updatedAtMs = state.updatedAtMs ?: now
+                    val elapsed = Math.max(0L, (now - updatedAtMs) / 1000)
+                    
+                    val hasCustomPlaylist = state.selectedVideos.isNotEmpty() && state.videoDurations.isNotEmpty()
+                    if (hasCustomPlaylist) {
+                        val totalD = state.videoDurations.sum()
+                        if (elapsed >= totalD) {
+                            isOffline = true
+                        }
+                    } else {
+                        val duration = state.duration ?: 0
+                        if (duration > 0 && elapsed >= duration) {
+                            isOffline = true
+                        }
                     }
                 } else {
-                    val duration = state.duration ?: 0
-                    if (duration > 0 && elapsed >= duration) {
-                        isOffline = true
-                    }
+                    isOffline = true
                 }
             }
         }
