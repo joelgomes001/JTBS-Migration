@@ -16,6 +16,84 @@ function base64ToUint8Array(base64) {
   return bytes;
 }
 
+function readPts(b, offset) {
+  const b0 = b[offset], b1 = b[offset+1], b2 = b[offset+2], b3 = b[offset+3], b4 = b[offset+4];
+  const high = (b0 & 0x0E) >> 1;
+  const mid = ((b1 & 0xFF) << 7) | ((b2 & 0xFE) >> 1);
+  const low = ((b3 & 0xFF) << 7) | ((b4 & 0xFE) >> 1);
+  return (high * 0x40000000) + (mid * 0x8000) + low;
+}
+
+function writePts(b, offset, pts, prefix) {
+  const ptsNorm = pts % 0x200000000;
+  const p32_30 = Math.floor(ptsNorm / 0x40000000) & 0x07;
+  const p29_15 = Math.floor(ptsNorm / 0x8000) & 0x7fff;
+  const p14_0  = ptsNorm & 0x7fff;
+  b[offset]   = (prefix << 4) | (p32_30 << 1) | 1;
+  b[offset+1] = (p29_15 >> 7) & 0xff;
+  b[offset+2] = ((p29_15 & 0x7f) << 1) | 1;
+  b[offset+3] = (p14_0 >> 7) & 0xff;
+  b[offset+4] = ((p14_0 & 0x7f) << 1) | 1;
+}
+
+function readPcr(b, offset) {
+  const b0 = b[offset], b1 = b[offset+1], b2 = b[offset+2], b3 = b[offset+3], b4 = b[offset+4], b5 = b[offset+5];
+  const base = (b0 * 0x2000000) + (b1 << 17) + (b2 << 9) + (b3 << 1) + (b4 >> 7);
+  const ext = ((b4 & 1) << 8) | b5;
+  return { base, ext };
+}
+
+function writePcr(b, offset, base, ext) {
+  const bNorm = base % 0x200000000;
+  b[offset]   = (Math.floor(bNorm / 0x2000000)) & 0xff;
+  b[offset+1] = (Math.floor(bNorm / 0x20000)) & 0xff;
+  b[offset+2] = (Math.floor(bNorm / 0x200)) & 0xff;
+  b[offset+3] = (Math.floor(bNorm / 2)) & 0xff;
+  b[offset+4] = ((bNorm & 1) << 7) | 0x7e | ((ext >> 8) & 1);
+  b[offset+5] = ext & 0xff;
+}
+
+function adjustSlateTimestamps(buffer, seq) {
+  const delta = (seq * 180000) % 0x200000000;
+  const copy = new Uint8Array(buffer);
+  const len = copy.length;
+  for (let i = 0; i < len; i += 188) {
+    if (copy[i] !== 0x47) break;
+    const pusi = (copy[i + 1] & 0x40) !== 0;
+    const afc = (copy[i + 3] >> 4) & 0x03;
+    let offset = i + 4;
+    if (afc === 2 || afc === 3) {
+      const afLen = copy[offset];
+      if (afLen > 0) {
+        const flags = copy[offset + 1];
+        if ((flags & 0x10) !== 0) {
+          const pcr = readPcr(copy, offset + 2);
+          writePcr(copy, offset + 2, pcr.base + delta, pcr.ext);
+        }
+      }
+      offset += 1 + afLen;
+    }
+    if (pusi && offset + 9 < i + 188) {
+      if (copy[offset] === 0x00 && copy[offset + 1] === 0x00 && copy[offset + 2] === 0x01) {
+        const flags = copy[offset + 7];
+        const ptsFlag = (flags & 0x80) !== 0;
+        const dtsFlag = (flags & 0x40) !== 0;
+        if (ptsFlag && offset + 14 < i + 188) {
+          const oldPts = readPts(copy, offset + 9);
+          const prefix = copy[offset + 9] >> 4;
+          writePts(copy, offset + 9, oldPts + delta, prefix);
+          if (dtsFlag && offset + 19 < i + 188) {
+            const oldDts = readPts(copy, offset + 14);
+            const dtsPrefix = copy[offset + 14] >> 4;
+            writePts(copy, offset + 14, oldDts + delta, dtsPrefix);
+          }
+        }
+      }
+    }
+  }
+  return copy;
+}
+
 function deduplicateCookies(cookieStr) {
   if (!cookieStr) return '';
   const seen = new Set();
@@ -144,62 +222,26 @@ async function getActiveChannelSid(docName, isDecoder, env, workerOrigin) {
     }
   } catch (e) {}
 
-  let memData = null;
-  if (isDecoder) {
-    memData = memoryStore.get('decoder') || memoryStore.get('main');
-  } else {
-    memData = memoryStore.get(docName);
-  }
-
-  // If in-memory state explicitly marks stream as offline, return 'off' immediately
-  // to prevent stale KV records or Firestore 429 retries from resurrecting old feeds
-  if (memData && (!memData.isLive || !memData.streamUrl)) {
-    return 'off';
-  }
-
-  if (!memData && env && env.JTBS_DB) {
-    try {
-      const kvKey = 'streamState:' + (isDecoder ? 'decoder' : docName);
-      const kvData = await env.JTBS_DB.get(kvKey, { type: 'json' });
-      if (kvData && typeof kvData === 'object' && kvData.streamUrl) {
-        memData = kvData;
-        memoryStore.set(isDecoder ? 'decoder' : docName, kvData);
-      }
-    } catch (e) {}
-  }
-
   try {
-    const firestoreUrl = `https://firestore.googleapis.com/v1/projects/jtbs-classic/databases/(default)/documents/streamState/${docName}`;
-    const data = await getCachedFirestoreDoc(firestoreUrl, workerOrigin);
-    const fields = data ? (data.fields || data) : {};
-    if (fields) {
-      if (isDecoder) {
-        const mode = parseFirestoreString(fields.mode) || 'same';
-        if (mode === 'different') {
-          memData = {
-            isLive: parseFirestoreBool(fields.decoderIsLive),
-            streamUrl: parseFirestoreString(fields.decoderStreamUrl),
-            backupStreamUrl: parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl)
-          };
-        } else {
-          memData = {
-            isLive: parseFirestoreBool(fields.decoderIsLive) || parseFirestoreBool(fields.isLive),
-            streamUrl: parseFirestoreString(fields.decoderStreamUrl) || parseFirestoreString(fields.streamUrl),
-            backupStreamUrl: parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl)
-          };
-        }
-      } else {
-        memData = {
-          isLive: parseFirestoreBool(fields.isLive),
-          streamUrl: parseFirestoreString(fields.streamUrl),
-          backupStreamUrl: parseFirestoreString(fields.backupStreamUrl)
-        };
-      }
+    const resolvedDoc = await resolveStreamDoc(docName, env);
+    const fields = resolvedDoc ? (resolvedDoc.fields || resolvedDoc) : {};
+    let isLive = false;
+    let streamUrl = '';
+    let backupStreamUrl = '';
+    if (isDecoder) {
+      isLive = parseFirestoreBool(fields.decoderIsLive);
+      streamUrl = parseFirestoreString(fields.decoderStreamUrl);
+      backupStreamUrl = parseFirestoreString(fields.decoderBackupStreamUrl) || parseFirestoreString(fields.backupStreamUrl);
+    } else {
+      isLive = parseFirestoreBool(fields.isLive);
+      streamUrl = parseFirestoreString(fields.streamUrl);
+      backupStreamUrl = parseFirestoreString(fields.backupStreamUrl);
     }
-  } catch (e) {}
-
-  if (!memData) return 'off';
-  return generateSid(memData.streamUrl, memData.backupStreamUrl, memData.isLive, (isDecoder ? 'decoder_' : '') + docName);
+    if (!isLive || !streamUrl) return 'off';
+    return generateSid(streamUrl, backupStreamUrl, isLive, (isDecoder ? 'decoder_' : '') + docName);
+  } catch (e) {
+    return null;
+  }
 }
 
 function getCacheKeyUrl(firestoreUrl, workerOrigin) {
@@ -438,7 +480,7 @@ async function getCachedFirestoreDoc(url, workerOrigin, env) {
   const cached = docCache.get(url);
   
   // Stream state and decoder controls should be real-time (bypass 24h edge cache, 3s RAM cache)
-  const isRealTime = url.includes('/streamState/') || url.includes('/decoderControl/') || url.includes('/decoderStatus/');
+  const isRealTime = url.includes('/streamState/') || url.includes('/decoderControl/') || url.includes('/decoderStatus/') || url.includes('/masterOverride');
   const maxMemAge = isRealTime ? 3000 : 15000;
 
   // 1. In-memory cache
@@ -655,15 +697,20 @@ export default {
 #EXT-X-INDEPENDENT-SEGMENTS
 #EXT-X-TARGETDURATION:${dur}
 #EXT-X-MEDIA-SEQUENCE:${startSeq}
+#EXT-X-DISCONTINUITY-SEQUENCE:${startSeq}
 #EXT-X-DISCONTINUITY
 #EXTINF:${dur}.0,
 ${proxiedVideoUrl}
+#EXT-X-DISCONTINUITY
 #EXTINF:${dur}.0,
 ${proxiedVideoUrl}
+#EXT-X-DISCONTINUITY
 #EXTINF:${dur}.0,
 ${proxiedVideoUrl}
+#EXT-X-DISCONTINUITY
 #EXTINF:${dur}.0,
 ${proxiedVideoUrl}
+#EXT-X-DISCONTINUITY
 #EXTINF:${dur}.0,
 ${proxiedVideoUrl}`;
     };
@@ -720,11 +767,14 @@ ${proxiedVideoUrl}`;
 #EXT-X-INDEPENDENT-SEGMENTS
 #EXT-X-TARGETDURATION:${dur}
 #EXT-X-MEDIA-SEQUENCE:${currentSeq}
+#EXT-X-DISCONTINUITY-SEQUENCE:${currentSeq}
 #EXT-X-DISCONTINUITY
 #EXTINF:${dur}.0,
 ${workerOrigin}/offline-slate.ts?seq=${currentSeq}
+#EXT-X-DISCONTINUITY
 #EXTINF:${dur}.0,
 ${workerOrigin}/offline-slate.ts?seq=${currentSeq + 1}
+#EXT-X-DISCONTINUITY
 #EXTINF:${dur}.0,
 ${workerOrigin}/offline-slate.ts?seq=${currentSeq + 2}`;
 
@@ -741,8 +791,10 @@ ${workerOrigin}/offline-slate.ts?seq=${currentSeq + 2}`;
       });
     };
 
-        if (path === '/offline-slate.ts' || path === '/slate.ts') {
-      const slateBytes = base64ToUint8Array(OFFLINE_SLATE_BASE64);
+    if (path === '/offline-slate.ts' || path === '/slate.ts') {
+      const rawBytes = base64ToUint8Array(OFFLINE_SLATE_BASE64);
+      const seq = parseInt(url.searchParams.get('seq') || '0', 10);
+      const slateBytes = seq > 0 ? adjustSlateTimestamps(rawBytes, seq) : rawBytes;
       return new Response(slateBytes, {
         status: 200,
         headers: {
@@ -1481,37 +1533,22 @@ ${channelHeaderXml}${programmesXml}</tv>`;
       const isPlaylistReq = !isMediaSegment && (targetUrl.includes('.m3u8') || targetUrl.includes('mpegurl'));
 
       // ── ON-THE-FLY STREAM INVALIDATION ENGINE ─────────────────────────
-      // Instantly detects if the client player is asking for an older stream version
-      if (passedSid) {
+      // Only invalidate playlist sub-variants when a genuine stream transition occurred
+      if (passedSid && isPlaylistReq) {
         const currentSid = await getActiveChannelSid(docName, isDecoder, env, url.origin);
-        if (currentSid && passedSid !== currentSid) {
-          // 1. Playlists: Signal immediate end of old sub-variant to force player back to master manifest
-          if (isPlaylistReq) {
-            return new Response('#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:1\n#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-ENDLIST\n', {
-              status: 200,
-              headers: {
-                'Content-Type': 'application/vnd.apple.mpegurl',
-                'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-                'Pragma': 'no-cache',
-                'Expires': '0',
-                'Access-Control-Allow-Origin': '*',
-                'X-JTBS-Switch': 'invalidated-playlist'
-              }
-            });
-          }
-
-          // 2. Chunks: Return 410 Gone for old segments so player buffer purges and does not mix codecs
-          if (isMediaSegment) {
-            return new Response('410 Gone: Stream transitioned to new source', {
-              status: 410,
-              headers: {
-                'Content-Type': 'text/plain',
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Access-Control-Allow-Origin': '*',
-                'X-JTBS-Switch': 'stale-segment'
-              }
-            });
-          }
+        if (currentSid && passedSid !== currentSid && currentSid !== 'unknown') {
+          // Signal immediate end of old sub-variant to force player back to master manifest
+          return new Response('#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:1\n#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-ENDLIST\n', {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/vnd.apple.mpegurl',
+              'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+              'Pragma': 'no-cache',
+              'Expires': '0',
+              'Access-Control-Allow-Origin': '*',
+              'X-JTBS-Switch': 'invalidated-playlist'
+            }
+          });
         }
       }
 
